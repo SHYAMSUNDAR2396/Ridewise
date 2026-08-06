@@ -1,6 +1,6 @@
 # Ridewise Sarvam Bilingual Architecture
 
-**Status:** Ready for review  
+**Status:** Approved  
 **Date:** 2026-08-06  
 **Scope:** Replace the planned AI providers with Sarvam AI and launch Ridewise with English and Hindi.
 
