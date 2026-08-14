@@ -44,6 +44,7 @@ Inherited verbatim from the base plan, with the language and provider constraint
 - Route lookup, low connectivity, and generation failures must preserve enough user input for a manual-duration retry.
 - Every text-to-speech segment must be 8,000 characters or fewer, split only at complete sentence boundaries.
 - The API returns only these error codes: `ROUTE_UNAVAILABLE`, `SCRIPT_GENERATION_FAILED`, `SPEECH_SYNTHESIS_FAILED`, `CAPSULE_TOO_LONG`, `AUDIO_UNAVAILABLE`. Never leak provider response bodies, voice IDs, or raw provider error text to the client.
+- **Reject unsafe, unreliable, or highly sensitive topics with a safe alternative suggestion** (carried forward from the base plan's Global Constraints, line 22). Enforcement is prompt-only: Task B's Script Agent prompt instructs the agent to decline and suggest an alternative topic; the API does not run its own keyword filter or classifier, and does not error when the agent declines — a decline **is** a valid script and is published like any other. See the added test in Task B Step 1.
 - **Out of scope for this MVP:** Hindi, two-host conversations, current-location shortcut, playback speed control, and the regenerate action.
 
 ---
@@ -60,6 +61,8 @@ Inherited verbatim from the base plan, with the language and provider constraint
 | **Task 3**, line 312 — `SpeechProvider.synthesize(transcript)` | See Override 3. Synthesis is per-segment and returns ordered segments. |
 | **Task 3 Step 3**, line 348 — `const audio = await this.speech.synthesize(script.transcript)` | See Override 3 Step 3. |
 | **Task 3 Step 3**, line 360 — OpenAI production providers | The production provider is `ElevenLabsProvider` from Task B. |
+| **Task 3 Step 4**, line 367 — `await capsuleService.create(input)` | See Override 3a. The route handler estimates the trip first and passes `tripSeconds` explicitly; `CapsuleService` no longer owns a `TripService`. |
+| **Task 3**, line 327-329 — unsafe-topic rejection test (`rejects an unsafe topic before calling the speech provider`) | Not carried over as a `CapsuleService`-level rejection. See the Global Constraints note above and the decline-test added to Task B Step 1. |
 | **Task 4 Step 1**, lines 409-413 — `create-expo-app`, Expo Router, Expo Audio | See Override 4. |
 | **Task 5 Step 4**, line 531 — `language: "en"` | `language: "en-IN"` |
 | **Task 6 Step 3**, line 622 — Expo Audio, speed selection | `react-native-track-player`; speed control is out of MVP scope. See Override 6. |
@@ -357,6 +360,18 @@ describe("parseScriptResponse", () => {
     expect(() => parseScriptResponse("Sure! Here is your script.")).toThrow(
       "SCRIPT_GENERATION_FAILED",
     );
+  });
+
+  it("accepts a decline-shaped script as a valid script, not an error", () => {
+    // The agent's own safe-alternative decline is well-formed {title, transcript} JSON.
+    // Enforcement of unsafe-topic handling is entirely prompt-side (see Global
+    // Constraints) — parseScriptResponse does not distinguish a decline from
+    // any other script and must not throw for one.
+    const parsed = parseScriptResponse(
+      '{"title":"Let\'s try a different topic","transcript":"I can\'t cover that topic, but here is a safe alternative: how India\'s metro systems changed city life."}',
+    );
+    expect(parsed.title).toBe("Let's try a different topic");
+    expect(parsed.transcript.length).toBeGreaterThan(0);
   });
 });
 
@@ -774,7 +789,62 @@ Run: `npm run test --workspace @commute-capsule/api -- capsule-service.test.ts`
 
 Expected: PASS, 4 tests.
 
-- [ ] **Step 5: Continue with the base plan's Task 3 Steps 4-6**, asserting `segments` rather than `audioUrl` in the HTTP integration test.
+- [ ] **Step 5: Continue with the base plan's Task 3 Steps 4-6**, asserting `segments` rather than `audioUrl` in the HTTP integration test, and applying Override 3a to Step 4's route handler below instead of the base plan's single-argument call.
+
+---
+
+## Override 3a: Route Handler Computes the Trip Estimate (replaces Base Task 3, Step 4's route body)
+
+`CapsuleService.create` (Override 3) takes `tripSeconds` as an explicit argument and no longer owns a `TripService`. The base plan's route handler called `capsuleService.create(input)` with the estimate computed inside the service; that call must change to estimate the trip first, using the `TripService` already built in Base Task 2, then pass the result in.
+
+**Interfaces:**
+- Consumes: `TripService.estimate(input: TripDraft): Promise<RouteEstimate>` from Base Task 2; `CapsuleService.create(request, tripSeconds)` from Override 3.
+
+- [ ] **Step 1 (replacement): Add `POST /v1/capsules` with an explicit trip-estimate step.**
+
+```ts
+app.post("/v1/capsules", async (request, reply) => {
+  const input = createCapsuleSchema.parse(request.body);
+  const trip = await tripService.estimate(input.trip);
+  const capsule = await capsuleService.create(input, trip.durationSeconds);
+  return reply.code(201).send(capsule);
+});
+```
+
+- [ ] **Step 2: Write the integration test.**
+
+```ts
+it("estimates the trip before generating, and returns 201 with ordered segments", async () => {
+  const app = buildApp({ tripService, capsuleService });
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/capsules",
+    payload: {
+      trip: { startLabel: "Andheri", endLabel: "Bandra", transportMode: "metro" },
+      topic: "Personal finance",
+      style: "quick_overview",
+      language: "en-IN",
+    },
+  });
+
+  expect(response.statusCode).toBe(201);
+  expect(response.json()).toEqual(
+    expect.objectContaining({
+      targetSeconds: expect.any(Number),
+      transcript: expect.any(String),
+      segments: expect.any(Array),
+    }),
+  );
+});
+```
+
+- [ ] **Step 3: Run the API tests and typecheck.**
+
+Run: `npm run test --workspace @commute-capsule/api && npm run typecheck --workspace @commute-capsule/api`
+
+Expected: PASS.
+
+- [ ] **Step 4: Commit alongside the rest of Base Task 3's Step 6 commit** — no separate commit; this is part of the capsule-generation pipeline.
 
 ---
 
