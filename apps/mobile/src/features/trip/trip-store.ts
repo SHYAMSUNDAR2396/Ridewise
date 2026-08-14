@@ -6,6 +6,7 @@ type TripState = {
   setEndpoints: (startLabel: string, endLabel: string) => void;
   setTransportMode: (transportMode: TransportMode) => void;
   setManualSeconds: (manualSeconds?: number) => void;
+  setEstimatedSeconds: (estimatedSeconds?: number) => void;
 };
 
 export const useTripStore = create<TripState>((set) => ({
@@ -16,4 +17,6 @@ export const useTripStore = create<TripState>((set) => ({
     set((state) => ({ draft: { ...state.draft, transportMode } })),
   setManualSeconds: (manualSeconds) =>
     set((state) => ({ draft: { ...state.draft, manualSeconds } })),
+  setEstimatedSeconds: (estimatedSeconds) =>
+    set((state) => ({ draft: { ...state.draft, estimatedSeconds } })),
 }));
