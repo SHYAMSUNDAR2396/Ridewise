@@ -1090,15 +1090,34 @@ Execute the base task as written, with these changes:
 
 ---
 
-## Override 7: Operations Documentation (amends Base Task 7, Step 4)
+## Override 7: Error Contract and Operations Documentation (amends Base Task 7)
 
-The documented environment variables are `GOOGLE_MAPS_API_KEY`, `ELEVENLABS_API_KEY`, `ELEVENLABS_SCRIPT_AGENT_ID`, `ELEVENLABS_ENGLISH_VOICE_ID`, `ELEVENLABS_TTS_MODEL`, `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, and `PROVIDER_MODE`.
+**Error contract replaced.** Base Task 7's Interfaces section and Step 3 define a four-code error shape — `"ROUTE_UNAVAILABLE" | "GENERATION_FAILED" | "UNSAFE_TOPIC" | "AUDIO_UNAVAILABLE"` — with `UNSAFE_TOPIC` carrying a server-computed `suggestedTopic`. This contradicts two decisions already fixed elsewhere in this plan: the five-code contract in Global Constraints (`ROUTE_UNAVAILABLE`, `SCRIPT_GENERATION_FAILED`, `SPEECH_SYNTHESIS_FAILED`, `CAPSULE_TOO_LONG`, `AUDIO_UNAVAILABLE`), and prompt-only safety enforcement (Task B, Override 3) — an unsafe-topic decline is a valid `Script`, published like any other capsule, never a thrown error. Use this in place of Base Task 7 Step 3's code block:
 
-The runbook additionally documents that no ElevenLabs value may appear in the mobile bundle or any client-readable configuration, and that the alertable error codes are the five in Global Constraints. It also notes the native build prerequisites from Override 4: Xcode and CocoaPods for iOS, Android Studio for Android — there is no Expo Go shortcut.
+```ts
+export class CapsuleError extends Error {
+  constructor(
+    readonly code: "ROUTE_UNAVAILABLE" | "SCRIPT_GENERATION_FAILED" | "SPEECH_SYNTHESIS_FAILED" | "CAPSULE_TOO_LONG" | "AUDIO_UNAVAILABLE",
+    message: string,
+  ) {
+    super(message);
+  }
+}
+```
+
+No `suggestedTopic` field, and no `UNSAFE_TOPIC` code — drop Base Task 7 Step 1's `UNSAFE_TOPIC`/`suggestedTopic` test entirely; there is nothing to test for it. Map `ContentProvider` and `Storage` failures (already thrown as bare `SCRIPT_GENERATION_FAILED` / `SPEECH_SYNTHESIS_FAILED` strings by Task B, and `CAPSULE_TOO_LONG` by `CapsuleService`, Override 3) to this error shape in the API's Fastify error handler (extending the handler `apps/api/src/app.ts` already has from Task 2). `ROUTE_UNAVAILABLE` maps from a `TripService.estimate` failure with no usable manual fallback. `AUDIO_UNAVAILABLE` is a client/mobile-side condition (streamed audio failed to load) with no corresponding API-side throw.
+
+**Operations documentation.** The documented environment variables are `GOOGLE_MAPS_API_KEY`, `ELEVENLABS_API_KEY`, `ELEVENLABS_SCRIPT_AGENT_ID`, `ELEVENLABS_ENGLISH_VOICE_ID`, `ELEVENLABS_TTS_MODEL`, `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, and `PROVIDER_MODE`.
+
+The runbook additionally documents that no ElevenLabs value may appear in the mobile bundle or any client-readable configuration, and that the alertable error codes are the five above. It also notes the native build prerequisites from Override 4: Xcode and CocoaPods for iOS, Android Studio for Android — there is no Expo Go shortcut.
 
 ---
 
 ## Override 8: End-to-End Verification (amends Base Task 8)
+
+Base Task 8 Step 1's e2e test calls `/v1/trips/estimate` first, then includes the resulting `estimatedSeconds` in the `/v1/capsules` payload. Under Override 3a, that field is no longer consumed — the route handler always calls `tripService.estimate(input.trip)` itself and ignores any client-supplied estimate. Two valid ways to write this test; pick one:
+- Skip the `/v1/trips/estimate` call entirely and post directly to `/v1/capsules` with just `trip`, `topic`, `style`, `language` — this is what the real request shape looks like end to end.
+- Keep both calls (useful if the test also wants to assert the estimate endpoint works), but do not include `estimatedSeconds` in the second payload — it would be silently ignored, which is worth not implying otherwise.
 
 The end-to-end test payload uses `language: "en-IN"` and asserts:
 
