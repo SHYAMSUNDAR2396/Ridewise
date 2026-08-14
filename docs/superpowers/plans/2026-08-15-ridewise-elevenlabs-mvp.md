@@ -64,6 +64,8 @@ Inherited verbatim from the base plan, with the language and provider constraint
 | **Task 3 Step 4**, line 367 — `await capsuleService.create(input)` | See Override 3a. The route handler estimates the trip first and passes `tripSeconds` explicitly; `CapsuleService` no longer owns a `TripService`. |
 | **Task 3**, line 327-329 — unsafe-topic rejection test (`rejects an unsafe topic before calling the speech provider`) | Not carried over as a `CapsuleService`-level rejection. See the Global Constraints note above and the decline-test added to Task B Step 1. |
 | **Task 4 Step 1**, lines 409-413 — `create-expo-app`, Expo Router, Expo Audio | See Override 4. |
+| **Task 4 Step 4**, line 452 — "A current-location button requests permission only after the user taps it" | Omit entirely. No current-location button anywhere in this MVP — contradicts Global Constraints' "no location permission... typed entry only." Start/Destination are plain text inputs, nothing else. |
+| **Task 4 Files list**, lines 394-396 — `app/_layout.tsx`, `app/index.tsx`, `app/mode.tsx` | `apps/mobile/src/navigation/RootNavigator.tsx`, `apps/mobile/src/screens/HomeScreen.tsx`, `apps/mobile/src/screens/ModeScreen.tsx` — per Override 4. |
 | **Task 5 Step 4**, line 531 — `language: "en"` | `language: "en-IN"` |
 | **Task 6 Step 3**, line 622 — Expo Audio, speed selection | `react-native-track-player`; speed control is out of MVP scope. See Override 6. |
 | **Task 6 Step 4**, line 632 — Expo document directory | `react-native-blob-util` document directory. See Override 6. |
@@ -577,7 +579,7 @@ export class DevelopmentProvider implements ContentProvider {
 
 Run: `npm run test --workspace @commute-capsule/api -- elevenlabs.test.ts`
 
-Expected: PASS, 6 tests.
+Expected: PASS, 7 tests.
 
 - [ ] **Step 5: Add the ElevenLabs values to the validated server configuration.**
 
