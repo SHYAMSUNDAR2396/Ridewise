@@ -25,7 +25,7 @@ npm test                                              # all workspaces
 npm run typecheck                                     # all workspaces
 npm run test --workspace @commute-capsule/domain      # vitest
 npm run test --workspace @commute-capsule/api         # vitest
-npm run test --workspace @commute-capsule/mobile      # jest --runInBand (jest-expo)
+npm run test --workspace @commute-capsule/mobile      # jest --runInBand (react-native preset)
 npm run test --workspace @commute-capsule/api -- segmenter.test.ts   # single test file
 maestro test apps/mobile/e2e/bilingual-capsule.yaml   # mobile e2e
 ```
@@ -34,7 +34,9 @@ Package names keep the `@commute-capsule/*` scope from the original plan even th
 
 ## Architecture
 
-`apps/mobile` (Expo / React Native / Expo Router) → `apps/api` (Fastify + Zod) → external providers. `packages/domain` holds shared types, Zod schemas, and the duration rule consumed by both sides.
+`apps/mobile` (bare React Native — community CLI, React Navigation, `react-native-track-player`) → `apps/api` (Fastify + Zod) → external providers. `packages/domain` holds shared types, Zod schemas, and the duration rule consumed by both sides.
+
+**Not Expo.** The mobile app uses the bare React Native CLI with `ios/` and `android/` checked in. Older plan text referring to Expo Router, Expo Audio, `create-expo-app`, or `jest-expo` is superseded — see Override 4 in `plans/2026-08-15-ridewise-elevenlabs-mvp.md`. Building it needs the native toolchain (Xcode + CocoaPods for iOS, Android Studio for Android); there is no Expo Go shortcut.
 
 The mobile app never calls a provider directly and never holds a provider credential. The API owns routing, prompts, language-to-voice mapping, segmentation, retries, duration measurement, and storage.
 
@@ -52,7 +54,7 @@ Providers sit behind interfaces in `apps/api/src/providers/` (routing, generatio
 
 ### Server-only configuration
 
-`ELEVENLABS_API_KEY`, `ELEVENLABS_SCRIPT_AGENT_ID`, `ELEVENLABS_ENGLISH_VOICE_ID`, `ELEVENLABS_HINDI_VOICE_ID`, `ELEVENLABS_TTS_MODEL`, plus S3 and routing settings. None of these may appear in Expo public env vars or the mobile bundle.
+`ELEVENLABS_API_KEY`, `ELEVENLABS_SCRIPT_AGENT_ID`, `ELEVENLABS_ENGLISH_VOICE_ID`, `ELEVENLABS_HINDI_VOICE_ID`, `ELEVENLABS_TTS_MODEL`, plus S3 and routing settings. None of these may appear in the mobile bundle or any client-readable configuration.
 
 ## Working on plans
 

@@ -6,7 +6,7 @@
 
 **Architecture:** This plan is an **overlay on `docs/superpowers/plans/2026-07-31-commute-capsule-india.md`**, which already specifies exactly this product scope. That plan remains the spine: its Tasks 1-8, file structure, screens, stores, and tests are executed as written, except where this document overrides them. The overrides replace the OpenAI provider with ElevenLabs and replace single-file audio with ordered, independently retryable segments.
 
-**Tech Stack:** TypeScript, npm workspaces, Expo/React Native, Expo Router, Expo Audio, AsyncStorage, Fastify, Zod, Vitest, Jest with `jest-expo`, React Native Testing Library, Google Maps Routes API, ElevenLabs Script Agent, ElevenLabs Text to Speech (`eleven_multilingual_v2`), S3-compatible object storage.
+**Tech Stack:** TypeScript, npm workspaces, **bare React Native (community CLI — not Expo)**, React Navigation, `react-native-track-player`, AsyncStorage, `react-native-blob-util`, Zustand, React Query, Fastify, Zod, Vitest, Jest with the `react-native` preset, React Native Testing Library, Maestro, Google Maps Routes API, ElevenLabs Script Agent, ElevenLabs Text to Speech (`eleven_multilingual_v2`), S3-compatible object storage.
 
 ## How To Use This Plan
 
@@ -20,7 +20,7 @@ Base Task 2  (unchanged)
 Task A       (new — segmenter)
 Task B       (new — ElevenLabs provider)
 Base Task 3  (with Override 3)
-Base Task 4  (unchanged)
+Base Task 4  (with Override 4)
 Base Task 5  (with Override 5)
 Task C       (new — multi-segment playback)
 Base Task 6  (with Override 6)
@@ -54,11 +54,17 @@ Inherited verbatim from the base plan, with the language and provider constraint
 | --- | --- |
 | Header **Tech Stack**, line 9 — "OpenAI Responses API, OpenAI text-to-speech API" | "ElevenLabs Script Agent, ElevenLabs Text to Speech (`eleven_multilingual_v2`)" |
 | **File structure**, lines 43-44 — `generation.ts` / `speech.ts` | A single `apps/api/src/providers/elevenlabs.ts` implementing both. Add `apps/api/src/services/segmenter.ts` and `apps/api/src/services/retry.ts`. |
+| Header **Architecture**, line 7 — "Expo React Native client" | "bare React Native client" — see Override 4. |
+| **File structure**, lines 51-71 — `apps/mobile/app/*` Expo Router screens | `apps/mobile/src/screens/*` with explicit React Navigation registration — see Override 4. |
 | **Task 1 Step 4**, line 159 — `language: "en"` | `language: "en-IN"` — see Override 1 for the full replacement type block. |
 | **Task 3**, line 312 — `SpeechProvider.synthesize(transcript)` | See Override 3. Synthesis is per-segment and returns ordered segments. |
 | **Task 3 Step 3**, line 348 — `const audio = await this.speech.synthesize(script.transcript)` | See Override 3 Step 3. |
 | **Task 3 Step 3**, line 360 — OpenAI production providers | The production provider is `ElevenLabsProvider` from Task B. |
+| **Task 4 Step 1**, lines 409-413 — `create-expo-app`, Expo Router, Expo Audio | See Override 4. |
 | **Task 5 Step 4**, line 531 — `language: "en"` | `language: "en-IN"` |
+| **Task 6 Step 3**, line 622 — Expo Audio, speed selection | `react-native-track-player`; speed control is out of MVP scope. See Override 6. |
+| **Task 6 Step 4**, line 632 — Expo document directory | `react-native-blob-util` document directory. See Override 6. |
+| **Task 6 Step 5**, line 636 — `npx expo start --clear` | `npm run ios --workspace @commute-capsule/mobile` or `npm run android --workspace @commute-capsule/mobile` |
 | **Task 6** — single `audioUrl` playback | See Override 6 and Task C. Playback is an ordered segment queue. |
 | **Task 7 Step 4**, line 713 — `OPENAI_API_KEY` | `ELEVENLABS_API_KEY`, `ELEVENLABS_SCRIPT_AGENT_ID`, `ELEVENLABS_ENGLISH_VOICE_ID`, `ELEVENLABS_TTS_MODEL` |
 | **Task 8 Step 1**, line 749 — `language: "en"` | `language: "en-IN"` |
@@ -772,6 +778,129 @@ Expected: PASS, 4 tests.
 
 ---
 
+## Override 4: Bare React Native Client (replaces Base Task 4, Step 1)
+
+The mobile app uses the React Native community CLI. There is no Expo SDK, no Expo Go, and no managed workflow. `ios/` and `android/` are generated at scaffold time and committed.
+
+Building requires the native toolchain: Xcode and CocoaPods for iOS (macOS only), Android Studio with a configured SDK and an emulator or device for Android.
+
+- [ ] **Step 1 (replacement): Scaffold the bare React Native TypeScript app.**
+
+```bash
+npx @react-native-community/cli@latest init RidewiseMobile --directory apps/mobile --skip-install
+```
+
+Set the package name in `apps/mobile/package.json` to `@commute-capsule/mobile`, and its scripts to:
+
+```json
+{
+  "test": "jest --runInBand",
+  "typecheck": "tsc --noEmit",
+  "ios": "react-native run-ios",
+  "android": "react-native run-android",
+  "start": "react-native start"
+}
+```
+
+- [ ] **Step 1a: Install client dependencies from the repository root.**
+
+```bash
+npm install --workspace @commute-capsule/mobile \
+  @react-navigation/native @react-navigation/native-stack \
+  react-native-screens react-native-safe-area-context \
+  react-native-track-player \
+  @react-native-async-storage/async-storage \
+  react-native-blob-util \
+  zustand @tanstack/react-query
+npm install --workspace @commute-capsule/mobile --save-dev \
+  @testing-library/react-native @types/jest
+```
+
+- [ ] **Step 1b: Install iOS native pods.**
+
+```bash
+cd apps/mobile/ios && pod install && cd -
+```
+
+Expected: CocoaPods reports the installed pod count with no error. Re-run this after any dependency change that includes native code.
+
+- [ ] **Step 1c: Configure Metro to resolve the workspace domain package.**
+
+Bare React Native's Metro does not follow npm workspace symlinks by default. In `apps/mobile/metro.config.js`:
+
+```js
+const path = require("node:path");
+const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
+
+const workspaceRoot = path.resolve(__dirname, "../..");
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), {
+  watchFolders: [workspaceRoot],
+  resolver: {
+    nodeModulesPaths: [
+      path.resolve(__dirname, "node_modules"),
+      path.resolve(workspaceRoot, "node_modules"),
+    ],
+    disableHierarchicalLookup: true,
+  },
+});
+```
+
+Without `watchFolders`, importing `@commute-capsule/domain` fails at bundle time with an unresolved-module error rather than a TypeScript error, which is a confusing failure to debug later.
+
+- [ ] **Step 1d: Configure Jest to use the React Native preset.**
+
+In `apps/mobile/jest.config.js`:
+
+```js
+module.exports = {
+  preset: "react-native",
+  setupFilesAfterEnv: ["@testing-library/react-native/extend-expect"],
+  transformIgnorePatterns: [
+    "node_modules/(?!(@react-native|react-native|@react-navigation|react-native-track-player)/)",
+  ],
+};
+```
+
+- [ ] **Step 1e: Register the track player service.**
+
+`react-native-track-player` requires a playback service registered at app startup. In `apps/mobile/index.js`, after the existing `AppRegistry.registerComponent` call:
+
+```js
+import TrackPlayer from "react-native-track-player";
+TrackPlayer.registerPlaybackService(() => require("./src/features/capsules/playback-service"));
+```
+
+Create `apps/mobile/src/features/capsules/playback-service.ts`:
+
+```ts
+import TrackPlayer, { Event } from "react-native-track-player";
+
+/** Remote controls from the lock screen, notification, and headset buttons. */
+module.exports = async function playbackService(): Promise<void> {
+  TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
+  TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
+  TrackPlayer.addEventListener(Event.RemoteSeek, ({ position }) =>
+    TrackPlayer.seekTo(position),
+  );
+};
+```
+
+Enable background audio: add the `audio` background mode to `apps/mobile/ios/RidewiseMobile/Info.plist` under `UIBackgroundModes`, and add `android:foregroundServiceType="mediaPlayback"` plus the `FOREGROUND_SERVICE_MEDIA_PLAYBACK` permission in `apps/mobile/android/app/src/main/AndroidManifest.xml`. A commute app whose audio stops when the screen locks is not shippable.
+
+- [ ] **Step 1f: Verify the scaffold builds and runs.**
+
+Run: `npm run ios --workspace @commute-capsule/mobile`
+
+Expected: the app launches in the simulator showing the default React Native screen.
+
+- [ ] **Steps 2-6: Continue with the base plan's Task 4**, with these substitutions throughout:
+  - Screens live in `apps/mobile/src/screens/` — `HomeScreen.tsx`, `ModeScreen.tsx`, `TripCheckScreen.tsx`, `TopicScreen.tsx`, `PlayerScreen.tsx`, `LibraryScreen.tsx` — instead of the Expo Router `app/` directory.
+  - Navigation is an explicit native stack in `apps/mobile/src/navigation/RootNavigator.tsx`, not file-based routing.
+  - Everything else in the base task — the trip store, typed API client, transport selector, and their tests — is unchanged. Zustand, React Query, AsyncStorage, and React Native Testing Library all work identically outside Expo.
+
+---
+
 ## Override 5: Topic Screen Language Literal (replaces Base Task 5, Step 4, line 531)
 
 The topic chips and generation mutation are unchanged. The request body uses:
@@ -879,11 +1008,13 @@ git commit -m "feat: resolve playback position across ordered audio segments"
 Execute the base task as written, with these changes:
 
 - The capsule store persists `segments: AudioSegment[]`, not `audioUrl`.
-- The player advances to `segments[index + 1]` when a segment finishes, and reports progress as elapsed segments plus the current segment's position.
-- Resume and seek use `segmentAt` from Task C.
-- Download saves every segment file and, when all are present locally, plays from local URIs. A capsule counts as downloaded only when every segment file exists.
+- Playback uses `react-native-track-player`, not Expo Audio. Add every segment to the native queue in index order via `TrackPlayer.setQueue(...)`; the player then advances between segments itself, so no manual end-of-segment handling is needed.
+- Report progress as the summed duration of completed segments plus `useProgress().position` within the current one.
+- Resume and seek use `segmentAt` from Task C to convert an absolute capsule position into `TrackPlayer.skip(index)` followed by `TrackPlayer.seekTo(offsetSeconds)`.
+- Download saves every segment file with `react-native-blob-util` to its document directory and, when all are present locally, builds the queue from local `file://` URIs. A capsule counts as downloaded only when every segment file exists.
 - Playback speed control is out of MVP scope; omit it from the player.
 - The regenerate action is out of MVP scope; omit it from the player.
+- Background playback and lock-screen controls come from the service registered in Override 4 Step 1e. Verify manually: start a capsule, lock the device, confirm audio continues and the lock screen shows working play/pause controls.
 
 ---
 
@@ -891,7 +1022,7 @@ Execute the base task as written, with these changes:
 
 The documented environment variables are `GOOGLE_MAPS_API_KEY`, `ELEVENLABS_API_KEY`, `ELEVENLABS_SCRIPT_AGENT_ID`, `ELEVENLABS_ENGLISH_VOICE_ID`, `ELEVENLABS_TTS_MODEL`, `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, and `PROVIDER_MODE`.
 
-The runbook additionally documents that no ElevenLabs value may appear in an Expo public environment variable or the mobile bundle, and that the alertable error codes are the five in Global Constraints.
+The runbook additionally documents that no ElevenLabs value may appear in the mobile bundle or any client-readable configuration, and that the alertable error codes are the five in Global Constraints. It also notes the native build prerequisites from Override 4: Xcode and CocoaPods for iOS, Android Studio for Android — there is no Expo Go shortcut.
 
 ---
 
