@@ -3,6 +3,9 @@ import { describe, it, expect, vi } from "vitest";
 import type { TripDraft } from "@commute-capsule/domain";
 import { buildApp } from "../src/app";
 import { TripService } from "../src/services/trip-service";
+import { CapsuleService } from "../src/services/capsule-service";
+import { DevelopmentProvider } from "../src/providers/elevenlabs";
+import { InMemoryStorage } from "../src/providers/storage";
 
 function draft(overrides: Partial<TripDraft> = {}): TripDraft {
   return {
@@ -59,5 +62,34 @@ describe("POST /v1/trips/estimate", () => {
     });
 
     expect(response.statusCode).toBe(400);
+  });
+});
+
+describe("POST /v1/capsules", () => {
+  it("estimates the trip before generating, and returns 201 with ordered segments", async () => {
+    const tripService = new TripService({
+      estimate: vi.fn().mockResolvedValue({ durationSeconds: 1200, summary: "Metro via Blue Line" }),
+    });
+    const capsuleService = new CapsuleService(new DevelopmentProvider(), new InMemoryStorage());
+    const app = buildApp({ tripService, capsuleService });
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/capsules",
+      payload: {
+        trip: { startLabel: "Andheri", endLabel: "Bandra", transportMode: "metro" },
+        topic: "Personal finance",
+        style: "quick_overview",
+        language: "en-IN",
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toEqual(
+      expect.objectContaining({
+        targetSeconds: expect.any(Number),
+        transcript: expect.any(String),
+        segments: expect.any(Array),
+      }),
+    );
   });
 });

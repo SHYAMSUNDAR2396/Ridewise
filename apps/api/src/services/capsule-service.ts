@@ -1,0 +1,83 @@
+import { randomUUID } from "node:crypto";
+import {
+  calculateTargetSeconds,
+  type Capsule,
+  type AudioSegment,
+  type CreateCapsuleRequest,
+} from "@commute-capsule/domain";
+import type { ContentProvider } from "../providers/elevenlabs";
+import type { Storage } from "../providers/storage";
+import { splitIntoSegments } from "./segmenter";
+import { withRetry } from "./retry";
+
+const MAX_SEGMENT_CHARS = 8_000;
+const WORDS_PER_MINUTE = 150;
+const SHORTENING_FACTOR = 0.85;
+
+export class CapsuleService {
+  constructor(
+    private readonly provider: ContentProvider,
+    private readonly storage: Storage,
+  ) {}
+
+  async create(request: CreateCapsuleRequest, tripSeconds: number): Promise<Capsule> {
+    const targetSeconds = calculateTargetSeconds(tripSeconds);
+    const id = randomUUID();
+
+    let targetWords = Math.round((targetSeconds / 60) * WORDS_PER_MINUTE);
+    let attempt = 0;
+
+    // One generation attempt, then one shortened retry, then give up.
+    while (attempt < 2) {
+      const script = await this.provider.generateScript({
+        topic: request.topic,
+        style: request.style,
+        language: request.language,
+        targetSeconds,
+        targetWords,
+      });
+
+      const segments = await this.synthesizeSegments(id, script.transcript, request);
+      const audioSeconds = segments.reduce((sum, s) => sum + s.durationSeconds, 0);
+
+      if (audioSeconds <= targetSeconds) {
+        return {
+          id,
+          title: script.title,
+          topic: request.topic,
+          language: request.language,
+          targetSeconds,
+          audioSeconds,
+          transcript: script.transcript,
+          segments,
+          createdAt: new Date().toISOString(),
+        };
+      }
+
+      targetWords = Math.round(targetWords * SHORTENING_FACTOR);
+      attempt += 1;
+    }
+
+    throw new Error("CAPSULE_TOO_LONG");
+  }
+
+  /** Synthesize sequentially so a retry never regenerates a successful segment. */
+  private async synthesizeSegments(
+    capsuleId: string,
+    transcript: string,
+    request: CreateCapsuleRequest,
+  ): Promise<AudioSegment[]> {
+    const texts = splitIntoSegments(transcript, MAX_SEGMENT_CHARS);
+    const segments: AudioSegment[] = [];
+
+    for (const [index, text] of texts.entries()) {
+      const result = await withRetry(() =>
+        this.provider.synthesize(text, request.language),
+      );
+      const url = await this.storage.put(`${capsuleId}/${index}.mp3`, result.bytes);
+      segments.push({ index, url, durationSeconds: result.durationSeconds });
+    }
+
+    return segments;
+  }
+}
