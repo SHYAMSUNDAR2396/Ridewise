@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ridewise - Choose Capsule</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Newsreader and Manrope -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=Newsreader:opsz,wght@6..72,500;6..72,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#c3c6d7",
+                    "surface": "#f9f9f9",
+                    "secondary-fixed-dim": "#ffb2b7",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#6e6d6d",
+                    "surface-bright": "#f9f9f9",
+                    "primary-container": "#2563eb",
+                    "inverse-on-surface": "#f0f1f1",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-surface-variant": "#434655",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#b4c5ff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-primary-container": "#eeefff",
+                    "on-background": "#1a1c1c",
+                    "on-secondary-fixed-variant": "#92002a",
+                    "on-primary-fixed": "#00174b",
+                    "tertiary": "#555555",
+                    "primary-fixed": "#dbe1ff",
+                    "tertiary-fixed": "#e4e2e1",
+                    "surface-variant": "#e2e2e2",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "outline": "#737686",
+                    "on-secondary-fixed": "#40000d",
+                    "on-tertiary-container": "#f3f0ef",
+                    "inverse-surface": "#2f3131",
+                    "surface-dim": "#dadada",
+                    "on-tertiary-fixed-variant": "#474747",
+                    "secondary-fixed": "#ffdadb",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-secondary-container": "#fffbff",
+                    "surface-container-low": "#f3f3f3",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#0053db",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#dc2c4f",
+                    "on-secondary": "#ffffff",
+                    "background": "#f9f9f9",
+                    "on-tertiary-fixed": "#1b1c1c",
+                    "primary": "#004ac6",
+                    "surface-container-high": "#e8e8e8",
+                    "on-surface": "#1a1c1c",
+                    "surface-container": "#eeeeee",
+                    "tertiary-fixed-dim": "#c8c6c6",
+                    "on-error": "#ffffff",
+                    "secondary": "#b90538"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-xs": "4px",
+                    "stack-md": "16px",
+                    "stack-xl": "48px",
+                    "stack-lg": "24px",
+                    "margin-mobile": "24px",
+                    "gutter-mobile": "16px",
+                    "stack-sm": "8px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": [
+                            "Newsreader"
+                    ],
+                    "label-sm": [
+                            "Manrope"
+                    ],
+                    "mono-label": [
+                            "Manrope"
+                    ],
+                    "body-md": [
+                            "Manrope"
+                    ],
+                    "headline-md": [
+                            "Newsreader"
+                    ],
+                    "display-lg": [
+                            "Newsreader"
+                    ],
+                    "body-lg": [
+                            "Manrope"
+                    ]
+            },
+            "fontSize": {
+                    "display-lg-mobile": [
+                            "32px",
+                            {
+                                    "lineHeight": "38px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "mono-label": [
+                            "12px",
+                            {
+                                    "lineHeight": "14px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "display-lg": [
+                            "40px",
+                            {
+                                    "lineHeight": "48px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        /* Custom styles for animations and specific touches */
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        @keyframes waveform {
+            0%, 100% { height: 12px; }
+            50% { height: 48px; }
+        }
+        
+        .wave-bar {
+            animation: waveform 1.2s ease-in-out infinite;
+            will-change: height;
+        }
+        
+        /* Smooth segmented control transitions */
+        .segment-btn {
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen relative antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- 
+      TRANSACTIONAL SCREEN: Global Nav Shell is suppressed to maintain focus on the loading/capsule creation intent.
+    -->
+<!-- Top App Bar - Minimal / Transactional Back Action -->
+<header class="flex justify-between items-center px-margin-mobile py-stack-md w-full sticky top-0 bg-surface/90 backdrop-blur-sm z-30">
+<button aria-label="Go back" class="w-12 h-12 flex items-center justify-center -ml-3 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<div class="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 18px;">schedule</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">18 min ride</span>
+</div>
+<div class="w-12 h-12"></div> <!-- Spacer for flex balance -->
+</header>
+<!-- Main Content Canvas -->
+<main class="px-margin-mobile pb-40 max-w-lg mx-auto">
+<!-- Header -->
+<h1 class="font-headline-md text-headline-md text-on-surface mt-stack-md mb-stack-lg">What would you like to hear?</h1>
+<!-- Configuration Form -->
+<div class="flex flex-col gap-stack-lg">
+<!-- Segmented Control 1: Language -->
+<div class="flex w-full bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden p-1 shadow-sm">
+<button class="segment-btn flex-1 py-3 bg-surface-container-highest rounded font-label-sm text-label-sm text-on-surface font-bold">
+                    English
+                </button>
+<button class="segment-btn flex-1 py-3 bg-transparent rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low">
+                    Hindi
+                </button>
+</div>
+<!-- Segmented Control 2: Depth -->
+<div class="flex w-full bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden p-1 shadow-sm">
+<button class="segment-btn flex-1 py-3 bg-transparent rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low">
+                    Quick overview
+                </button>
+<button class="segment-btn flex-1 py-3 bg-surface-container-highest rounded font-label-sm text-label-sm text-on-surface font-bold">
+                    Learn deeply
+                </button>
+</div>
+<!-- Topic Chips -->
+<div>
+<p class="font-mono-label text-mono-label text-outline mb-stack-sm uppercase tracking-widest">Suggested Topics</p>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full border border-primary-container bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm transition-colors">India &amp; World</button>
+<button class="px-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low font-label-sm text-label-sm transition-colors">Careers</button>
+<button class="px-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low font-label-sm text-label-sm transition-colors">Personal finance</button>
+<button class="px-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low font-label-sm text-label-sm transition-colors">Technology</button>
+<button class="px-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low font-label-sm text-label-sm transition-colors">History</button>
+</div>
+</div>
+<!-- Open Input -->
+<div class="mt-stack-sm relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">graphic_eq</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-12 pr-4 py-4 font-body-md text-body-md text-on-surface placeholder:text-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all shadow-sm" placeholder="Ask about anything you want to understand" type="text"/>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Action Area -->
+<div class="fixed bottom-0 left-0 w-full px-margin-mobile py-stack-md bg-gradient-to-t from-surface via-surface to-transparent pb-8 z-40">
+<div class="max-w-lg mx-auto">
+<button class="w-full h-14 bg-primary-container text-on-primary-container rounded-lg font-label-sm text-label-sm flex justify-center items-center gap-2 active:scale-95 transition-transform duration-150 shadow-sm border border-transparent" id="generateBtn">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                Generate my capsule
+            </button>
+</div>
+</div>
+<!-- Loading Overlay (Level 2 - Deep context shift) -->
+<div class="fixed inset-0 bg-inverse-surface z-50 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300" id="loadingOverlay">
+<!-- Animated Waveform using Secondary Container as the 'Coral' accent -->
+<div class="flex items-center gap-1.5 h-16 mb-stack-xl">
+<div class="w-2 rounded-full bg-secondary-container wave-bar" style="animation-delay: 0.1s; height: 16px;"></div>
+<div class="w-2 rounded-full bg-secondary-container wave-bar" style="animation-delay: 0.3s; height: 32px;"></div>
+<div class="w-2 rounded-full bg-secondary-container wave-bar" style="animation-delay: 0.0s; height: 48px;"></div>
+<div class="w-2 rounded-full bg-secondary-container wave-bar" style="animation-delay: 0.2s; height: 24px;"></div>
+<div class="w-2 rounded-full bg-secondary-container wave-bar" style="animation-delay: 0.4s; height: 12px;"></div>
+</div>
+<!-- Loading Text -->
+<h2 class="font-headline-md text-headline-md text-inverse-on-surface text-center mb-stack-sm">Preparing your ride...</h2>
+<p class="font-body-md text-body-md text-outline text-center max-w-xs">Curating the best insights for your 18-minute journey.</p>
+<!-- Cancel Action -->
+<button class="mt-stack-xl px-6 py-3 rounded-full border border-outline text-inverse-on-surface font-label-sm text-label-sm active:opacity-70 transition-opacity" id="cancelBtn">
+            Cancel
+        </button>
+</div>
+<!-- Interaction Logic -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const generateBtn = document.getElementById('generateBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            // Trigger Loading State
+            generateBtn.addEventListener('click', () => {
+                loadingOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                loadingOverlay.classList.add('opacity-100');
+            });
+
+            // Cancel Loading State
+            cancelBtn.addEventListener('click', () => {
+                loadingOverlay.classList.remove('opacity-100');
+                loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+            });
+        });
+    </script>
+</body></html>

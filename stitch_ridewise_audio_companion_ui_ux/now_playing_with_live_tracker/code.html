@@ -1,0 +1,240 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Now Playing</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Newsreader:opsz,wght@6..72,400;500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline-variant": "#c3c6d7",
+                        "surface": "#f9f9f9",
+                        "secondary-fixed-dim": "#ffb2b7",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#6e6d6d",
+                        "surface-bright": "#f9f9f9",
+                        "primary-container": "#2563eb",
+                        "inverse-on-surface": "#f0f1f1",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface-variant": "#434655",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-container": "#eeefff",
+                        "on-background": "#1a1c1c",
+                        "on-secondary-fixed-variant": "#92002a",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary": "#555555",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary-fixed": "#e4e2e1",
+                        "surface-variant": "#e2e2e2",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "outline": "#737686",
+                        "on-secondary-fixed": "#40000d",
+                        "on-tertiary-container": "#f3f0ef",
+                        "inverse-surface": "#2f3131",
+                        "surface-dim": "#dadada",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "secondary-fixed": "#ffdadb",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-secondary-container": "#fffbff",
+                        "surface-container-low": "#f3f3f3",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#0053db",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#dc2c4f",
+                        "on-secondary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "primary": "#004ac6",
+                        "surface-container-high": "#e8e8e8",
+                        "on-surface": "#1a1c1c",
+                        "surface-container": "#eeeeee",
+                        "tertiary-fixed-dim": "#c8c6c6",
+                        "on-error": "#ffffff",
+                        "secondary": "#b90538"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        "stack-xs": "4px",
+                        "stack-md": "16px",
+                        "stack-xl": "48px",
+                        "stack-lg": "24px",
+                        "margin-mobile": "24px",
+                        "gutter-mobile": "16px",
+                        "stack-sm": "8px"
+                    },
+                    fontFamily: {
+                        "display-lg-mobile": ["Newsreader"],
+                        "label-sm": ["Manrope"],
+                        "mono-label": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-md": ["Newsreader"],
+                        "display-lg": ["Newsreader"],
+                        "body-lg": ["Manrope"]
+                    },
+                    fontSize: {
+                        "display-lg-mobile": ["32px", { lineHeight: "38px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "label-sm": ["13px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "mono-label": ["12px", { lineHeight: "14px", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "500" }],
+                        "display-lg": ["40px", { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom range slider styling for scrubber */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #dc2c4f; /* secondary-container */
+            cursor: pointer;
+            margin-top: -6px; /* Offset to center on track */
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e2e2; /* surface-variant */
+            border-radius: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container">
+<!-- Minimal Header for Player Modal -->
+<header class="w-full flex justify-between items-center px-margin-mobile py-stack-md sticky top-0 bg-surface z-10">
+<button aria-label="Minimize player" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container">
+<span class="material-symbols-outlined text-[28px]">expand_more</span>
+</button>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Now Playing</span>
+<button aria-label="More options" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<main class="flex-1 flex flex-col px-margin-mobile pb-stack-xl max-w-md mx-auto w-full">
+<!-- Artwork -->
+<div class="w-full aspect-square mt-stack-sm mb-stack-lg rounded-xl overflow-hidden border border-outline-variant bg-surface-container-low flex-shrink-0 shadow-sm relative">
+<img alt="Episode Artwork" class="w-full h-full object-cover" data-alt="A square abstract digital artwork representing a stylized transit map. The composition features sharp, intersecting geometric lines and pulsing audio waveforms. The color palette relies heavily on deep charcoal blacks and vibrant cobalt blues, set against a stark white background. The aesthetic is clean, modern, and editorial, resembling a high-end editorial illustration for a technology magazine." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAa7evf5VtkHOK7hWh3Pt1LJt1FjAzlYdjqll64Blog88d3hhvbnJ4MpRiQcFISA6Mtq5drbVuQS7kb9RYG7OqpwAwU5grkJ2hjZEEcxVaneiJPbwEU_ryLYiUiKXMvW-y37EbtM7E5TTP05WReTYZHN-YEdxDmNrMlBjOuPAiKelfl-CcQHivIh-KghGJIytsJEQnJjUsV8hjqhF12Zz-6CCNeCh-V5NzTJ7Gs9zafOGrk7d3i_HXahg">
+</div>
+<!-- Text Content -->
+<div class="mb-stack-xl text-center">
+<h1 class="font-headline-md text-headline-md text-on-surface mb-stack-xs text-balance">
+                How India’s metro systems changed city life
+            </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                Technology • English
+            </p>
+</div><div class="mb-stack-lg bg-surface-container-low rounded-xl p-4 border border-outline-variant">
+<div class="flex items-center justify-between mb-stack-sm">
+<div class="flex flex-col items-center gap-1 flex-1">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">radio_button_checked</span>
+<span class="font-label-sm text-[10px] text-on-surface">Rajiv Chowk</span>
+</div>
+<div class="h-1 flex-1 bg-primary-container relative mx-2">
+<div class="absolute inset-0 bg-primary w-full"></div>
+</div>
+<div class="flex flex-col items-center gap-1 flex-1">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="font-label-sm text-[10px] text-on-surface font-bold">Mandi House</span>
+</div>
+<div class="h-1 flex-1 bg-surface-variant mx-2"></div>
+<div class="flex flex-col items-center gap-1 flex-1">
+<span class="material-symbols-outlined text-on-surface-variant">circle</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Noida Sec 18</span>
+</div>
+</div>
+<div class="text-center">
+<p class="font-mono-label text-mono-label text-on-surface-variant">2 stops remaining • ~8 mins left</p>
+</div><div class="flex justify-center mt-stack-sm"><button class="flex items-center gap-1 px-2 py-1 text-primary hover:bg-surface-container rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container"><span class="material-symbols-outlined text-[18px]">map</span><span class="font-label-sm text-[12px] font-bold uppercase tracking-wider">View Map</span></button></div>
+</div>
+<!-- Scrubber -->
+<div class="mb-stack-lg w-full flex flex-col gap-2">
+<div class="relative w-full h-1 bg-surface-variant rounded-full">
+<!-- Progress Fill -->
+<div class="absolute left-0 top-0 h-full bg-secondary-container rounded-full w-[45%]"></div>
+<!-- Playhead (Visual only, functional input overlaying) -->
+<div class="absolute left-[45%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-secondary-container border-2 border-surface"></div>
+<!-- Accessible input range overlay -->
+<input aria-label="Playback progress" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" max="100" min="0" type="range" value="45">
+</div>
+<div class="flex justify-between items-center w-full px-1">
+<span class="font-mono-label text-mono-label text-on-surface-variant">12:34</span>
+<span class="font-mono-label text-mono-label text-secondary-container font-bold bg-error-container px-2 py-0.5 rounded-sm">Ends in 16 min</span>
+</div>
+</div>
+<!-- Main Controls -->
+<div class="flex justify-center items-center gap-stack-lg mb-stack-xl">
+<button aria-label="Rewind 15 seconds" class="w-16 h-16 flex items-center justify-center text-on-surface hover:text-primary transition-colors focus:outline-none rounded-full focus:ring-2 focus:ring-primary-container">
+<span class="material-symbols-outlined text-[36px]" style="font-variation-settings: 'wght' 300;">export_notes</span>
+</button>
+<button aria-label="Play" class="w-24 h-24 flex items-center justify-center bg-primary-container text-on-primary-container rounded-[2rem] hover:opacity-90 active:scale-95 transition-all shadow-sm focus:outline-none focus:ring-4 focus:ring-primary-fixed">
+<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button aria-label="Forward 15 seconds" class="w-16 h-16 flex items-center justify-center text-on-surface hover:text-primary transition-colors focus:outline-none rounded-full focus:ring-2 focus:ring-primary-container">
+<span class="material-symbols-outlined text-[36px]" style="font-variation-settings: 'wght' 300;">apps</span>
+</button>
+</div>
+<!-- Secondary Actions & Speed -->
+<div class="mt-auto flex flex-col gap-stack-md">
+<!-- Speed Selector -->
+<div class="flex justify-center items-center gap-2 mb-stack-sm">
+<button class="px-4 py-2 font-mono-label text-mono-label border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container">0.75x</button>
+<button class="px-4 py-2 font-mono-label text-mono-label bg-inverse-surface text-inverse-on-surface rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-container border border-transparent">1x</button>
+<button class="px-4 py-2 font-mono-label text-mono-label border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container">1.25x</button>
+<button class="px-4 py-2 font-mono-label text-mono-label border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container">1.5x</button>
+</div>
+<!-- Action Icons -->
+<div class="flex justify-evenly items-center border-t border-outline-variant pt-stack-md">
+<button aria-label="Save" class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none min-w-[64px] min-h-[48px]">
+<span class="material-symbols-outlined">bookmark_border</span>
+<span class="font-label-sm text-[10px]">Save</span>
+</button>
+<button aria-label="Download" class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none min-w-[64px] min-h-[48px]">
+<span class="material-symbols-outlined">download</span>
+<span class="font-label-sm text-[10px]">Download</span>
+</button>
+<button aria-label="Transcript" class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none min-w-[64px] min-h-[48px]">
+<span class="material-symbols-outlined">article</span>
+<span class="font-label-sm text-[10px]">Transcript</span>
+</button>
+<button aria-label="Regenerate" class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none min-w-[64px] min-h-[48px]">
+<span class="material-symbols-outlined">refresh</span>
+<span class="font-label-sm text-[10px]">Regenerate</span>
+</button>
+</div>
+</div>
+</main>
+
+
+</body></html>

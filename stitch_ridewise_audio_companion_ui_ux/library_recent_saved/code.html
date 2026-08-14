@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Library - Ridewise</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Newsreader:opsz,wght@6..72,400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#e4e2e1",
+                        "on-secondary-fixed-variant": "#92002a",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary-container": "#6e6d6d",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#434655",
+                        "inverse-surface": "#2f3131",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "tertiary-fixed-dim": "#c8c6c6",
+                        "secondary-fixed": "#ffdadb",
+                        "surface-tint": "#0053db",
+                        "surface-container-low": "#f3f3f3",
+                        "inverse-on-surface": "#f0f1f1",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#dadada",
+                        "secondary-container": "#dc2c4f",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-fixed": "#00174b",
+                        "secondary-fixed-dim": "#ffb2b7",
+                        "on-primary-container": "#eeefff",
+                        "background": "#f9f9f9",
+                        "surface-bright": "#f9f9f9",
+                        "on-surface": "#1a1c1c",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1a1c1c",
+                        "surface-container-high": "#e8e8e8",
+                        "secondary": "#b90538",
+                        "surface": "#f9f9f9",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#f3f0ef",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#737686",
+                        "on-secondary-container": "#fffbff",
+                        "surface-container": "#eeeeee",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed": "#40000d",
+                        "surface-variant": "#e2e2e2",
+                        "primary-container": "#2563eb",
+                        "tertiary": "#555555",
+                        "primary": "#004ac6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-xs": "4px",
+                        "stack-lg": "24px",
+                        "margin-mobile": "24px",
+                        "stack-sm": "8px",
+                        "stack-xl": "48px",
+                        "stack-md": "16px",
+                        "gutter-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Newsreader"],
+                        "mono-label": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "headline-md": ["Newsreader"],
+                        "display-lg-mobile": ["Newsreader"],
+                        "label-sm": ["Manrope"],
+                        "body-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "mono-label": ["12px", { "lineHeight": "14px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim fixed top-0 w-full z-50 border-b border-outline-variant dark:border-outline">
+<div class="flex justify-between items-center px-margin-mobile h-16 w-full">
+<button aria-label="Menu" class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors p-2 rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu</span>
+</button>
+<h1 class="font-display-lg-mobile text-display-lg-mobile font-semibold text-on-surface dark:text-on-surface-variant">Ridewise</h1>
+<button aria-label="User profile" class="hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors p-1 rounded-full active:scale-95 transition-transform">
+<img class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A close-up portrait of a user smiling slightly, set against a bright, modern, minimalist studio background. The lighting is soft and high-key white, reflecting the app's clean editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC22mb1KHTwfEktarX6DjDjtpv-1lySgU7g4lCfr9Y_n8znfrp8jpm1cna_MjIfj4yVPiLxz9zDwqzCffLK4uWcGEQzPLhb1FyBsMB5cBDbm34ri95AaE_vhJytT0ncNhXmBWW10czyfS9p57gJgBEIHsIXqqmmDhsCk3OLpV-h6eBvp76JN3Nz4uFe5syFR7xvWxAdPSVdDVpVUokbJMJg7MtEW2GMmRdAvEhSMCvXTx0ie8jzZEHsA"/>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[72px] pb-[88px] px-margin-mobile md:px-margin-mobile lg:max-w-4xl mx-auto flex flex-col gap-stack-lg">
+<!-- Segmented Tabs -->
+<div class="flex gap-2 p-1 bg-surface-container-highest rounded-lg w-full sticky top-[72px] z-40 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+<button class="flex-1 bg-surface border border-outline-variant text-on-surface font-label-sm text-label-sm py-2 px-4 rounded-md shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary">Recent</button>
+<button class="flex-1 text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm py-2 px-4 rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-primary">Saved</button>
+<button class="flex-1 text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm py-2 px-4 rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-primary">Downloaded</button>
+</div>
+<!-- Library List -->
+<div class="flex flex-col gap-0 border border-outline-variant rounded-xl bg-surface overflow-hidden">
+<!-- List Item 1 -->
+<div class="flex items-center justify-between p-stack-md border-b border-surface-container-high hover:bg-surface-container-lowest transition-colors group relative cursor-pointer">
+<div class="flex items-start gap-stack-md flex-1">
+<div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">directions_walk</span>
+</div>
+<div class="flex flex-col gap-stack-xs w-full max-w-[calc(100%-48px)]">
+<h3 class="font-headline-md text-headline-md text-on-surface truncate">The History of Colaba</h3>
+<div class="flex items-center gap-2 font-mono-label text-mono-label text-on-surface-variant">
+<span>Heritage Walk</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>45 min</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>EN</span>
+<span class="material-symbols-outlined text-[14px]" title="Downloaded">offline_pin</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full bg-surface-container-high h-1 rounded-full mt-1 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 60%;"></div>
+</div>
+</div>
+</div>
+<button aria-label="More options" class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- List Item 2 -->
+<div class="flex items-center justify-between p-stack-md border-b border-surface-container-high hover:bg-surface-container-lowest transition-colors group relative cursor-pointer">
+<div class="flex items-start gap-stack-md flex-1">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant">train</span>
+</div>
+<div class="flex flex-col gap-stack-xs w-full max-w-[calc(100%-48px)]">
+<h3 class="font-headline-md text-headline-md text-on-surface truncate">Western Line Architecture</h3>
+<div class="flex items-center gap-2 font-mono-label text-mono-label text-on-surface-variant">
+<span>Transit</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>1 hr 20 min</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>HI</span>
+</div>
+</div>
+</div>
+<button aria-label="More options" class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- List Item 3 -->
+<div class="flex items-center justify-between p-stack-md hover:bg-surface-container-lowest transition-colors group relative cursor-pointer">
+<div class="flex items-start gap-stack-md flex-1">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant">museum</span>
+</div>
+<div class="flex flex-col gap-stack-xs w-full max-w-[calc(100%-48px)]">
+<h3 class="font-headline-md text-headline-md text-on-surface truncate">CSMVS Audio Guide</h3>
+<div class="flex items-center gap-2 font-mono-label text-mono-label text-on-surface-variant">
+<span>Museum</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>2 hr</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>EN</span>
+<span class="material-symbols-outlined text-[14px]" title="Downloaded">offline_pin</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full bg-surface-container-high h-1 rounded-full mt-1 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 15%;"></div>
+</div>
+</div>
+</div>
+<button aria-label="More options" class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface dark:bg-inverse-surface fixed bottom-0 w-full z-50 pb-safe border-t border-outline-variant dark:border-outline">
+<div class="flex justify-around items-center h-20 px-gutter-mobile w-full bg-surface dark:bg-inverse-surface">
+<!-- Home: Inactive -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">directions_run</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<!-- Library: Active -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-transform w-full h-full" href="#">
+<div class="bg-primary-container/20 rounded-full py-1 px-4 mb-1">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">subscriptions</span>
+</div>
+<span class="font-label-sm text-label-sm">Library</span>
+</a>
+<!-- Settings: Inactive -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">settings</span>
+<span class="font-label-sm text-label-sm">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

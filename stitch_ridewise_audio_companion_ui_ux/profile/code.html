@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ridewise - Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e2e2e2",
+                    "primary-container": "#2563eb",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed": "#1b1c1c",
+                    "tertiary-fixed": "#e4e2e1",
+                    "inverse-primary": "#b4c5ff",
+                    "secondary-fixed-dim": "#ffb2b7",
+                    "surface-dim": "#dadada",
+                    "on-secondary-container": "#fffbff",
+                    "surface": "#f9f9f9",
+                    "tertiary-fixed-dim": "#c8c6c6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-primary-fixed": "#00174b",
+                    "surface-container-high": "#e8e8e8",
+                    "on-surface-variant": "#434655",
+                    "background": "#f9f9f9",
+                    "surface-tint": "#0053db",
+                    "surface-container-low": "#f3f3f3",
+                    "on-error": "#ffffff",
+                    "tertiary": "#555555",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#dbe1ff",
+                    "on-surface": "#1a1c1c",
+                    "on-background": "#1a1c1c",
+                    "secondary": "#b90538",
+                    "tertiary-container": "#6e6d6d",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e2e2e2",
+                    "inverse-surface": "#2f3131",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#f9f9f9",
+                    "secondary-fixed": "#ffdadb",
+                    "primary": "#004ac6",
+                    "on-secondary-fixed": "#40000d",
+                    "outline": "#737686",
+                    "inverse-on-surface": "#f0f1f1",
+                    "secondary-container": "#dc2c4f",
+                    "surface-container": "#eeeeee",
+                    "on-secondary-fixed-variant": "#92002a",
+                    "outline-variant": "#c3c6d7",
+                    "on-primary-container": "#eeefff",
+                    "on-tertiary-container": "#f3f0ef",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#474747"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-xl": "48px",
+                    "stack-xs": "4px",
+                    "stack-lg": "24px",
+                    "gutter-mobile": "16px",
+                    "margin-mobile": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": [
+                            "Manrope"
+                    ],
+                    "label-sm": [
+                            "Manrope"
+                    ],
+                    "body-md": [
+                            "Manrope"
+                    ],
+                    "display-lg": [
+                            "Newsreader"
+                    ],
+                    "mono-label": [
+                            "Manrope"
+                    ],
+                    "display-lg-mobile": [
+                            "Newsreader"
+                    ],
+                    "headline-md": [
+                            "Newsreader"
+                    ]
+            },
+            "fontSize": {
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg": [
+                            "40px",
+                            {
+                                    "lineHeight": "48px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "mono-label": [
+                            "12px",
+                            {
+                                    "lineHeight": "14px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "32px",
+                            {
+                                    "lineHeight": "38px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body-md text-on-surface antialiased min-h-screen pb-24">
+<!-- Top Header -->
+<header class="flex items-center justify-between px-margin-mobile py-stack-md sticky top-0 bg-surface/90 backdrop-blur-md z-40 border-b border-surface-variant">
+<button class="w-12 h-12 flex items-center justify-start -ml-3 text-on-surface active:opacity-70 transition-opacity">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-on-surface">Profile</h1>
+<div class="w-12 h-12"></div>
+</header>
+<main>
+<!-- User Profile Section -->
+<section class="px-margin-mobile py-stack-lg flex flex-col items-center">
+<div class="w-28 h-28 rounded-full overflow-hidden border border-surface-variant mb-stack-md bg-surface-container-lowest">
+<img class="w-full h-full object-cover" data-alt="A portrait photography shot of a young Indian professional woman with a calm, intelligent expression, wearing modern minimal clothing. She is set against a clean, off-white background with soft, high-key studio lighting that creates a bright, modern editorial aesthetic. The color palette focuses on pristine whites, soft skin tones, and subtle deep gray shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfFzylNlZwHWTOdiMgs9nvOfkAfSpYtJfNMhJhyEkHIROkqgsjiVe7eTkZwt5YEwhfyJOKUbKGbUWVayRfpjpl6LxgbGRIw96DbfkmOOexI7VF0U4JUmXw1Sn6vHwA5YAAKH4ndHpOGJu8RJH78mBIa3KShRNldHjSsxPqHISNBrWZIuL_ykeALWEFtSEuWivYSUcBF8Slg2OCFmiXQKuoesNu6wvZmzFWQ0X2_4mP3Tvw2R-C1Z_Bag"/>
+</div>
+<h2 class="font-display-lg-mobile text-display-lg-mobile text-on-surface mb-stack-xs">Anjali Sharma</h2>
+<div class="bg-primary-container text-on-primary font-label-sm text-label-sm px-4 py-1.5 rounded-full mt-2 tracking-wide uppercase">
+                Premium Member
+            </div>
+</section>
+<!-- Commute Stats (Bento Grid) -->
+<section class="px-margin-mobile mb-stack-xl">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-md">Commute Stats</h3>
+<div class="grid grid-cols-2 gap-stack-md">
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-5 flex flex-col justify-between h-32">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Total Capsules</span>
+<span class="font-display-lg-mobile text-display-lg-mobile text-primary">42</span>
+</div>
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-5 flex flex-col justify-between h-32">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Time Saved</span>
+<span class="font-display-lg-mobile text-display-lg-mobile text-primary">12.5<span class="text-xl font-normal ml-1 text-on-surface-variant">h</span></span>
+</div>
+<div class="col-span-2 bg-surface-container-lowest border border-surface-variant rounded-xl p-5 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-1">Favorite Topic</span>
+<span class="font-headline-md text-headline-md text-on-surface">History &amp; Culture</span>
+</div>
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">account_balance</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Preferences Section -->
+<section class="px-margin-mobile mb-stack-xl">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Preferences</h3>
+<div class="flex flex-col border-t border-surface-variant">
+<button class="flex items-center justify-between py-5 border-b border-surface-variant group w-full text-left active:opacity-70 transition-opacity min-h-[64px]">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Default Language</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">English</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</button>
+<button class="flex items-center justify-between py-5 border-b border-surface-variant group w-full text-left active:opacity-70 transition-opacity min-h-[64px]">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Preferred Voice</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">Natural - Female</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</button>
+<div class="flex items-center justify-between py-5 border-b border-surface-variant min-h-[64px]">
+<div class="flex flex-col pr-4">
+<span class="font-body-md text-body-md text-on-surface">Auto-download saved capsules</span>
+</div>
+<!-- Toggle Switch Active State -->
+<div class="w-12 h-7 bg-primary-container rounded-full relative flex items-center shrink-0 cursor-pointer">
+<div class="w-5 h-5 bg-surface-container-lowest rounded-full absolute right-1 shadow-sm"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Account Section -->
+<section class="px-margin-mobile mb-stack-xl">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Account</h3>
+<div class="flex flex-col border-t border-surface-variant">
+<button class="flex items-center justify-between py-5 border-b border-surface-variant group w-full text-left active:opacity-70 transition-opacity min-h-[64px]">
+<span class="font-body-md text-body-md text-on-surface">Subscription details</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</button>
+<button class="flex items-center justify-between py-5 border-b border-surface-variant group w-full text-left active:opacity-70 transition-opacity min-h-[64px]">
+<span class="font-body-md text-body-md text-on-surface">Notification settings</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</button>
+<button class="flex items-center justify-between py-5 border-b border-surface-variant group w-full text-left active:opacity-70 transition-opacity min-h-[64px]">
+<span class="font-body-md text-body-md text-on-surface">Help &amp; Support</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</button>
+<button class="flex items-center justify-start py-5 w-full text-left active:opacity-70 transition-opacity min-h-[64px] mt-2">
+<span class="material-symbols-outlined text-error mr-3">logout</span>
+<span class="font-body-md text-body-md font-semibold text-error">Log Out</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (from JSON, Profile Active) -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe border-t border-outline-variant bg-surface flat no shadows flex justify-around items-center h-16 w-full">
+<!-- Home (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low flex-1 h-full">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</button>
+<!-- Library (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low flex-1 h-full">
+<span class="material-symbols-outlined mb-1">library_music</span>
+<span class="font-label-sm text-label-sm">Library</span>
+</button>
+<!-- Profile (Active) -->
+<button class="flex flex-col items-center justify-center text-primary font-bold hover:bg-surface-container-low active:scale-95 transition-transform duration-150 flex-1 h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</button>
+</nav>
+</body></html>

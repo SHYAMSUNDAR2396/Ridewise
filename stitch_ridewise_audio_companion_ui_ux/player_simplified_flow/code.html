@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ridewise - Player</title>
+<!-- Google Fonts: Manrope & Newsreader -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#e4e2e1",
+                      "on-secondary-fixed-variant": "#92002a",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "tertiary-container": "#6e6d6d",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#434655",
+                      "inverse-surface": "#2f3131",
+                      "on-error": "#ffffff",
+                      "inverse-primary": "#b4c5ff",
+                      "tertiary-fixed-dim": "#c8c6c6",
+                      "secondary-fixed": "#ffdadb",
+                      "surface-tint": "#0053db",
+                      "surface-container-low": "#f3f3f3",
+                      "inverse-on-surface": "#f0f1f1",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "on-secondary": "#ffffff",
+                      "surface-dim": "#dadada",
+                      "secondary-container": "#dc2c4f",
+                      "on-tertiary-fixed": "#1b1c1c",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-primary-fixed": "#00174b",
+                      "secondary-fixed-dim": "#ffb2b7",
+                      "on-primary-container": "#eeefff",
+                      "background": "#f9f9f9",
+                      "surface-bright": "#f9f9f9",
+                      "on-surface": "#1a1c1c",
+                      "on-error-container": "#93000a",
+                      "error": "#ba1a1a",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#1a1c1c",
+                      "surface-container-high": "#e8e8e8",
+                      "secondary": "#b90538",
+                      "surface": "#f9f9f9",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#f3f0ef",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#737686",
+                      "on-secondary-container": "#fffbff",
+                      "surface-container": "#eeeeee",
+                      "primary-fixed": "#dbe1ff",
+                      "outline-variant": "#c3c6d7",
+                      "on-secondary-fixed": "#40000d",
+                      "surface-variant": "#e2e2e2",
+                      "primary-container": "#2563eb",
+                      "tertiary": "#555555",
+                      "primary": "#004ac6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem",
+                      "2xl": "1rem",
+                      "3xl": "1.5rem"
+              },
+              "spacing": {
+                      "stack-xs": "4px",
+                      "stack-lg": "24px",
+                      "margin-mobile": "24px",
+                      "stack-sm": "8px",
+                      "stack-xl": "48px",
+                      "stack-md": "16px",
+                      "gutter-mobile": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Newsreader", "serif"],
+                      "mono-label": ["Manrope", "sans-serif"],
+                      "body-lg": ["Manrope", "sans-serif"],
+                      "headline-md": ["Newsreader", "serif"],
+                      "display-lg-mobile": ["Newsreader", "serif"],
+                      "label-sm": ["Manrope", "sans-serif"],
+                      "body-md": ["Manrope", "sans-serif"]
+              },
+              "fontSize": {
+                      "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "mono-label": ["12px", {"lineHeight": "14px", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                      "display-lg-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-sm": ["13px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Custom utilities for strict design adherence */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+        .pt-safe { padding-top: env(safe-area-inset-top, 24px); }
+        
+        /* Smooth scrolling for transcript */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col antialiased">
+<!-- 
+        Task-Focused Sub-Page Logic: 
+        TopAppBar and BottomNavBar are intentionally suppressed.
+        Using a minimal custom header for the player modal context.
+    -->
+<!-- Player Header -->
+<header class="flex justify-between items-center px-margin-mobile pt-safe h-16 w-full z-10 relative">
+<button class="p-2 -ml-2 text-on-surface-variant hover:text-on-surface transition-colors rounded-full hover:bg-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/50">
+<span class="material-symbols-outlined text-[28px]">keyboard_arrow_down</span>
+</button>
+<button class="p-2 -mr-2 text-on-surface-variant hover:text-on-surface transition-colors rounded-full hover:bg-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/50">
+<span class="material-symbols-outlined text-[24px]">more_vert</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col justify-between pb-safe w-full max-w-md mx-auto relative">
+<!-- Minimal Artwork / Visual Focus Area -->
+<div class="flex-1 px-margin-mobile flex flex-col justify-center items-center relative mt-stack-md">
+<!-- Subtle AI "Listening/Playing" abstract pulse -->
+<div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+<div class="w-[80vw] h-[80vw] max-w-[320px] max-h-[320px] rounded-full border-[1px] border-on-surface animate-ping" style="animation-duration: 4s;"></div>
+</div>
+<!-- Artwork Card (Level 1 Elevation: Flat with 1px border) -->
+<div class="w-full aspect-square max-w-[320px] bg-surface-container-low rounded-3xl border border-outline-variant/50 flex items-center justify-center overflow-hidden relative shadow-sm transition-transform duration-500 ease-out hover:scale-[1.02]">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-90" data-alt="A striking, minimalist digital art piece representing architectural soundwaves. Glowing, generative geometric lines form the silhouette of a heritage train station against a pristine, soft white background. Deep black structural accents and intense, vibrant cobalt blue highlights create a modern editorial, high-contrast aesthetic. The mood is calm, intelligent, and spacious." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg3P7xSMwNAnov_H4vK_gd908h__ALPMag-1Lz1K36stxUuPQh40AWJDfztKRXpdnI3FilBSKRsVpGBDi5eWJ1v_R-EuPT9K69sv1k-4VqRNNht3lPeodr3EtKQyj1cclHL4bxWHsoIXhPT6xhk9GUBGJLn5EuBc7SRfvBX93dtm3zn-bRAjjynxTB9JNgZRwIXTdExAn3HI9YRjKvKx5iubFU7pFm9Rm9tWjMh1n_yGxEdCazknPiig"/>
+</div>
+</div>
+<!-- Player Controls Container -->
+<div class="w-full flex flex-col z-10 bg-gradient-to-t from-background via-background to-transparent pt-stack-xl">
+<!-- Metadata Area -->
+<div class="px-margin-mobile flex flex-col items-center text-center">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-stack-sm flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                    Urban History • English
+                </span>
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-on-surface mb-stack-xs line-clamp-2 px-4">
+                    The Architecture of Victoria Terminus
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant opacity-80">
+                    Narrated by Ridewise AI
+                </p>
+</div>
+<!-- Progress Scrubber -->
+<div class="px-margin-mobile mt-stack-xl w-full">
+<!-- Track -->
+<div class="h-[3px] bg-surface-variant rounded-full relative w-full cursor-pointer group py-2 flex items-center">
+<div class="absolute w-full h-[3px] bg-surface-variant rounded-full"></div>
+<!-- Buffered -->
+<div class="absolute left-0 h-[3px] bg-outline-variant/40 rounded-full w-[65%]"></div>
+<!-- Progress Fill -->
+<div class="absolute left-0 h-[3px] bg-primary rounded-full w-[38%] transition-all duration-100 ease-linear group-hover:h-[5px]"></div>
+<!-- Playhead -->
+<div class="absolute left-[38%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-primary rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.1)] opacity-100 scale-100 transition-transform group-hover:scale-125 group-active:scale-150"></div>
+</div>
+<!-- Timestamps -->
+<div class="flex justify-between items-center font-mono-label text-mono-label text-on-surface-variant mt-stack-sm tracking-wider">
+<span>12:45</span>
+<span>-28:15</span>
+</div>
+</div>
+<!-- Primary Playback Controls -->
+<div class="px-margin-mobile mt-stack-md flex justify-center items-center gap-stack-lg mb-stack-lg">
+<!-- Skip Back -->
+<button class="text-on-surface hover:text-primary transition-colors p-3 rounded-full hover:bg-surface-variant/30 active:scale-90">
+<span class="material-symbols-outlined text-[32px] font-light">replay_10</span>
+</button>
+<!-- Play/Pause (Cobalt Accent) -->
+<button class="w-[88px] h-[88px] bg-primary rounded-full flex items-center justify-center text-on-primary shadow-[0_8px_16px_rgba(37,99,235,0.2)] hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-primary/30">
+<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<!-- Skip Forward -->
+<button class="text-on-surface hover:text-primary transition-colors p-3 rounded-full hover:bg-surface-variant/30 active:scale-90">
+<span class="material-symbols-outlined text-[32px] font-light">forward_30</span>
+</button>
+</div>
+<!-- Secondary Features (Bottom Row) -->
+<div class="px-margin-mobile pb-stack-lg pt-stack-sm flex justify-center gap-[15%] items-center">
+<!-- Transcript Toggle -->
+<button class="flex flex-col items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors w-16 group" onclick="toggleTranscript()">
+<div class="p-2 rounded-full group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[24px]">notes</span>
+</div>
+<span class="font-label-sm text-[11px] uppercase tracking-wider opacity-80">Transcript</span>
+</button>
+<!-- Save Action -->
+<button class="flex flex-col items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors w-16 group">
+<div class="p-2 rounded-full group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[24px]">bookmark_border</span>
+</div>
+<span class="font-label-sm text-[11px] uppercase tracking-wider opacity-80">Save</span>
+</button>
+<!-- Download Action (Idle State conceptually, room for circular progress) -->
+<button class="flex flex-col items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors w-16 group relative">
+<div class="p-2 rounded-full group-hover:bg-primary/10 transition-colors relative">
+<!-- Standard Icon -->
+<span class="material-symbols-outlined text-[24px]">download</span>
+<!-- Conceptual Download Progress Ring (Hidden for idle) -->
+<!-- <svg class="absolute inset-0 w-full h-full -rotate-90 stroke-primary opacity-0" viewBox="0 0 36 36"><path stroke-dasharray="100, 100" stroke-dashoffset="40" stroke-width="2" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" /></svg> -->
+</div>
+<span class="font-label-sm text-[11px] uppercase tracking-wider opacity-80">Download</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Transcript Bottom Sheet Overlay (Level 2 Elevation: Inverse Surface) -->
+<!-- Backdrop -->
+<div class="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-400 ease-out" id="transcript-backdrop" onclick="toggleTranscript()"></div>
+<!-- Panel -->
+<div class="fixed inset-x-0 bottom-0 bg-inverse-surface text-inverse-on-surface rounded-t-3xl transform translate-y-full transition-transform duration-400 cubic-bezier(0.2, 0.8, 0.2, 1) z-50 flex flex-col shadow-[0_-8px_32px_rgba(0,0,0,0.15)] max-w-md mx-auto" id="transcript-panel" style="height: 75vh;">
+<!-- Drag Handle -->
+<div class="flex justify-center pt-5 pb-3 w-full cursor-pointer" onclick="toggleTranscript()">
+<div class="w-12 h-1.5 bg-outline/50 rounded-full hover:bg-outline transition-colors"></div>
+</div>
+<!-- Panel Header -->
+<div class="px-margin-mobile pb-stack-md flex justify-between items-center border-b border-outline/20">
+<h3 class="font-headline-md text-headline-md tracking-tight">Live Transcript</h3>
+<button class="p-2 -mr-2 text-outline hover:text-inverse-on-surface transition-colors rounded-full hover:bg-on-surface/10" onclick="toggleTranscript()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Transcript Content -->
+<div class="flex-1 overflow-y-auto px-margin-mobile py-stack-lg space-y-stack-lg hide-scrollbar pb-safe">
+<p class="font-body-lg text-body-lg opacity-40 leading-relaxed transition-opacity">
+                ...notice the station's magnificent stone dome, turrets, pointed arches, and eccentric ground plan.
+            </p>
+<!-- Active Line Highlight -->
+<div class="relative pl-5 py-1">
+<!-- Active indicator line -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-fixed-dim rounded-full"></div>
+<p class="font-body-lg text-body-lg font-semibold text-primary-fixed-dim leading-relaxed">
+                    The architectural style is High Victorian Gothic, but it draws heavily on classical Indian palace architecture, creating a unique fusion.
+                </p>
+</div>
+<p class="font-body-lg text-body-lg opacity-80 leading-relaxed">
+                If you look closely at the intricate stone carvings on the facade, you'll see they depict local flora and fauna, representing a blend of British architects and Indian artisan work.
+            </p>
+<p class="font-body-lg text-body-lg opacity-80 leading-relaxed">
+                It took ten years to complete, making it the longest building project of its era in the city. The main building is constructed of sandstone and limestone...
+            </p>
+</div>
+</div>
+<!-- Interaction Scripts -->
+<script>
+        let isTranscriptOpen = false;
+        
+        function toggleTranscript() {
+            const panel = document.getElementById('transcript-panel');
+            const backdrop = document.getElementById('transcript-backdrop');
+            
+            isTranscriptOpen = !isTranscriptOpen;
+            
+            if (isTranscriptOpen) {
+                // Open panel
+                panel.classList.remove('translate-y-full');
+                backdrop.classList.remove('opacity-0', 'pointer-events-none');
+                backdrop.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                // Close panel
+                panel.classList.add('translate-y-full');
+                backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+                backdrop.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+    </script>
+</body></html>

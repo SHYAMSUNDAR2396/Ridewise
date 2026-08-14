@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Your Journey - Trip Check</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Manrope & Newsreader -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with custom config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c3c6d7",
+                        "surface": "#f9f9f9",
+                        "secondary-fixed-dim": "#ffb2b7",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#6e6d6d",
+                        "surface-bright": "#f9f9f9",
+                        "primary-container": "#2563eb",
+                        "inverse-on-surface": "#f0f1f1",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface-variant": "#434655",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-container": "#eeefff",
+                        "on-background": "#1a1c1c",
+                        "on-secondary-fixed-variant": "#92002a",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary": "#555555",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary-fixed": "#e4e2e1",
+                        "surface-variant": "#e2e2e2",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "outline": "#737686",
+                        "on-secondary-fixed": "#40000d",
+                        "on-tertiary-container": "#f3f0ef",
+                        "inverse-surface": "#2f3131",
+                        "surface-dim": "#dadada",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "secondary-fixed": "#ffdadb",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-secondary-container": "#fffbff",
+                        "surface-container-low": "#f3f3f3",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#0053db",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#dc2c4f",
+                        "on-secondary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "primary": "#004ac6",
+                        "surface-container-high": "#e8e8e8",
+                        "on-surface": "#1a1c1c",
+                        "surface-container": "#eeeeee",
+                        "tertiary-fixed-dim": "#c8c6c6",
+                        "on-error": "#ffffff",
+                        "secondary": "#b90538"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-xs": "4px",
+                        "stack-md": "16px",
+                        "stack-xl": "48px",
+                        "stack-lg": "24px",
+                        "margin-mobile": "24px",
+                        "gutter-mobile": "16px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Newsreader"],
+                        "label-sm": ["Manrope"],
+                        "mono-label": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-md": ["Newsreader"],
+                        "display-lg": ["Newsreader"],
+                        "body-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "mono-label": ["12px", { "lineHeight": "14px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            /* Hide number input spinners */
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            input[type="number"] {
+                -moz-appearance: textfield;
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex justify-center antialiased">
+<!-- Mobile Container Wrapper -->
+<main class="w-full max-w-md min-h-screen flex flex-col bg-surface relative shadow-[0_0_40px_rgba(0,0,0,0.05)]">
+<!-- Top App Bar (Customized for Transactional Screen) -->
+<header class="w-full top-0 sticky bg-surface flex justify-between items-center px-margin-mobile py-stack-md z-50">
+<button aria-label="Go back" class="text-on-surface-variant flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-on-surface">Your journey</h1>
+<div class="w-10"></div> <!-- Spacer for centering title -->
+</header>
+<!-- Main Content Canvas -->
+<div class="flex-1 px-margin-mobile py-stack-md flex flex-col">
+<!-- Route Card (Level 1 Elevation - Minimalist) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-lg flex items-center gap-stack-md mt-stack-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container shrink-0 border border-surface-variant">
+<span class="material-symbols-outlined text-2xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">train</span>
+</div>
+<div class="flex flex-col gap-1 flex-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest text-[10px]">Route Summary</span>
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Rajiv Chowk</span>
+<span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Noida Sec 18</span>
+</div>
+</div>
+</div>
+<!-- Time Adjustment Section -->
+<div class="flex flex-col items-center justify-center flex-1 py-stack-xl gap-stack-lg">
+<div class="text-center flex flex-col gap-stack-xs items-center">
+<h2 class="font-display-lg-mobile text-display-lg-mobile text-primary-container">About 18 minutes</h2>
+<p class="font-body-md text-body-md text-on-surface-variant text-center max-w-[260px] leading-relaxed">
+                        Adjust this if your ride usually takes longer or shorter.
+                    </p>
+</div>
+<!-- Stepper Controls -->
+<div class="flex items-center gap-stack-md mt-stack-md">
+<button aria-label="Decrease minutes" class="w-14 h-14 rounded-full border border-outline-variant bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-surface-container-highest transition-colors active:scale-95" id="btn-decrease">
+<span class="material-symbols-outlined text-2xl">remove</span>
+</button>
+<div class="w-24 border-b border-outline-variant focus-within:border-primary-container transition-colors px-2 py-1 flex justify-center">
+<input class="w-full bg-transparent border-none text-center font-display-lg-mobile text-display-lg-mobile text-on-surface focus:ring-0 p-0 m-0" id="time-input" type="number" value="18"/>
+</div>
+<button aria-label="Increase minutes" class="w-14 h-14 rounded-full border border-outline-variant bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-surface-container-highest transition-colors active:scale-95" id="btn-increase">
+<span class="material-symbols-outlined text-2xl">add</span>
+</button>
+</div>
+<!-- Secondary Action -->
+<button class="mt-stack-sm font-label-sm text-label-sm text-tertiary underline decoration-tertiary-fixed-dim underline-offset-4 hover:text-on-surface hover:decoration-outline transition-colors uppercase tracking-wider py-2">
+                    Use manual time
+                </button>
+</div>
+<!-- Bottom Action Area -->
+<div class="mt-auto pb-stack-lg pt-stack-md">
+<button class="w-full bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-[0.1em] h-[56px] rounded-xl flex items-center justify-center hover:opacity-90 transition-all active:scale-[0.98] shadow-sm">
+                    Continue
+                </button>
+</div>
+</div>
+</main>
+<!-- Simple Stepper Interaction -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('time-input');
+            const btnDecrease = document.getElementById('btn-decrease');
+            const btnIncrease = document.getElementById('btn-increase');
+
+            btnDecrease.addEventListener('click', () => {
+                let val = parseInt(input.value) || 0;
+                if (val > 1) input.value = val - 1;
+            });
+
+            btnIncrease.addEventListener('click', () => {
+                let val = parseInt(input.value) || 0;
+                input.value = val + 1;
+            });
+        });
+    </script>
+</body></html>
