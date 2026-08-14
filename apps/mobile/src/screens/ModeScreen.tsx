@@ -22,7 +22,7 @@ export function ModeScreen({ navigation }: ModeScreenProps): React.JSX.Element {
 
   function handleSelect(mode: TransportMode): void {
     setTransportMode(mode);
-    navigation.navigate("Home");
+    navigation.navigate("TripCheck");
   }
 
   return (
