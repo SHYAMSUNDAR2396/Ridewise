@@ -7,6 +7,7 @@ import {
   useCapsuleStore,
   type StoredCapsule,
 } from "../features/capsules/capsule-store";
+import { deleteCapsuleFiles } from "../features/capsules/download";
 import { EmptyState } from "../components/EmptyState";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
@@ -46,7 +47,18 @@ function formatDuration(totalSeconds: number): string {
 export function LibraryScreen(): React.JSX.Element {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const capsules = useCapsuleStore((state) => state.capsules);
+  const removeCapsule = useCapsuleStore((state) => state.remove);
   const [tab, setTab] = useState<LibraryTab>("Recent");
+
+  // Removes a capsule from the local library and deletes any of its
+  // downloaded segment files -- never touches the published copy in object
+  // storage (see docs/product/operations.md's "Removing local downloaded
+  // files"). File deletion is best-effort: the store entry is removed
+  // either way so a stuck file never blocks removing the row.
+  async function handleDelete(id: string): Promise<void> {
+    await deleteCapsuleFiles(id).catch(() => undefined);
+    removeCapsule(id);
+  }
 
   const visibleCapsules = useMemo(() => {
     if (tab === "Saved") return capsules.filter((item) => item.saved);
@@ -82,6 +94,7 @@ export function LibraryScreen(): React.JSX.Element {
           <LibraryRow
             capsule={item}
             onPress={() => navigation.navigate("Player", { capsule: item })}
+            onDelete={() => handleDelete(item.id)}
           />
         )}
         ListEmptyComponent={
@@ -95,9 +108,11 @@ export function LibraryScreen(): React.JSX.Element {
 function LibraryRow({
   capsule,
   onPress,
+  onDelete,
 }: {
   capsule: StoredCapsule;
   onPress: () => void;
+  onDelete: () => void;
 }): React.JSX.Element {
   const downloaded = isFullyDownloaded(capsule);
   const progressRatio =
@@ -133,6 +148,17 @@ function LibraryRow({
           </View>
         ) : null}
       </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Delete ${capsule.title}`}
+        style={styles.rowDelete}
+        onPress={(event) => {
+          event.stopPropagation();
+          onDelete();
+        }}
+      >
+        <Text style={styles.rowDeleteText}>✕</Text>
+      </Pressable>
     </Pressable>
   );
 }
@@ -222,6 +248,14 @@ const styles = StyleSheet.create({
   offlinePin: {
     fontSize: 12,
     color: "#434655",
+  },
+  rowDelete: {
+    padding: 8,
+    alignSelf: "flex-start",
+  },
+  rowDeleteText: {
+    fontSize: 14,
+    color: "#ba1a1a",
   },
   progressTrack: {
     marginTop: 4,

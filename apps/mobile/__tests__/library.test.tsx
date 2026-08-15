@@ -115,6 +115,28 @@ describe("LibraryScreen", () => {
     );
   });
 
+  it("deletes a capsule and its downloaded files when the row's delete action is pressed", async () => {
+    useCapsuleStore.setState({
+      capsules: [
+        {
+          ...capsule,
+          saved: false,
+          progressSeconds: 0,
+          downloadedSegmentUris: { 0: "file:///a/segment-0.mp3", 1: "file:///a/segment-1.mp3" },
+        },
+      ],
+    });
+    await render(<LibraryScreen />);
+    await userEvent.setup().press(screen.getByLabelText(`Delete ${capsule.title}`));
+
+    await waitFor(() => expect(useCapsuleStore.getState().capsules).toHaveLength(0));
+
+    const RNBlobUtil = require("react-native-blob-util").default;
+    expect(RNBlobUtil.fs.unlink).toHaveBeenCalledWith(
+      expect.stringContaining(`capsules/${capsule.id}`),
+    );
+  });
+
   it("survives a simulated app restart: progress, saved, and downloaded state rehydrate from AsyncStorage", async () => {
     useCapsuleStore.setState({
       capsules: [

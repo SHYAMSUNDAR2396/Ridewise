@@ -42,6 +42,7 @@ export function PlayerScreen(): React.JSX.Element {
 
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
   const [audioUnavailable, setAudioUnavailable] = useState(false);
   const [playerRetryToken, setPlayerRetryToken] = useState(0);
 
@@ -61,10 +62,16 @@ export function PlayerScreen(): React.JSX.Element {
   async function handleDownload(): Promise<void> {
     if (downloading || downloaded) return;
     setDownloading(true);
+    setDownloadError(false);
     try {
       await downloadCapsule(capsule, (segmentIndex, uri) => {
         markSegmentDownloaded(capsule.id, segmentIndex, uri);
       });
+    } catch {
+      // Segments download independently (see download.ts) -- any segments
+      // that did succeed are already marked via markSegmentDownloaded above.
+      // This only surfaces that at least one segment failed.
+      setDownloadError(true);
     } finally {
       setDownloading(false);
     }
@@ -149,6 +156,13 @@ export function PlayerScreen(): React.JSX.Element {
           </Text>
         </Pressable>
       </View>
+
+      {downloadError ? (
+        <Text style={styles.downloadErrorText}>
+          Some segments couldn't download. The rest are saved offline -- try again for the
+          rest.
+        </Text>
+      ) : null}
 
       <Modal
         visible={transcriptOpen}
@@ -271,6 +285,15 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textTransform: "uppercase",
     color: "#434655",
+  },
+  downloadErrorText: {
+    fontFamily: "Manrope",
+    fontSize: 13,
+    color: "#ba1a1a",
+    textAlign: "center",
+    paddingHorizontal: 24,
+    marginTop: -16,
+    marginBottom: 16,
   },
   backdrop: {
     flex: 1,

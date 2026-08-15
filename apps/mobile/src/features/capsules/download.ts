@@ -16,8 +16,20 @@ export function playbackQueueUris(capsule: StoredCapsule): string[] {
   return capsule.segments.map((segment) => segment.url);
 }
 
+function localCapsuleDir(capsuleId: string): string {
+  return `${RNBlobUtil.fs.dirs.DocumentDir}/capsules/${capsuleId}`;
+}
+
 function localSegmentPath(capsuleId: string, segmentIndex: number): string {
-  return `${RNBlobUtil.fs.dirs.DocumentDir}/capsules/${capsuleId}/segment-${segmentIndex}.mp3`;
+  return `${localCapsuleDir(capsuleId)}/segment-${segmentIndex}.mp3`;
+}
+
+/** Deletes a capsule's locally-downloaded segment files, if any exist. */
+export async function deleteCapsuleFiles(capsuleId: string): Promise<void> {
+  const dir = localCapsuleDir(capsuleId);
+  if (await RNBlobUtil.fs.exists(dir)) {
+    await RNBlobUtil.fs.unlink(dir);
+  }
 }
 
 /**
@@ -36,12 +48,26 @@ async function downloadSegment(
   onComplete(segment.index, `file://${path}`);
 }
 
-/** Downloads every segment of a capsule for offline playback. */
+/**
+ * Downloads every segment of a capsule for offline playback. Segments are
+ * independent, so one segment's failure never stops the others from
+ * completing and registering via onSegmentComplete. Throws if at least one
+ * segment failed, after every segment has settled, so the caller can surface
+ * a single error while the successful segments remain downloaded.
+ */
 export async function downloadCapsule(
   capsule: Capsule,
   onSegmentComplete: (segmentIndex: number, localUri: string) => void,
 ): Promise<void> {
-  await Promise.all(
+  const results = await Promise.allSettled(
     capsule.segments.map((segment) => downloadSegment(capsule.id, segment, onSegmentComplete)),
   );
+  const failures = results.filter(
+    (result): result is PromiseRejectedResult => result.status === "rejected",
+  );
+  if (failures.length > 0) {
+    throw new Error(
+      `${failures.length} of ${capsule.segments.length} segment download(s) failed`,
+    );
+  }
 }

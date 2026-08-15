@@ -49,7 +49,11 @@ jest.mock("react-native-track-player", () => ({
 jest.mock("react-native-blob-util", () => ({
   __esModule: true,
   default: {
-    fs: { dirs: { DocumentDir: "/mock/documents" } },
+    fs: {
+      dirs: { DocumentDir: "/mock/documents" },
+      exists: jest.fn().mockResolvedValue(true),
+      unlink: jest.fn().mockResolvedValue(undefined),
+    },
     config: () => ({ fetch: jest.fn().mockResolvedValue({}) }),
   },
 }));

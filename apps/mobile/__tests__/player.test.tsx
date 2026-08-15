@@ -110,6 +110,19 @@ describe("CapsulePlayer", () => {
     expect(mockPlay).toHaveBeenCalled();
   });
 
+  it("flushes the latest known progress on unmount", async () => {
+    const onProgress = jest.fn();
+    const { unmount } = await render(
+      <CapsulePlayer capsule={capsule} initialPositionSeconds={0} onProgress={onProgress} />,
+    );
+    await waitFor(() => expect(mockSetQueue).toHaveBeenCalled());
+    onProgress.mockClear();
+
+    await unmount();
+
+    expect(onProgress).toHaveBeenCalledTimes(1);
+  });
+
   it("reports a playback error so the screen can offer retry (AUDIO_UNAVAILABLE)", async () => {
     mockPlaybackState = { state: "error" };
     const onPlaybackError = jest.fn();

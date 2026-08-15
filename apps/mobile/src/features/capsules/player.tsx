@@ -56,6 +56,7 @@ export function CapsulePlayer({
 
   const lastReportedRef = useRef(0);
   const wasPlayingRef = useRef(false);
+  const elapsedSecondsRef = useRef(0);
 
   const currentSegmentIndex =
     typeof activeTrack?.segmentIndex === "number" ? activeTrack.segmentIndex : 0;
@@ -104,6 +105,14 @@ export function CapsulePlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- queue is (re)built only when the capsule changes
   }, [capsule.id]);
 
+  // Keep refs current so the unmount-flush cleanup below (a closure formed
+  // once, at mount) can read the latest elapsed time and callback.
+  const onProgressRef = useRef(onProgress);
+  useEffect(() => {
+    elapsedSecondsRef.current = elapsedSeconds;
+    onProgressRef.current = onProgress;
+  }, [elapsedSeconds, onProgress]);
+
   // Persist progress at least every 10 seconds.
   useEffect(() => {
     if (elapsedSeconds - lastReportedRef.current >= PROGRESS_REPORT_INTERVAL_SECONDS) {
@@ -111,6 +120,16 @@ export function CapsulePlayer({
       onProgress(elapsedSeconds);
     }
   }, [elapsedSeconds, onProgress]);
+
+  // Flush the latest known progress on unmount -- e.g. the user navigates
+  // away mid-playback, which is the normal exit path, not an edge case.
+  // Progress is otherwise only persisted on the 10s interval, on pause, and
+  // on app backgrounding.
+  useEffect(() => {
+    return () => {
+      onProgressRef.current(elapsedSecondsRef.current);
+    };
+  }, []);
 
   // Persist progress on pause.
   useEffect(() => {
