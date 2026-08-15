@@ -1,7 +1,7 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { ZodError } from "zod";
 import type { CapsuleErrorCode } from "@commute-capsule/domain";
-import { loadConfig } from "./config";
+import { loadConfig, type Config } from "./config";
 import { GoogleRoutingProvider } from "./providers/routing";
 import { DevelopmentRoutingProvider } from "./providers/development";
 import { ElevenLabsProvider, DevelopmentProvider } from "./providers/elevenlabs";
@@ -20,8 +20,7 @@ const STATUS_BY_CAPSULE_ERROR_CODE: Record<CapsuleErrorCode, number> = {
   AUDIO_UNAVAILABLE: 502,
 };
 
-function buildDefaultTripService(): TripService {
-  const config = loadConfig();
+function buildDefaultTripService(config: Config): TripService {
   const routing =
     config.providerMode === "production"
       ? new GoogleRoutingProvider(config.googleMapsApiKey as string)
@@ -29,8 +28,7 @@ function buildDefaultTripService(): TripService {
   return new TripService(routing);
 }
 
-function buildDefaultCapsuleService(): CapsuleService {
-  const config = loadConfig();
+function buildDefaultCapsuleService(config: Config): CapsuleService {
   if (config.providerMode === "production") {
     const provider = new ElevenLabsProvider({
       apiKey: config.elevenLabsApiKey as string,
@@ -50,12 +48,20 @@ function buildDefaultCapsuleService(): CapsuleService {
 }
 
 export function buildApp(overrides?: {
+  providerMode?: "development" | "production";
   tripService?: TripService;
   capsuleService?: CapsuleService;
 }): FastifyInstance {
   const app = Fastify();
-  const tripService = overrides?.tripService ?? buildDefaultTripService();
-  const capsuleService = overrides?.capsuleService ?? buildDefaultCapsuleService();
+  // `providerMode` is the single switch that selects development vs. production
+  // implementations for routing, content generation, and storage together.
+  // Passing it overrides only the mode, not the rest of loadConfig()'s env-derived
+  // production credentials (still required from env when providerMode is "production").
+  const config: Config = overrides?.providerMode
+    ? { ...loadConfig(), providerMode: overrides.providerMode }
+    : loadConfig();
+  const tripService = overrides?.tripService ?? buildDefaultTripService(config);
+  const capsuleService = overrides?.capsuleService ?? buildDefaultCapsuleService(config);
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) {

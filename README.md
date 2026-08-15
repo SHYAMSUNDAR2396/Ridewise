@@ -4,6 +4,16 @@ Ridewise is a mobile application that turns a real commute into a complete audio
 
 The architecture supports English and Hindi, with a route-first flow and a manual duration fallback for journeys where a route estimate is unavailable. **The initial implementation plan targets an English-only, solo-narrated MVP first** — see [Project Status](#project-status).
 
+## Quickstart
+
+```bash
+npm install
+PROVIDER_MODE=development npm run dev --workspace @commute-capsule/api
+npm run start --workspace @commute-capsule/mobile
+```
+
+`PROVIDER_MODE=development` (the default if unset) runs the API against deterministic, no-network development providers — no ElevenLabs, Google Maps, or S3 credentials are required. Run the full test suite with `npm test && npm run typecheck` from the repo root. Building and running the mobile app onto a device or simulator additionally needs the native toolchain (Xcode/CocoaPods for iOS, Android Studio for Android) — see [Planned Technology](#planned-technology).
+
 ## Why Ridewise
 
 Short journeys are an awkward fit for most podcasts and audiobooks. A ten-minute metro ride rarely justifies starting a long episode, while reading or watching video can be uncomfortable on the move.
@@ -107,7 +117,7 @@ Never add `ELEVENLABS_API_KEY` to the mobile application bundle or any client-re
 
 ## Project Status
 
-Ridewise is currently in the design and implementation-planning stage; application code has not yet been scaffolded.
+The English-only, solo-narrated MVP described above is implemented and covered by an end-to-end acceptance test (`apps/api/tests/e2e/commute-flow.test.ts`, `apps/mobile/e2e/commute-flow.yaml`).
 
 Three generations of provider architecture exist in the design documents — only the ElevenLabs architecture is current. The initial implementation plan scopes an English-only MVP with solo-narrated capsules; Hindi and the two-host conversation format are fully specced but sequenced as follow-on work.
 
