@@ -7,10 +7,26 @@ import {
   useCapsuleStore,
   type StoredCapsule,
 } from "../features/capsules/capsule-store";
+import { EmptyState } from "../components/EmptyState";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
 type LibraryTab = "Recent" | "Saved" | "Downloaded";
 const TABS: LibraryTab[] = ["Recent", "Saved", "Downloaded"];
+
+const EMPTY_STATE_COPY: Record<LibraryTab, { title: string; message: string }> = {
+  Recent: {
+    title: "No capsules yet",
+    message: "Capsules you create will show up here.",
+  },
+  Saved: {
+    title: "No saved capsules",
+    message: "Save a capsule from the player to find it here.",
+  },
+  Downloaded: {
+    title: "No downloads yet",
+    message: "Download a capsule for offline listening.",
+  },
+};
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.max(1, Math.round(totalSeconds / 60));
@@ -68,6 +84,9 @@ export function LibraryScreen(): React.JSX.Element {
             onPress={() => navigation.navigate("Player", { capsule: item })}
           />
         )}
+        ListEmptyComponent={
+          <EmptyState title={EMPTY_STATE_COPY[tab].title} message={EMPTY_STATE_COPY[tab].message} />
+        }
       />
     </SafeAreaView>
   );

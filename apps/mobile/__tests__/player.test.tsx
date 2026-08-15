@@ -19,6 +19,8 @@ const mockPlay = jest.fn().mockResolvedValue(undefined);
 const mockPause = jest.fn().mockResolvedValue(undefined);
 const mockSeekBy = jest.fn().mockResolvedValue(undefined);
 
+let mockPlaybackState: { state: string } = { state: "paused" };
+
 jest.mock("react-native-track-player", () => ({
   __esModule: true,
   default: {
@@ -29,9 +31,9 @@ jest.mock("react-native-track-player", () => ({
     pause: (...args: unknown[]) => mockPause(...args),
     seekBy: (...args: unknown[]) => mockSeekBy(...args),
   },
-  State: { None: "none", Playing: "playing", Paused: "paused" },
+  State: { None: "none", Playing: "playing", Paused: "paused", Error: "error" },
   useActiveTrack: () => undefined,
-  usePlaybackState: () => ({ state: "paused" }),
+  usePlaybackState: () => mockPlaybackState,
   useProgress: () => ({ position: 0, duration: 0, buffered: 0 }),
 }));
 
@@ -58,6 +60,7 @@ describe("CapsulePlayer", () => {
     mockPlay.mockClear();
     mockPause.mockClear();
     mockSeekBy.mockClear();
+    mockPlaybackState = { state: "paused" };
     useCapsuleStore.setState({ capsules: [] });
   });
 
@@ -105,5 +108,19 @@ describe("CapsulePlayer", () => {
 
     await userEvent.setup().press(screen.getByRole("button", { name: "Play" }));
     expect(mockPlay).toHaveBeenCalled();
+  });
+
+  it("reports a playback error so the screen can offer retry (AUDIO_UNAVAILABLE)", async () => {
+    mockPlaybackState = { state: "error" };
+    const onPlaybackError = jest.fn();
+    render(
+      <CapsulePlayer
+        capsule={capsule}
+        initialPositionSeconds={0}
+        onProgress={jest.fn()}
+        onPlaybackError={onPlaybackError}
+      />,
+    );
+    await waitFor(() => expect(onPlaybackError).toHaveBeenCalled());
   });
 });

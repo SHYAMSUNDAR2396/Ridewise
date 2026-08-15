@@ -4,6 +4,7 @@ import {
   type Capsule,
   type AudioSegment,
   type CreateCapsuleRequest,
+  type CapsuleErrorCode,
 } from "@commute-capsule/domain";
 import type { ContentProvider } from "../providers/elevenlabs";
 import type { Storage } from "../providers/storage";
@@ -13,6 +14,22 @@ import { withRetry } from "./retry";
 const MAX_SEGMENT_CHARS = 8_000;
 const WORDS_PER_MINUTE = 150;
 const SHORTENING_FACTOR = 0.85;
+
+/**
+ * The API's stable, five-code error shape. Exactly the codes in
+ * @commute-capsule/domain's `capsuleErrorCodes` -- no `UNSAFE_TOPIC`, no
+ * `suggestedTopic`. An unsafe-topic decline from the Script Agent is a
+ * normal published capsule, never a thrown error.
+ */
+export class CapsuleError extends Error {
+  constructor(
+    readonly code: CapsuleErrorCode,
+    message: string,
+  ) {
+    super(message);
+    this.name = "CapsuleError";
+  }
+}
 
 export class CapsuleService {
   constructor(
@@ -58,7 +75,10 @@ export class CapsuleService {
       attempt += 1;
     }
 
-    throw new Error("CAPSULE_TOO_LONG");
+    throw new CapsuleError(
+      "CAPSULE_TOO_LONG",
+      "CAPSULE_TOO_LONG: this capsule couldn't fit the trip's duration even after shortening.",
+    );
   }
 
   /** Synthesize sequentially so a retry never regenerates a successful segment. */

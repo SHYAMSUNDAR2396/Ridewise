@@ -14,6 +14,7 @@ import {
 import { CapsulePlayer } from "../features/capsules/player";
 import { downloadCapsule } from "../features/capsules/download";
 import { isFullyDownloaded, useCapsuleStore } from "../features/capsules/capsule-store";
+import { RetryNotice } from "../components/RetryNotice";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
 type PlayerScreenRouteProp = RouteProp<RootStackParamList, "Player">;
@@ -41,6 +42,8 @@ export function PlayerScreen(): React.JSX.Element {
 
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [audioUnavailable, setAudioUnavailable] = useState(false);
+  const [playerRetryToken, setPlayerRetryToken] = useState(0);
 
   useEffect(() => {
     upsert(capsule);
@@ -97,11 +100,28 @@ export function PlayerScreen(): React.JSX.Element {
         <Text style={styles.subtitle}>Narrated by Ridewise AI</Text>
       </View>
 
-      <CapsulePlayer
-        capsule={capsule}
-        initialPositionSeconds={initialPositionSeconds}
-        onProgress={handleProgress}
-      />
+      {audioUnavailable ? (
+        <View style={styles.audioUnavailable}>
+          <RetryNotice
+            headline="Audio unavailable right now."
+            message="We couldn't load this capsule's audio. Check your connection and try again."
+            actionLabel="Retry"
+            onRetry={() => {
+              setAudioUnavailable(false);
+              setPlayerRetryToken((token) => token + 1);
+            }}
+            icon="🔇"
+          />
+        </View>
+      ) : (
+        <CapsulePlayer
+          key={playerRetryToken}
+          capsule={capsule}
+          initialPositionSeconds={initialPositionSeconds}
+          onProgress={handleProgress}
+          onPlaybackError={() => setAudioUnavailable(true)}
+        />
+      )}
 
       <View style={styles.actionsRow}>
         <Pressable
@@ -187,6 +207,10 @@ const styles = StyleSheet.create({
   headerIcon: {
     fontSize: 24,
     color: "#434655",
+  },
+  audioUnavailable: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
   },
   artwork: {
     alignSelf: "center",

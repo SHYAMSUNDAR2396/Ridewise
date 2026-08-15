@@ -15,6 +15,8 @@ export type CapsulePlayerProps = {
   capsule: Capsule;
   initialPositionSeconds: number;
   onProgress: (seconds: number) => void;
+  /** Called when the native player reports a playback error (AUDIO_UNAVAILABLE). */
+  onPlaybackError?: () => void;
 };
 
 const PROGRESS_REPORT_INTERVAL_SECONDS = 10;
@@ -39,11 +41,18 @@ export function CapsulePlayer({
   capsule,
   initialPositionSeconds,
   onProgress,
+  onPlaybackError,
 }: CapsulePlayerProps): React.JSX.Element {
   const activeTrack = useActiveTrack();
   const progress = useProgress(1000);
   const playbackState = usePlaybackState();
   const isPlaying = playbackState.state === State.Playing;
+
+  // Surface a native playback error (e.g. a segment URL that's gone stale
+  // or unreachable) as AUDIO_UNAVAILABLE so the screen can offer retry.
+  useEffect(() => {
+    if (playbackState.state === State.Error) onPlaybackError?.();
+  }, [playbackState.state, onPlaybackError]);
 
   const lastReportedRef = useRef(0);
   const wasPlayingRef = useRef(false);

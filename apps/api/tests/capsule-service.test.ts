@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 import { describe, it, expect, vi } from "vitest";
-import { CapsuleService } from "../src/services/capsule-service";
+import { CapsuleService, CapsuleError } from "../src/services/capsule-service";
 import { DevelopmentProvider } from "../src/providers/elevenlabs";
 import { InMemoryStorage } from "../src/providers/storage";
 
@@ -65,5 +65,21 @@ describe("CapsuleService.create", () => {
 
     const service = new CapsuleService(provider, new InMemoryStorage());
     await expect(service.create(request, 900)).rejects.toThrow("CAPSULE_TOO_LONG");
+  });
+
+  it("throws a CapsuleError carrying the stable CAPSULE_TOO_LONG code", async () => {
+    const provider = new DevelopmentProvider();
+    vi.spyOn(provider, "synthesize").mockResolvedValue({
+      bytes: new Uint8Array(1),
+      durationSeconds: 10_000,
+    });
+
+    const service = new CapsuleService(provider, new InMemoryStorage());
+    const error = await service.create(request, 900).catch((e) => e);
+
+    expect(error).toBeInstanceOf(CapsuleError);
+    expect(error.code).toBe("CAPSULE_TOO_LONG");
+    // No sixth code, no suggestedTopic anywhere in the error shape.
+    expect(error).not.toHaveProperty("suggestedTopic");
   });
 });

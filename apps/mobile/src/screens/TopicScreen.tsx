@@ -13,6 +13,7 @@ import {
 import type { ListeningStyle, TripDraft } from "@commute-capsule/domain";
 import { useTripStore } from "../features/trip/trip-store";
 import { useGenerateCapsule } from "../features/capsules/generate-capsule";
+import { RetryNotice } from "../components/RetryNotice";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
 const TOPIC_SUGGESTIONS = [
@@ -144,18 +145,13 @@ export function TopicScreen(): React.JSX.Element {
         </View>
 
         {status === "error" ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorText}>
-              Something went wrong. Your selections are saved -- try again.
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              style={styles.retryButton}
-              onPress={handleGenerate}
-            >
-              <Text style={styles.retryButtonText}>Retry</Text>
-            </Pressable>
-          </View>
+          <RetryNotice
+            headline="Your capsule needs another moment."
+            message="Something went wrong, and your selections are saved -- try again."
+            actionLabel="Retry"
+            onRetry={handleGenerate}
+            icon="⟳"
+          />
         ) : null}
       </ScrollView>
 
@@ -311,31 +307,6 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope",
     fontSize: 10,
     color: "#434655",
-  },
-  errorBanner: {
-    gap: 12,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: "#ffdad6",
-  },
-  errorText: {
-    fontFamily: "Manrope",
-    fontSize: 14,
-    color: "#93000a",
-  },
-  retryButton: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#93000a",
-  },
-  retryButtonText: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#93000a",
   },
   footer: {
     position: "absolute",

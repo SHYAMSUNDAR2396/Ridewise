@@ -15,6 +15,7 @@ import type { RouteEstimate, TransportMode, TripDraft } from "@commute-capsule/d
 import { apiClient } from "../api/client";
 import { useTripStore } from "../features/trip/trip-store";
 import { DurationStepper } from "../features/trip/duration-input";
+import { RetryNotice } from "../components/RetryNotice";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
 // ponytail: main-screen layout is sourced from
@@ -98,34 +99,29 @@ export function TripCheckScreen(): React.JSX.Element {
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
           <Text style={styles.sectionTitle}>Route Estimation Failed</Text>
-          <View style={styles.failureCard}>
-            <Text style={styles.failureHeadline}>Couldn't estimate this route.</Text>
-            <Text style={styles.failureBody}>
-              Set your travel time manually to continue creating your audio capsule.
-            </Text>
-            <Text style={styles.inputLabel}>Estimated Travel Time</Text>
-            <View style={styles.manualInputRow}>
-              <TextInput
-                accessibilityLabel="Estimated Travel Time"
-                style={styles.manualInput}
-                keyboardType="numeric"
-                placeholder="45"
-                value={manualMinutesInput}
-                onChangeText={setManualMinutesInput}
-              />
-              <Text style={styles.minsSuffix}>mins</Text>
-            </View>
-          </View>
-        </ScrollView>
-        <View style={styles.footer}>
-          <Pressable
-            accessibilityRole="button"
-            style={styles.continueButton}
-            onPress={handleFailureContinue}
+          <RetryNotice
+            headline="Couldn't estimate this route."
+            message="Set your travel time manually to continue creating your audio capsule."
+            actionLabel="Continue"
+            onRetry={handleFailureContinue}
+            icon="🗺"
           >
-            <Text style={styles.continueButtonText}>Continue</Text>
-          </Pressable>
-        </View>
+            <View>
+              <Text style={styles.inputLabel}>Estimated Travel Time</Text>
+              <View style={styles.manualInputRow}>
+                <TextInput
+                  accessibilityLabel="Estimated Travel Time"
+                  style={styles.manualInput}
+                  keyboardType="numeric"
+                  placeholder="45"
+                  value={manualMinutesInput}
+                  onChangeText={setManualMinutesInput}
+                />
+                <Text style={styles.minsSuffix}>mins</Text>
+              </View>
+            </View>
+          </RetryNotice>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -208,26 +204,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "500",
     color: "#1a1c1c",
-  },
-  failureCard: {
-    backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: "#c3c6d7",
-    borderRadius: 12,
-    padding: 24,
-    gap: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: "#ba1a1a",
-  },
-  failureHeadline: {
-    fontFamily: "Manrope",
-    fontSize: 18,
-    color: "#1a1c1c",
-  },
-  failureBody: {
-    fontFamily: "Manrope",
-    fontSize: 16,
-    color: "#434655",
   },
   inputLabel: {
     fontFamily: "Manrope",

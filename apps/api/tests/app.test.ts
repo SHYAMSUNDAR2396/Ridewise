@@ -92,4 +92,52 @@ describe("POST /v1/capsules", () => {
       }),
     );
   });
+
+  it("maps a speech synthesis failure to the stable error shape", async () => {
+    const tripService = new TripService({
+      estimate: vi.fn().mockResolvedValue({ durationSeconds: 1200, summary: "Metro via Blue Line" }),
+    });
+    const provider = new DevelopmentProvider();
+    vi.spyOn(provider, "synthesize").mockRejectedValue(new Error("SPEECH_SYNTHESIS_FAILED"));
+    const capsuleService = new CapsuleService(provider, new InMemoryStorage());
+    const app = buildApp({ tripService, capsuleService });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/capsules",
+      payload: {
+        trip: { startLabel: "Andheri", endLabel: "Bandra", transportMode: "metro" },
+        topic: "Personal finance",
+        style: "quick_overview",
+        language: "en-IN",
+      },
+    });
+
+    expect(response.json()).toEqual(expect.objectContaining({ code: "SPEECH_SYNTHESIS_FAILED" }));
+    expect(response.json()).not.toHaveProperty("suggestedTopic");
+    expect(JSON.stringify(response.json())).not.toMatch(/UNSAFE_TOPIC/);
+  });
+
+  it("maps a route estimation failure with no manual fallback to ROUTE_UNAVAILABLE", async () => {
+    const tripService = new TripService({
+      estimate: vi.fn().mockRejectedValue(new Error("Google Routes request failed: key abc123")),
+    });
+    const capsuleService = new CapsuleService(new DevelopmentProvider(), new InMemoryStorage());
+    const app = buildApp({ tripService, capsuleService });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/capsules",
+      payload: {
+        trip: { startLabel: "Andheri", endLabel: "Bandra", transportMode: "metro" },
+        topic: "Personal finance",
+        style: "quick_overview",
+        language: "en-IN",
+      },
+    });
+
+    expect(response.json()).toEqual(expect.objectContaining({ code: "ROUTE_UNAVAILABLE" }));
+    // The underlying provider error text (which could carry a key) never reaches the client.
+    expect(JSON.stringify(response.json())).not.toMatch(/abc123/);
+  });
 });
