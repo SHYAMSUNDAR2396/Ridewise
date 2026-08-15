@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   scrubberFill: {
     height: 3,
     borderRadius: 2,
-    backgroundColor: "#2563eb",
+    backgroundColor: "#004ac6",
   },
   timestamps: {
     flexDirection: "row",

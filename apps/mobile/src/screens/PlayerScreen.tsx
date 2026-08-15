@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#2563eb",
+    color: "#004ac6",
     marginBottom: 8,
   },
   title: {
