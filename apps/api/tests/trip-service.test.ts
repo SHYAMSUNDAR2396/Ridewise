@@ -24,6 +24,17 @@ describe("TripService", () => {
     });
   });
 
+  it("uses manual time even when the provider would succeed", async () => {
+    const estimateFn = vi.fn().mockResolvedValue({ durationSeconds: 1200, summary: "Metro via Blue Line" });
+    const service = new TripService({ estimate: estimateFn });
+    await expect(service.estimate({ ...draft(), manualSeconds: 900 })).resolves.toEqual({
+      durationSeconds: 900,
+      summary: "Manual duration",
+      source: "manual",
+    });
+    expect(estimateFn).not.toHaveBeenCalled();
+  });
+
   it("uses manual time after a provider failure", async () => {
     const service = new TripService({ estimate: vi.fn().mockRejectedValue(new Error("unavailable")) });
     await expect(service.estimate({ ...draft(), manualSeconds: 900 })).resolves.toEqual({
