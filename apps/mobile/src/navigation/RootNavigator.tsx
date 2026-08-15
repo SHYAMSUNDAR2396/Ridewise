@@ -6,15 +6,16 @@ import { HomeScreen } from "../screens/HomeScreen";
 import { ModeScreen } from "../screens/ModeScreen";
 import { TripCheckScreen } from "../screens/TripCheckScreen";
 import { TopicScreen } from "../screens/TopicScreen";
+import { PlayerScreen } from "../screens/PlayerScreen";
+import { LibraryScreen } from "../screens/LibraryScreen";
 
 export type RootStackParamList = {
   Home: undefined;
   Mode: undefined;
   TripCheck: undefined;
   Topic: undefined;
-  // ponytail: Player screen is built in a later task; this param type lets Topic
-  // navigate to it now without a placeholder component.
   Player: { capsule: Capsule };
+  Library: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -31,6 +32,12 @@ export function RootNavigator(): React.JSX.Element {
           options={{ title: "Trip Check" }}
         />
         <Stack.Screen name="Topic" component={TopicScreen} options={{ title: "Topic" }} />
+        <Stack.Screen
+          name="Player"
+          component={PlayerScreen}
+          options={{ headerShown: false, presentation: "modal" }}
+        />
+        <Stack.Screen name="Library" component={LibraryScreen} options={{ title: "Library" }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
