@@ -58,6 +58,24 @@ describe("TripCheckScreen", () => {
     expect(draft.transportMode).toBe("metro");
   });
 
+  it("commits an edited duration when Continue is tapped instead of Use manual time", async () => {
+    mockEstimateTrip.mockResolvedValueOnce({
+      durationSeconds: 1080,
+      summary: "via Blue Line",
+      source: "routing",
+    });
+    render(<TripCheckScreen />);
+
+    await waitFor(() => expect(screen.getByText("18")).toBeVisible());
+
+    await userEvent.setup().press(screen.getByLabelText("Edit duration"));
+    await userEvent.setup().press(screen.getByLabelText("Increase minutes"));
+    await userEvent.setup().press(screen.getByRole("button", { name: "Continue" }));
+
+    expect(mockNavigate).toHaveBeenCalledWith("Topic");
+    expect(useTripStore.getState().draft.manualSeconds).toBe(19 * 60);
+  });
+
   it("shows the route summary and duration when estimation succeeds", async () => {
     mockEstimateTrip.mockResolvedValueOnce({
       durationSeconds: 1080,

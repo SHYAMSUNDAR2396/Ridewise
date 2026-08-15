@@ -79,6 +79,9 @@ export function TripCheckScreen(): React.JSX.Element {
   }
 
   function handleSuccessContinue(): void {
+    if (isEditing) {
+      setManualSeconds(minutes * 60);
+    }
     goToTopic();
   }
 
