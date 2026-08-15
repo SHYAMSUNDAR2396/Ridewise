@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Ridewise - Route Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#434655",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-container-high": "#e8e8e8",
+                    "secondary-fixed-dim": "#ffb2b7",
+                    "surface": "#f9f9f9",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-container": "#dc2c4f",
+                    "secondary-fixed": "#ffdadb",
+                    "on-tertiary-fixed-variant": "#474747",
+                    "background": "#f9f9f9",
+                    "outline-variant": "#c3c6d7",
+                    "inverse-surface": "#2f3131",
+                    "inverse-primary": "#b4c5ff",
+                    "on-surface": "#1a1c1c",
+                    "surface-variant": "#e2e2e2",
+                    "surface-bright": "#f9f9f9",
+                    "secondary": "#b90538",
+                    "on-secondary-container": "#fffbff",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#f0f1f1",
+                    "on-secondary-fixed-variant": "#92002a",
+                    "surface-container-low": "#f3f3f3",
+                    "on-primary-container": "#eeefff",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#0053db",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed-dim": "#c8c6c6",
+                    "surface-dim": "#dadada",
+                    "surface-container": "#eeeeee",
+                    "outline": "#737686",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#e2e2e2",
+                    "primary": "#004ac6",
+                    "tertiary-fixed": "#e4e2e1",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#1b1c1c",
+                    "tertiary-container": "#6e6d6d",
+                    "on-primary-fixed": "#00174b",
+                    "on-secondary-fixed": "#40000d",
+                    "primary-container": "#2563eb",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-container": "#f3f0ef",
+                    "on-background": "#1a1c1c",
+                    "tertiary": "#555555"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-lg": "24px",
+                    "gutter-mobile": "16px",
+                    "margin-mobile": "24px",
+                    "stack-xs": "4px",
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-xl": "48px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Manrope"
+                    ],
+                    "body-lg": [
+                            "Manrope"
+                    ],
+                    "headline-md": [
+                            "Newsreader"
+                    ],
+                    "label-sm": [
+                            "Manrope"
+                    ],
+                    "display-lg-mobile": [
+                            "Newsreader"
+                    ],
+                    "mono-label": [
+                            "Manrope"
+                    ],
+                    "display-lg": [
+                            "Newsreader"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "32px",
+                            {
+                                    "lineHeight": "38px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "mono-label": [
+                            "12px",
+                            {
+                                    "lineHeight": "14px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg": [
+                            "40px",
+                            {
+                                    "lineHeight": "48px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+        },
+        },
+      }
+    </script>
+<style>
+        .map-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Map lines */
+        .route-path {
+            stroke: #2563eb;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+        .route-stop {
+            fill: #ffffff;
+            stroke: #2563eb;
+            stroke-width: 2;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md h-full flex flex-col overflow-hidden relative selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface flex justify-between items-center px-margin-mobile py-stack-md z-40 border-b border-outline-variant flat no shadows">
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container transition-colors active:opacity-80 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<h1 class="font-headline-md text-headline-md text-on-surface">Route Map</h1>
+<div class="flex items-center gap-1 mt-1 bg-surface-container-high rounded-full px-3 py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Rajiv Chowk</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant" data-icon="arrow_forward">arrow_forward</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Noida Sec 18</span>
+</div>
+</div>
+<button aria-label="More options" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container transition-colors active:opacity-80 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</header>
+<!-- Map Area (60%) -->
+<main class="relative flex-grow bg-surface-container-low" style="height: 60vh;">
+<!-- Simulated Map Background -->
+<div class="absolute inset-0 bg-[#EFEFEF] w-full h-full object-cover" data-alt="A clean, minimalist, high-contrast digital map in an off-white light mode aesthetic, featuring very subtle gray street lines and geometric city blocks. No text labels, just clean architectural layout." data-location="New Delhi" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBLY1npE1ppUUCRiny9pykZq3pK77h4Ow70GZvLQuiTteBe8mNlP62BDRxuntUM6t9NqNGE2b-y533M389hKb0cRUUF3vAIHTHWM9Wr8fj9y4Iu2EwZsIDStbSw2YjV5WZNNnBUh_f8f3t7A78bNkk4_kTrpJzjWbhqNVVjRo0i3NdsgeGW0p5yr4X3ModIFLCvNLQxYjFlQKzNYjzSlcgR9ZjJKLTCuSzAO9DBw1ciiO3TZ5cHyrJKoQ')">
+</div>
+<!-- SVG Overlay for Route -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" preserveaspectratio="none" viewbox="0 0 100 100">
+<path class="route-path" d="M 10 80 Q 30 70 50 50 T 90 20"></path>
+<!-- Past Stops (Gray) -->
+<circle class="route-stop" cx="10" cy="80" r="1.5" style="stroke: #737686;"></circle>
+<circle class="route-stop" cx="25" cy="74" r="1.5" style="stroke: #737686;"></circle>
+<!-- Future Stops (Cobalt) -->
+<circle class="route-stop" cx="65" cy="40" r="1.5"></circle>
+<circle class="route-stop" cx="78" cy="30" r="1.5"></circle>
+<circle class="route-stop" cx="90" cy="20" r="1.5"></circle>
+<!-- Live Location (Near Mandi House) -->
+<g transform="translate(42, 58)">
+<circle class="map-pulse" cx="0" cy="0" fill="rgba(37, 99, 235, 0.2)" r="3"></circle>
+<circle cx="0" cy="0" fill="#2563eb" r="1.5"></circle>
+<circle cx="0" cy="0" fill="#ffffff" r="0.8"></circle>
+</g>
+</svg>
+<!-- Current Location Button -->
+<button class="absolute bottom-stack-lg right-margin-mobile w-12 h-12 bg-surface rounded-xl shadow-sm border border-surface-variant flex items-center justify-center text-primary-container active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="my_location" data-weight="fill">my_location</span>
+</button>
+</main>
+<!-- Bottom Sheet / Panel (40%) -->
+<section class="bg-surface w-full flex flex-col border-t border-outline-variant z-30" style="height: 40vh; border-top-left-radius: 16px; border-top-right-radius: 16px; margin-top: -16px;">
+<!-- Drag Handle Indicator -->
+<div class="w-full flex justify-center py-2 cursor-grab">
+<div class="w-12 h-1 bg-outline-variant rounded-full opacity-50"></div>
+</div>
+<div class="px-margin-mobile py-stack-md flex-grow overflow-hidden flex flex-col">
+<!-- Status Card -->
+<div class="border border-surface-variant rounded-xl p-4 bg-surface-bright flex items-center justify-between mb-stack-md">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Next Stop</p>
+<h2 class="font-headline-md text-headline-md text-on-surface">Mandi House</h2>
+</div>
+<div class="text-right">
+<div class="flex items-center gap-1 text-secondary-container bg-error-container/30 px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+<span class="font-label-sm text-label-sm">2 mins</span>
+</div>
+</div>
+</div>
+<!-- Route Steps List -->
+<div class="flex-grow overflow-y-auto hide-scrollbar relative">
+<div class="absolute left-[11px] top-4 bottom-8 w-[2px] bg-surface-container-high z-0"></div>
+<ul class="relative z-10 space-y-4 pb-stack-lg">
+<!-- Current/Next Stop -->
+<li class="flex gap-4 items-start">
+<div class="relative mt-1">
+<div class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center z-10 relative">
+<div class="w-2 h-2 rounded-full bg-surface"></div>
+</div>
+</div>
+<div>
+<p class="font-body-md text-body-md font-semibold text-on-surface">Mandi House</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant font-normal">Arriving very soon</p>
+</div>
+</li>
+<!-- Upcoming Stops -->
+<li class="flex gap-4 items-center">
+<div class="w-6 h-6 flex items-center justify-center">
+<div class="w-3 h-3 rounded-full border-2 border-outline-variant bg-surface z-10 relative"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Pragati Maidan</p>
+</li>
+<li class="flex gap-4 items-center">
+<div class="w-6 h-6 flex items-center justify-center">
+<div class="w-3 h-3 rounded-full border-2 border-outline-variant bg-surface z-10 relative"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Indraprastha</p>
+</li>
+<li class="flex gap-4 items-center">
+<div class="w-6 h-6 flex items-center justify-center">
+<div class="w-3 h-3 rounded-full border-2 border-outline-variant bg-surface z-10 relative"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Yamuna Bank</p>
+</li>
+<li class="flex gap-4 items-center">
+<div class="w-6 h-6 flex items-center justify-center">
+<div class="w-3 h-3 rounded-full border-2 border-outline-variant bg-surface z-10 relative"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Akshardham</p>
+</li>
+<li class="flex gap-4 items-center">
+<div class="w-6 h-6 flex items-center justify-center">
+<div class="w-3 h-3 rounded-full border-2 border-outline-variant bg-surface z-10 relative"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Mayur Vihar</p>
+</li>
+<!-- Destination -->
+<li class="flex gap-4 items-start pt-2">
+<div class="relative mt-1">
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant bg-surface flex items-center justify-center z-10 relative">
+<span class="material-symbols-outlined text-[14px] text-outline-variant" data-icon="flag">flag</span>
+</div>
+</div>
+<div>
+<p class="font-body-md text-body-md font-semibold text-on-surface">Noida Sec 18</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant font-normal">Destination</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<!-- Mini Audio Player Fixed at Bottom of Sheet -->
+<div class="border-t border-surface-variant bg-inverse-surface px-margin-mobile py-3 flex flex-col pb-safe">
+<div class="flex items-center gap-3 w-full">
+<button class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined" data-icon="play_arrow" data-weight="fill">play_arrow</span>
+</button>
+<div class="flex-grow min-w-0">
+<p class="font-label-sm text-label-sm text-on-primary-container truncate font-normal">Now Playing</p>
+<p class="font-body-md text-body-md text-surface font-medium truncate">How India's metro systems changed city life</p>
+</div>
+</div>
+<!-- Minimal Progress Bar -->
+<div class="w-full h-1 bg-tertiary-fixed-dim rounded-full mt-3 overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 35%;"></div>
+</div>
+</div>
+</section>
+</body></html>

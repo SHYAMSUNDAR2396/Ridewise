@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ridewise - Choose Transport</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=Newsreader:opsz,wght@6..72,500;6..72,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline-variant": "#c3c6d7",
+                        "surface": "#f9f9f9",
+                        "secondary-fixed-dim": "#ffb2b7",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#6e6d6d",
+                        "surface-bright": "#f9f9f9",
+                        "primary-container": "#2563eb",
+                        "inverse-on-surface": "#f0f1f1",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface-variant": "#434655",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-container": "#eeefff",
+                        "on-background": "#1a1c1c",
+                        "on-secondary-fixed-variant": "#92002a",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary": "#555555",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary-fixed": "#e4e2e1",
+                        "surface-variant": "#e2e2e2",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "outline": "#737686",
+                        "on-secondary-fixed": "#40000d",
+                        "on-tertiary-container": "#f3f0ef",
+                        "inverse-surface": "#2f3131",
+                        "surface-dim": "#dadada",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "secondary-fixed": "#ffdadb",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-secondary-container": "#fffbff",
+                        "surface-container-low": "#f3f3f3",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#0053db",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#dc2c4f",
+                        "on-secondary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "primary": "#004ac6",
+                        "surface-container-high": "#e8e8e8",
+                        "on-surface": "#1a1c1c",
+                        "surface-container": "#eeeeee",
+                        "tertiary-fixed-dim": "#c8c6c6",
+                        "on-error": "#ffffff",
+                        "secondary": "#b90538"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "stack-xs": "4px",
+                        "stack-md": "16px",
+                        "stack-xl": "48px",
+                        "stack-lg": "24px",
+                        "margin-mobile": "24px",
+                        "gutter-mobile": "16px",
+                        "stack-sm": "8px"
+                    },
+                    fontFamily: {
+                        "display-lg-mobile": ["Newsreader"],
+                        "label-sm": ["Manrope"],
+                        "mono-label": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-md": ["Newsreader"],
+                        "display-lg": ["Newsreader"],
+                        "body-lg": ["Manrope"]
+                    },
+                    fontSize: {
+                        "display-lg-mobile": ["32px", { lineHeight: "38px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "label-sm": ["13px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "mono-label": ["12px", { lineHeight: "14px", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "500" }],
+                        "display-lg": ["40px", { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #FAFAFA; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .filled-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface h-screen flex flex-col antialiased">
+<!-- Top Navigation (Transactional intent -> no full TopAppBar JSON rendering, just structural header) -->
+<header class="flex justify-between items-center px-margin-mobile py-stack-md w-full sticky top-0 bg-surface z-10">
+<button class="w-12 h-12 flex items-center justify-center -ml-3 rounded-full hover:bg-surface-container transition-colors active:opacity-80">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<span class="font-mono-label text-mono-label text-on-surface-variant uppercase tracking-wider">2 of 5</span>
+<div class="w-12 h-12"></div> <!-- Spacer for alignment -->
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-margin-mobile pt-stack-md pb-[100px] overflow-y-auto">
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-on-surface mb-stack-xl">
+            How are you travelling?
+        </h1>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-gutter-mobile">
+<!-- Selected Metro Card -->
+<button class="relative bg-primary-container text-on-primary-container rounded-xl p-stack-md flex flex-col items-start gap-stack-sm border border-primary-container shadow-sm active:scale-95 transition-transform text-left outline-none ring-2 ring-primary-container ring-offset-2 ring-offset-surface">
+<div class="flex justify-between w-full items-start">
+<span class="material-symbols-outlined text-[32px] filled-icon">subway</span>
+<span class="material-symbols-outlined bg-on-primary-container text-primary-container rounded-full text-[16px] p-0.5 filled-icon">check</span>
+</div>
+<span class="font-label-sm text-label-sm mt-stack-sm">Metro</span>
+</button>
+<!-- Bus Card -->
+<button class="bg-surface-container-lowest text-on-surface rounded-xl p-stack-md flex flex-col items-start gap-stack-sm border border-[#E5E5E5] hover:bg-surface-container-low active:scale-95 transition-all text-left outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 focus:ring-offset-surface">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant">directions_bus</span>
+<span class="font-label-sm text-label-sm mt-stack-sm">Bus</span>
+</button>
+<!-- Local Train Card -->
+<button class="bg-surface-container-lowest text-on-surface rounded-xl p-stack-md flex flex-col items-start gap-stack-sm border border-[#E5E5E5] hover:bg-surface-container-low active:scale-95 transition-all text-left outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 focus:ring-offset-surface">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant">train</span>
+<span class="font-label-sm text-label-sm mt-stack-sm">Local train</span>
+</button>
+<!-- Cab Card -->
+<button class="bg-surface-container-lowest text-on-surface rounded-xl p-stack-md flex flex-col items-start gap-stack-sm border border-[#E5E5E5] hover:bg-surface-container-low active:scale-95 transition-all text-left outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 focus:ring-offset-surface">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant">local_taxi</span>
+<span class="font-label-sm text-label-sm mt-stack-sm">Cab</span>
+</button>
+<!-- Bike Card -->
+<button class="bg-surface-container-lowest text-on-surface rounded-xl p-stack-md flex flex-col items-start gap-stack-sm border border-[#E5E5E5] hover:bg-surface-container-low active:scale-95 transition-all text-left outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 focus:ring-offset-surface">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant">two_wheeler</span>
+<span class="font-label-sm text-label-sm mt-stack-sm">Bike</span>
+</button>
+<!-- Walk Card -->
+<button class="bg-surface-container-lowest text-on-surface rounded-xl p-stack-md flex flex-col items-start gap-stack-sm border border-[#E5E5E5] hover:bg-surface-container-low active:scale-95 transition-all text-left outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 focus:ring-offset-surface">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant">directions_walk</span>
+<span class="font-label-sm text-label-sm mt-stack-sm">Walk</span>
+</button>
+<!-- Other Card -->
+<button class="bg-surface-container-lowest text-on-surface rounded-xl p-stack-md flex flex-col items-start gap-stack-sm border border-[#E5E5E5] hover:bg-surface-container-low active:scale-95 transition-all text-left outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 focus:ring-offset-surface">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant">more_horiz</span>
+<span class="font-label-sm text-label-sm mt-stack-sm">Other</span>
+</button>
+</div>
+</main>
+<!-- Bottom Action Bar (Fixed) -->
+<div class="fixed bottom-0 left-0 w-full p-margin-mobile bg-gradient-to-t from-surface via-surface to-transparent pt-stack-xl pb-8 z-20">
+<button class="w-full bg-primary-container text-on-primary-container font-label-sm text-label-sm py-4 rounded-xl active:opacity-90 transition-opacity flex justify-center items-center shadow-sm">
+            Continue
+        </button>
+</div>
+</body></html>

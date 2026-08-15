@@ -1,6 +1,6 @@
 # Ridewise Sarvam Bilingual Architecture
 
-**Status:** Approved  
+**Status:** Superseded by the ElevenLabs architecture on 2026-08-13  
 **Date:** 2026-08-06  
 **Scope:** Replace the planned AI providers with Sarvam AI and launch Ridewise with English and Hindi.
 

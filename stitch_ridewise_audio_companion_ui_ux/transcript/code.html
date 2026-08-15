@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ridewise - Transcript</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#c3c6d7",
+                      "surface": "#f9f9f9",
+                      "secondary-fixed-dim": "#ffb2b7",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-container": "#6e6d6d",
+                      "surface-bright": "#f9f9f9",
+                      "primary-container": "#2563eb",
+                      "inverse-on-surface": "#f0f1f1",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-surface-variant": "#434655",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#b4c5ff",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-primary-container": "#eeefff",
+                      "on-background": "#1a1c1c",
+                      "on-secondary-fixed-variant": "#92002a",
+                      "on-primary-fixed": "#00174b",
+                      "tertiary": "#555555",
+                      "primary-fixed": "#dbe1ff",
+                      "tertiary-fixed": "#e4e2e1",
+                      "surface-variant": "#e2e2e2",
+                      "error-container": "#ffdad6",
+                      "on-primary": "#ffffff",
+                      "outline": "#737686",
+                      "on-secondary-fixed": "#40000d",
+                      "on-tertiary-container": "#f3f0ef",
+                      "inverse-surface": "#2f3131",
+                      "surface-dim": "#dadada",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "secondary-fixed": "#ffdadb",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-secondary-container": "#fffbff",
+                      "surface-container-low": "#f3f3f3",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#0053db",
+                      "on-tertiary": "#ffffff",
+                      "secondary-container": "#dc2c4f",
+                      "on-secondary": "#ffffff",
+                      "background": "#f9f9f9",
+                      "on-tertiary-fixed": "#1b1c1c",
+                      "primary": "#004ac6",
+                      "surface-container-high": "#e8e8e8",
+                      "on-surface": "#1a1c1c",
+                      "surface-container": "#eeeeee",
+                      "tertiary-fixed-dim": "#c8c6c6",
+                      "on-error": "#ffffff",
+                      "secondary": "#b90538"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-xs": "4px",
+                      "stack-md": "16px",
+                      "stack-xl": "48px",
+                      "stack-lg": "24px",
+                      "margin-mobile": "24px",
+                      "gutter-mobile": "16px",
+                      "stack-sm": "8px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": [
+                              "Newsreader"
+                      ],
+                      "label-sm": [
+                              "Manrope"
+                      ],
+                      "mono-label": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "headline-md": [
+                              "Newsreader"
+                      ],
+                      "display-lg": [
+                              "Newsreader"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "38px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "mono-label": [
+                              "12px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container relative">
+<!-- Top Navigation (Modal/Sheet Style Header) -->
+<header class="bg-surface sticky top-0 z-10 border-b border-outline-variant flat no shadows flex justify-between items-center px-margin-mobile py-stack-md w-full">
+<!-- Leading Action: Close/Back to player -->
+<button class="flex items-center gap-2 hover:bg-surface-container transition-colors active:opacity-80 p-2 -ml-2 rounded-lg text-on-surface-variant group">
+<span aria-hidden="true" class="material-symbols-outlined text-2xl">close</span>
+<span class="font-label-sm text-label-sm group-hover:text-on-surface transition-colors">Back to player</span>
+</button>
+<!-- Brand/Headline -->
+<div class="font-display-lg-mobile text-display-lg-mobile text-primary tracking-tight">
+            Ridewise
+        </div>
+<!-- Trailing Action: Settings/More (Optional for balance, hidden for simplicity if not needed, kept empty here to maintain flex-between center alignment if needed, or use a placeholder) -->
+<div class="w-10"></div>
+</header>
+<!-- Main Content Canvas - Transcript -->
+<main class="flex-1 px-margin-mobile py-stack-lg max-w-3xl mx-auto w-full pb-32 overflow-y-auto">
+<div class="space-y-stack-xl">
+<!-- Header for the transcript context -->
+<div class="space-y-stack-sm border-b border-surface-variant pb-stack-md">
+<h1 class="font-headline-md text-headline-md text-on-surface">Colaba to Bandra: Historical Journey</h1>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">schedule</span> 45 min
+                </p>
+</div>
+<!-- Transcript paragraphs -->
+<div class="space-y-stack-lg font-body-lg text-body-lg leading-relaxed">
+<!-- Past paragraph (dimmed slightly) -->
+<p class="text-on-surface-variant/70 transition-colors duration-300">
+                    Welcome to this journey across Mumbai. As we start near Colaba, you can feel the sea breeze off the Arabian Sea. Yeh shaher hamesha chalta rehta hai, just like the waves hitting the tetrapods at Marine Drive.
+                </p>
+<p class="text-on-surface-variant/70 transition-colors duration-300">
+                    We are now heading towards Fort area. Look at the magnificent Gothic architecture around you. The Chhatrapati Shivaji Maharaj Terminus is a prime example. In 1887, when it was built, it symbolized the imperial power, but today it is the beating heart of local transport.
+                </p>
+<!-- Currently spoken paragraph (Highlighted in primary/cobalt) -->
+<div class="relative bg-primary-fixed p-stack-md rounded-xl border border-primary-fixed-dim transition-all duration-500 shadow-sm">
+<!-- Subtle AI visualizer indicator for active speech -->
+<div class="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-12 bg-primary rounded-full animate-pulse"></div>
+<p class="text-on-primary-fixed font-bold">
+                        As we move further north along the coast, we cross the iconic Sea Link. The Bandra-Worli Sea Link is not just an engineering marvel; it’s a bridge between the old island city and the sprawling suburbs. Raat ke waqt, the cables light up, creating a beautiful silhouette against the sky. Let's talk about the history of Bandra next.
+                    </p>
+</div>
+<!-- Upcoming paragraphs (Normal contrast) -->
+<p class="text-on-surface transition-colors duration-300">
+                    Bandra, historically known as Bandor, was a collection of fishing villages. The Portuguese influence here is still very visible in the names of streets and the beautiful old churches like Mount Mary. 
+                </p>
+<p class="text-on-surface transition-colors duration-300">
+                    Before the reclamation projects, you had to take a ferry to cross the Mahim creek to reach Bandra from the main island of Bombay. Can you imagine that? Aaj toh we just zip across in minutes.
+                </p>
+<p class="text-on-surface transition-colors duration-300">
+                    As we conclude this segment, notice the shift in architecture from the colonial stone buildings of South Mumbai to the more eclectic, modern, and sometimes chaotic structures of the suburbs.
+                </p>
+</div>
+</div>
+</main>
+<!-- Bottom Audio Controls Overlay (Persistent context, highly minimized since we are IN the transcript) -->
+<div class="fixed bottom-margin-mobile left-margin-mobile right-margin-mobile max-w-3xl mx-auto z-40">
+<div class="bg-surface-container-highest rounded-full p-2 pr-4 flex items-center justify-between border border-outline-variant shadow-sm backdrop-blur-md bg-opacity-90">
+<div class="flex items-center gap-3">
+<button class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary hover:bg-on-primary-fixed-variant transition-colors active:scale-95">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<div class="flex flex-col">
+<span class="font-mono-label text-mono-label text-on-surface">PLAYING</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate w-32 md:w-48">Colaba to Bandra</span>
+</div>
+</div>
+<!-- Simple progress indicator -->
+<div class="flex items-center gap-2">
+<span class="font-mono-label text-mono-label text-on-surface-variant text-[10px]">12:45</span>
+<div class="w-16 h-1 bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/3"></div>
+</div>
+<span class="font-mono-label text-mono-label text-on-surface-variant text-[10px]">45:00</span>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,20 @@
+appId: com.ridewisemobile
+---
+# Acceptance flow for the MVP creation path: Home -> Mode -> Trip Check ->
+# Topic -> Player. Labels here are taken from the actual implemented screen
+# copy (apps/mobile/src/features/trip/trip-form.tsx, ModeScreen.tsx,
+# TripCheckScreen.tsx, TopicScreen.tsx, PlayerScreen.tsx) -- not guessed.
+#
+# NOTE: unverified in this sandbox -- there is no simulator/emulator
+# available here to run `maestro test` against (see task-8-report.md).
+- launchApp
+- tapOn: "Start"
+- inputText: "Rajiv Chowk"
+- tapOn: "Destination"
+- inputText: "Noida Sector 18"
+- tapOn: "Continue"
+- tapOn: "Metro"
+- tapOn: "Continue"
+- tapOn: "Technology"
+- tapOn: "Generate my capsule"
+- assertVisible: "Transcript"

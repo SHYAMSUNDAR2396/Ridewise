@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Ridewise - Travel Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#e4e2e1",
+                      "on-secondary-fixed-variant": "#92002a",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "tertiary-container": "#6e6d6d",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#434655",
+                      "inverse-surface": "#2f3131",
+                      "on-error": "#ffffff",
+                      "inverse-primary": "#b4c5ff",
+                      "tertiary-fixed-dim": "#c8c6c6",
+                      "secondary-fixed": "#ffdadb",
+                      "surface-tint": "#0053db",
+                      "surface-container-low": "#f3f3f3",
+                      "inverse-on-surface": "#f0f1f1",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "on-secondary": "#ffffff",
+                      "surface-dim": "#dadada",
+                      "secondary-container": "#dc2c4f",
+                      "on-tertiary-fixed": "#1b1c1c",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-primary-fixed": "#00174b",
+                      "secondary-fixed-dim": "#ffb2b7",
+                      "on-primary-container": "#eeefff",
+                      "background": "#f9f9f9",
+                      "surface-bright": "#f9f9f9",
+                      "on-surface": "#1a1c1c",
+                      "on-error-container": "#93000a",
+                      "error": "#ba1a1a",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#1a1c1c",
+                      "surface-container-high": "#e8e8e8",
+                      "secondary": "#b90538",
+                      "surface": "#f9f9f9",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#f3f0ef",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#737686",
+                      "on-secondary-container": "#fffbff",
+                      "surface-container": "#eeeeee",
+                      "primary-fixed": "#dbe1ff",
+                      "outline-variant": "#c3c6d7",
+                      "on-secondary-fixed": "#40000d",
+                      "surface-variant": "#e2e2e2",
+                      "primary-container": "#2563eb",
+                      "tertiary": "#555555",
+                      "primary": "#004ac6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-xs": "4px",
+                      "stack-lg": "24px",
+                      "margin-mobile": "24px",
+                      "stack-sm": "8px",
+                      "stack-xl": "48px",
+                      "stack-md": "16px",
+                      "gutter-mobile": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Newsreader"
+                      ],
+                      "mono-label": [
+                              "Manrope"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "headline-md": [
+                              "Newsreader"
+                      ],
+                      "display-lg-mobile": [
+                              "Newsreader"
+                      ],
+                      "label-sm": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "mono-label": [
+                              "12px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "38px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+      </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e2e2;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c8c6c6;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col relative font-body-md text-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flat no shadows flex justify-between items-center px-margin-mobile h-16 w-full pt-safe">
+<button aria-label="Go back" class="flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-surface-container active:scale-95 transition-colors text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;">arrow_back</span>
+</button>
+<div class="font-display-lg-mobile text-display-lg-mobile font-semibold text-on-surface">
+<!-- Blank intent based on design -->
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A close up, high quality studio portrait of a young professional wearing casual clothing. The lighting is soft and flattering, creating a premium light-mode aesthetic. Solid light gray background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBePhLiwU7XfdVNlYT3JMMOA0tnKIdU0jjLUn-roED8WHCfMsPxRWn61UJYyWbeNB2Bd3qbUIx7a6buMoXJKbB_5KoGn2hfCRqFW0gJJQIM8aJThpN7aOaMpSmaD7Xhr7CS8J5pgSl1cloyCm7aDfV7QaJBlQbcB6Xlt-2JgDjNZ7Gg0ZC38VrTXlQC5_NfH5xl5LbGK5BYP2CVr83YrViK5-MRrBckAgiJlW-a0vSmFPyzXt4zXeInpA"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-24 pb-32 px-margin-mobile max-w-md mx-auto w-full flex flex-col relative z-10">
+<div class="flex flex-col gap-stack-lg mb-stack-xl">
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-on-surface">How are you travelling?</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Select your primary mode of transport to optimize audio delivery.</p>
+</div>
+<!-- Travel Mode Selection Grid -->
+<div class="grid grid-cols-2 gap-gutter-mobile mb-stack-xl" id="travelModeGrid">
+<!-- Metro -->
+<button class="mode-btn flex flex-col items-center justify-center p-stack-md rounded-xl border border-outline-variant bg-surface hover:bg-surface-container transition-all text-on-surface" data-selected="false">
+<span class="material-symbols-outlined text-4xl mb-stack-sm" style="font-variation-settings: 'FILL' 0;">subway</span>
+<span class="font-label-sm text-label-sm">Metro</span>
+</button>
+<!-- Bus -->
+<button class="mode-btn flex flex-col items-center justify-center p-stack-md rounded-xl border border-outline-variant bg-surface hover:bg-surface-container transition-all text-on-surface" data-selected="false">
+<span class="material-symbols-outlined text-4xl mb-stack-sm" style="font-variation-settings: 'FILL' 0;">directions_bus</span>
+<span class="font-label-sm text-label-sm">Bus</span>
+</button>
+<!-- Local Train -->
+<button class="mode-btn flex flex-col items-center justify-center p-stack-md rounded-xl border border-outline-variant bg-surface hover:bg-surface-container transition-all text-on-surface" data-selected="false">
+<span class="material-symbols-outlined text-4xl mb-stack-sm" style="font-variation-settings: 'FILL' 0;">train</span>
+<span class="font-label-sm text-label-sm">Local train</span>
+</button>
+<!-- Cab/Car -->
+<button class="mode-btn flex flex-col items-center justify-center p-stack-md rounded-xl border border-outline-variant bg-surface hover:bg-surface-container transition-all text-on-surface" data-selected="false">
+<span class="material-symbols-outlined text-4xl mb-stack-sm" style="font-variation-settings: 'FILL' 0;">local_taxi</span>
+<span class="font-label-sm text-label-sm">Cab/car</span>
+</button>
+<!-- Bike -->
+<button class="mode-btn flex flex-col items-center justify-center p-stack-md rounded-xl border border-outline-variant bg-surface hover:bg-surface-container transition-all text-on-surface" data-selected="false">
+<span class="material-symbols-outlined text-4xl mb-stack-sm" style="font-variation-settings: 'FILL' 0;">pedal_bike</span>
+<span class="font-label-sm text-label-sm">Bike</span>
+</button>
+<!-- Walk -->
+<button class="mode-btn flex flex-col items-center justify-center p-stack-md rounded-xl border border-outline-variant bg-surface hover:bg-surface-container transition-all text-on-surface" data-selected="false">
+<span class="material-symbols-outlined text-4xl mb-stack-sm" style="font-variation-settings: 'FILL' 0;">directions_walk</span>
+<span class="font-label-sm text-label-sm">Walk</span>
+</button>
+<!-- Other -->
+<button class="mode-btn flex flex-col items-center justify-center p-stack-md rounded-xl border border-outline-variant bg-surface hover:bg-surface-container transition-all text-on-surface col-span-2 sm:col-span-1" data-selected="false">
+<span class="material-symbols-outlined text-4xl mb-stack-sm" style="font-variation-settings: 'FILL' 0;">explore</span>
+<span class="font-label-sm text-label-sm">Other</span>
+</button>
+</div>
+</main>
+<!-- Bottom Action Area -->
+<div class="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant px-margin-mobile py-stack-md pb-safe">
+<div class="max-w-md mx-auto w-full">
+<button class="w-full bg-surface-variant text-on-surface-variant opacity-50 cursor-not-allowed font-body-lg text-body-lg py-3 rounded-xl transition-colors font-medium" disabled="" id="continueBtn">
+                Continue
+            </button>
+</div>
+</div>
+<!-- Interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.mode-btn');
+            const continueBtn = document.getElementById('continueBtn');
+            let selectedButton = null;
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Deselect previous
+                    if (selectedButton) {
+                        selectedButton.setAttribute('data-selected', 'false');
+                        selectedButton.classList.remove('bg-primary-container', 'text-on-primary-container', 'border-primary-container');
+                        selectedButton.classList.add('bg-surface', 'text-on-surface', 'border-outline-variant');
+                        const icon = selectedButton.querySelector('.material-symbols-outlined');
+                        icon.style.fontVariationSettings = "'FILL' 0";
+                    }
+
+                    // Select new
+                    selectedButton = btn;
+                    selectedButton.setAttribute('data-selected', 'true');
+                    selectedButton.classList.remove('bg-surface', 'text-on-surface', 'border-outline-variant');
+                    selectedButton.classList.add('bg-primary-container', 'text-on-primary-container', 'border-primary-container');
+                    const newIcon = selectedButton.querySelector('.material-symbols-outlined');
+                    newIcon.style.fontVariationSettings = "'FILL' 1";
+
+                    // Enable continue button
+                    continueBtn.disabled = false;
+                    continueBtn.classList.remove('bg-surface-variant', 'text-on-surface-variant', 'opacity-50', 'cursor-not-allowed');
+                    continueBtn.classList.add('bg-primary', 'text-on-primary', 'hover:bg-primary-container', 'hover:text-on-primary-container');
+                });
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Ridewise - Failure and Recovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#c3c6d7",
+                      "surface": "#f9f9f9",
+                      "secondary-fixed-dim": "#ffb2b7",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-container": "#6e6d6d",
+                      "surface-bright": "#f9f9f9",
+                      "primary-container": "#2563eb",
+                      "inverse-on-surface": "#f0f1f1",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-surface-variant": "#434655",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#b4c5ff",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-primary-container": "#eeefff",
+                      "on-background": "#1a1c1c",
+                      "on-secondary-fixed-variant": "#92002a",
+                      "on-primary-fixed": "#00174b",
+                      "tertiary": "#555555",
+                      "primary-fixed": "#dbe1ff",
+                      "tertiary-fixed": "#e4e2e1",
+                      "surface-variant": "#e2e2e2",
+                      "error-container": "#ffdad6",
+                      "on-primary": "#ffffff",
+                      "outline": "#737686",
+                      "on-secondary-fixed": "#40000d",
+                      "on-tertiary-container": "#f3f0ef",
+                      "inverse-surface": "#2f3131",
+                      "surface-dim": "#dadada",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "secondary-fixed": "#ffdadb",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-secondary-container": "#fffbff",
+                      "surface-container-low": "#f3f3f3",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#0053db",
+                      "on-tertiary": "#ffffff",
+                      "secondary-container": "#dc2c4f",
+                      "on-secondary": "#ffffff",
+                      "background": "#f9f9f9",
+                      "on-tertiary-fixed": "#1b1c1c",
+                      "primary": "#004ac6",
+                      "surface-container-high": "#e8e8e8",
+                      "on-surface": "#1a1c1c",
+                      "surface-container": "#eeeeee",
+                      "tertiary-fixed-dim": "#c8c6c6",
+                      "on-error": "#ffffff",
+                      "secondary": "#b90538"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-xs": "4px",
+                      "stack-md": "16px",
+                      "stack-xl": "48px",
+                      "stack-lg": "24px",
+                      "margin-mobile": "24px",
+                      "gutter-mobile": "16px",
+                      "stack-sm": "8px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": [
+                              "Newsreader"
+                      ],
+                      "label-sm": [
+                              "Manrope"
+                      ],
+                      "mono-label": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "headline-md": [
+                              "Newsreader"
+                      ],
+                      "display-lg": [
+                              "Newsreader"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "38px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "mono-label": [
+                              "12px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md antialiased md:hidden pb-safe">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim w-full top-0 sticky border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center px-margin-mobile py-stack-md z-40">
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors active:opacity-80 transition-opacity p-2 rounded-full flex items-center justify-center -ml-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-primary dark:text-primary-fixed-dim font-bold tracking-tight">Ridewise</h1>
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors active:opacity-80 transition-opacity rounded-full overflow-hidden w-8 h-8 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</header>
+<main class="flex-grow flex flex-col px-margin-mobile py-stack-lg gap-stack-xl">
+<!-- Scenario 1: Route unavailable -->
+<section class="flex flex-col gap-stack-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">Route Estimation Failed</h2>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col gap-stack-lg relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-error mt-1">route</span>
+<div class="flex flex-col gap-stack-xs">
+<p class="font-body-lg text-body-lg text-on-surface">Couldn’t estimate this route.</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Set your travel time manually to continue creating your audio capsule.</p>
+</div>
+</div>
+<div class="flex flex-col gap-stack-sm mt-stack-sm">
+<label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider">Estimated Travel Time</label>
+<div class="flex gap-4">
+<input class="w-full bg-transparent border-b border-outline-variant py-2 focus:outline-none focus:border-primary-container font-body-lg text-body-lg text-on-surface placeholder:text-outline transition-colors" placeholder="45" type="number"/>
+<span class="self-end pb-2 font-body-md text-body-md text-on-surface-variant">mins</span>
+</div>
+</div>
+<button class="mt-stack-sm w-full bg-primary-container text-on-primary rounded-lg py-3 font-label-sm text-label-sm uppercase tracking-wider hover:opacity-90 active:scale-[0.98] transition-all">
+                    Continue
+                </button>
+</div>
+</section>
+<!-- Scenario 2: Generation issue -->
+<section class="flex flex-col gap-stack-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">Capsule Generation Issue</h2>
+<div class="bg-[#2D2D2D] rounded-xl p-6 flex flex-col items-center justify-center gap-stack-lg text-center min-h-[240px] shadow-sm">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest/20 flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-3xl">hourglass_empty</span>
+</div>
+<div class="flex flex-col gap-stack-xs">
+<p class="font-body-lg text-body-lg text-on-primary">Your capsule needs another moment.</p>
+<p class="font-body-md text-body-md text-outline-variant max-w-[250px] mx-auto">We encountered a slight delay while curating your audio journey.</p>
+</div>
+<button class="mt-stack-sm px-6 py-3 border border-outline-variant text-on-primary rounded-lg font-label-sm text-label-sm uppercase tracking-wider hover:bg-surface-container-highest/10 active:scale-[0.98] transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">refresh</span>
+                    Retry Generation
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface dark:bg-inverse-surface fixed bottom-0 w-full z-50 pb-safe border-t border-outline-variant dark:border-outline flat no shadows flex justify-around items-center h-16">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold hover:bg-surface-container-low dark:hover:bg-surface-container-highest active:scale-95 transition-transform duration-150 p-2 rounded-lg flex-1 h-full" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline hover:bg-surface-container-low dark:hover:bg-surface-container-highest active:scale-95 transition-transform duration-150 p-2 rounded-lg flex-1 h-full" href="#">
+<span class="material-symbols-outlined">library_music</span>
+<span class="font-label-sm text-label-sm mt-1">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline hover:bg-surface-container-low dark:hover:bg-surface-container-highest active:scale-95 transition-transform duration-150 p-2 rounded-lg flex-1 h-full" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</nav>
+</body></html>
