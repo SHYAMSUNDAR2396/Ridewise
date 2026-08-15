@@ -94,7 +94,19 @@ export class CapsuleService {
       const result = await withRetry(() =>
         this.provider.synthesize(text, request.language),
       );
-      const url = await this.storage.put(`${capsuleId}/${index}.mp3`, result.bytes);
+      let url: string;
+      try {
+        url = await this.storage.put(`${capsuleId}/${index}.mp3`, result.bytes);
+      } catch {
+        // Storage failures never reach the client as raw provider/SDK text --
+        // reuse the same known-code convention providers/elevenlabs.ts uses so
+        // routes/capsules.ts's existing FRIENDLY_MESSAGES mapping handles this
+        // too. SPEECH_SYNTHESIS_FAILED reads truer than AUDIO_UNAVAILABLE
+        // here: this segment's audio was never successfully produced, whereas
+        // AUDIO_UNAVAILABLE is reserved for a client-side playback failure on
+        // audio that *was* published (see docs/product/operations.md).
+        throw new Error("SPEECH_SYNTHESIS_FAILED");
+      }
       segments.push({ index, url, durationSeconds: result.durationSeconds });
     }
 

@@ -5,7 +5,7 @@ import { buildApp } from "../src/app";
 import { TripService } from "../src/services/trip-service";
 import { CapsuleService } from "../src/services/capsule-service";
 import { DevelopmentProvider } from "../src/providers/elevenlabs";
-import { InMemoryStorage } from "../src/providers/storage";
+import { InMemoryStorage, type Storage } from "../src/providers/storage";
 
 function draft(overrides: Partial<TripDraft> = {}): TripDraft {
   return {
@@ -62,6 +62,23 @@ describe("POST /v1/trips/estimate", () => {
     });
 
     expect(response.statusCode).toBe(400);
+  });
+
+  it("maps a route failure with no usable manual fallback to ROUTE_UNAVAILABLE", async () => {
+    const failingService = new TripService({
+      estimate: vi.fn().mockRejectedValue(new Error("Google Routes request failed: key abc123")),
+    });
+    const app = buildApp({ tripService: failingService });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/trips/estimate",
+      payload: draft(),
+    });
+
+    expect(response.statusCode).toBe(502);
+    expect(response.json()).toEqual(expect.objectContaining({ code: "ROUTE_UNAVAILABLE" }));
+    expect(JSON.stringify(response.json())).not.toMatch(/abc123/);
   });
 });
 
@@ -138,6 +155,31 @@ describe("POST /v1/capsules", () => {
 
     expect(response.json()).toEqual(expect.objectContaining({ code: "ROUTE_UNAVAILABLE" }));
     // The underlying provider error text (which could carry a key) never reaches the client.
+    expect(JSON.stringify(response.json())).not.toMatch(/abc123/);
+  });
+
+  it("maps a storage failure to the stable error shape, never the raw storage error", async () => {
+    const tripService = new TripService({
+      estimate: vi.fn().mockResolvedValue({ durationSeconds: 1200, summary: "Metro via Blue Line" }),
+    });
+    const failingStorage: Storage = {
+      put: vi.fn().mockRejectedValue(new Error("S3 bucket credentials rejected: secret abc123")),
+    };
+    const capsuleService = new CapsuleService(new DevelopmentProvider(), failingStorage);
+    const app = buildApp({ tripService, capsuleService });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/capsules",
+      payload: {
+        trip: { startLabel: "Andheri", endLabel: "Bandra", transportMode: "metro" },
+        topic: "Personal finance",
+        style: "quick_overview",
+        language: "en-IN",
+      },
+    });
+
+    expect(response.json()).toEqual(expect.objectContaining({ code: "SPEECH_SYNTHESIS_FAILED" }));
     expect(JSON.stringify(response.json())).not.toMatch(/abc123/);
   });
 });

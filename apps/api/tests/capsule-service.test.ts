@@ -2,7 +2,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { CapsuleService, CapsuleError } from "../src/services/capsule-service";
 import { DevelopmentProvider } from "../src/providers/elevenlabs";
-import { InMemoryStorage } from "../src/providers/storage";
+import { InMemoryStorage, type Storage } from "../src/providers/storage";
 
 const request = {
   trip: { startLabel: "Andheri", endLabel: "Bandra", transportMode: "metro" as const },
@@ -81,5 +81,17 @@ describe("CapsuleService.create", () => {
     expect(error.code).toBe("CAPSULE_TOO_LONG");
     // No sixth code, no suggestedTopic anywhere in the error shape.
     expect(error).not.toHaveProperty("suggestedTopic");
+  });
+
+  it("translates a storage failure into the known SPEECH_SYNTHESIS_FAILED code, never the raw storage error", async () => {
+    const failingStorage: Storage = {
+      put: vi.fn().mockRejectedValue(new Error("S3 bucket credentials rejected: secret abc123")),
+    };
+    const service = new CapsuleService(new DevelopmentProvider(), failingStorage);
+
+    const error = await service.create(request, 900).catch((e) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toBe("SPEECH_SYNTHESIS_FAILED");
+    expect(error.message).not.toMatch(/abc123/);
   });
 });

@@ -1,8 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { transportModes } from "@commute-capsule/domain";
 import type { TripService } from "../services/trip-service";
 import { CapsuleError, type CapsuleService } from "../services/capsule-service";
+import { tripDraftSchema } from "./trips";
 
 /**
  * Provider errors surface from apps/api/src/providers/elevenlabs.ts as plain
@@ -15,14 +15,6 @@ const FRIENDLY_MESSAGES: Record<string, string> = {
   SCRIPT_GENERATION_FAILED: "We couldn't generate your capsule's script. Please try again.",
   SPEECH_SYNTHESIS_FAILED: "We couldn't generate the audio for your capsule. Please try again.",
 };
-
-const tripDraftSchema = z.object({
-  startLabel: z.string().min(1),
-  endLabel: z.string().min(1),
-  transportMode: z.enum(transportModes),
-  estimatedSeconds: z.number().positive().optional(),
-  manualSeconds: z.number().positive().optional(),
-});
 
 export const createCapsuleSchema = z.object({
   trip: tripDraftSchema,
