@@ -56,7 +56,7 @@ export function CapsulePlayer({
 
   const lastReportedRef = useRef(0);
   const wasPlayingRef = useRef(false);
-  const elapsedSecondsRef = useRef(0);
+  const elapsedSecondsRef = useRef(initialPositionSeconds);
 
   const currentSegmentIndex =
     typeof activeTrack?.segmentIndex === "number" ? activeTrack.segmentIndex : 0;
@@ -109,7 +109,11 @@ export function CapsulePlayer({
   // once, at mount) can read the latest elapsed time and callback.
   const onProgressRef = useRef(onProgress);
   useEffect(() => {
-    elapsedSecondsRef.current = elapsedSeconds;
+    // Don't let a transient 0 (useProgress hasn't polled yet, e.g. while
+    // setQueue/skip/seekTo are still resolving) clobber the real resume
+    // position seeded into the ref -- only overwrite once we have genuine
+    // nonzero progress to report.
+    if (elapsedSeconds > 0) elapsedSecondsRef.current = elapsedSeconds;
     onProgressRef.current = onProgress;
   }, [elapsedSeconds, onProgress]);
 
@@ -127,6 +131,7 @@ export function CapsulePlayer({
   // on app backgrounding.
   useEffect(() => {
     return () => {
+      if (elapsedSecondsRef.current === 0) return;
       onProgressRef.current(elapsedSecondsRef.current);
     };
   }, []);

@@ -12,9 +12,17 @@ type TripState = {
 export const useTripStore = create<TripState>((set) => ({
   draft: {},
   setEndpoints: (startLabel, endLabel) =>
-    set((state) => ({ draft: { ...state.draft, startLabel, endLabel } })),
+    set((state) => {
+      const draft = { ...state.draft, startLabel, endLabel };
+      delete draft.manualSeconds;
+      return { draft };
+    }),
   setTransportMode: (transportMode) =>
-    set((state) => ({ draft: { ...state.draft, transportMode } })),
+    set((state) => {
+      const draft = { ...state.draft, transportMode };
+      delete draft.manualSeconds;
+      return { draft };
+    }),
   setManualSeconds: (manualSeconds) =>
     set((state) => ({ draft: { ...state.draft, manualSeconds } })),
   setEstimatedSeconds: (estimatedSeconds) =>

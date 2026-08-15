@@ -20,6 +20,11 @@ const mockPause = jest.fn().mockResolvedValue(undefined);
 const mockSeekBy = jest.fn().mockResolvedValue(undefined);
 
 let mockPlaybackState: { state: string } = { state: "paused" };
+let mockProgress: { position: number; duration: number; buffered: number } = {
+  position: 0,
+  duration: 0,
+  buffered: 0,
+};
 
 jest.mock("react-native-track-player", () => ({
   __esModule: true,
@@ -34,7 +39,7 @@ jest.mock("react-native-track-player", () => ({
   State: { None: "none", Playing: "playing", Paused: "paused", Error: "error" },
   useActiveTrack: () => undefined,
   usePlaybackState: () => mockPlaybackState,
-  useProgress: () => ({ position: 0, duration: 0, buffered: 0 }),
+  useProgress: () => mockProgress,
 }));
 
 const capsule: Capsule = {
@@ -61,6 +66,7 @@ describe("CapsulePlayer", () => {
     mockPause.mockClear();
     mockSeekBy.mockClear();
     mockPlaybackState = { state: "paused" };
+    mockProgress = { position: 0, duration: 0, buffered: 0 };
     useCapsuleStore.setState({ capsules: [] });
   });
 
@@ -112,15 +118,39 @@ describe("CapsulePlayer", () => {
 
   it("flushes the latest known progress on unmount", async () => {
     const onProgress = jest.fn();
-    const { unmount } = await render(
+    const { rerender, unmount } = await render(
       <CapsulePlayer capsule={capsule} initialPositionSeconds={0} onProgress={onProgress} />,
     );
     await waitFor(() => expect(mockSetQueue).toHaveBeenCalled());
+
+    // Advance real playback progress so the flush has genuine, nonzero
+    // elapsed time to report -- a flush of 0 is intentionally skipped
+    // (see the "real initial resume position" test below), so this test
+    // needs the mocked progress to move for the assertion to mean anything.
+    mockProgress = { position: 30, duration: 100, buffered: 30 };
+    await rerender(
+      <CapsulePlayer capsule={capsule} initialPositionSeconds={0} onProgress={onProgress} />,
+    );
     onProgress.mockClear();
 
     await unmount();
 
     expect(onProgress).toHaveBeenCalledTimes(1);
+    expect(onProgress).toHaveBeenCalledWith(30);
+  });
+
+  it("flushes the real initial resume position, not 0, when unmounted before the first progress poll", async () => {
+    const onProgress = jest.fn();
+    const { unmount } = await render(
+      <CapsulePlayer capsule={capsule} initialPositionSeconds={42} onProgress={onProgress} />,
+    );
+
+    // Unmount immediately -- before the async setQueue/skip/seekTo setup
+    // resolves and before useProgress(1000) has reported anything but 0.
+    await unmount();
+
+    expect(onProgress).toHaveBeenCalledTimes(1);
+    expect(onProgress).toHaveBeenCalledWith(42);
   });
 
   it("reports a playback error so the screen can offer retry (AUDIO_UNAVAILABLE)", async () => {
