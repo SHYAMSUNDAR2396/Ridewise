@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
 import TrackPlayer, {
+  Capability,
   State,
   useActiveTrack,
   usePlaybackState,
@@ -20,6 +21,22 @@ export type CapsulePlayerProps = {
 };
 
 const PROGRESS_REPORT_INTERVAL_SECONDS = 10;
+
+// setupPlayer throws if called twice, so every mount shares one promise.
+let playerReady: Promise<void> | undefined;
+function ensurePlayerReady(): Promise<void> {
+  playerReady ??= TrackPlayer.setupPlayer()
+    .then(() =>
+      TrackPlayer.updateOptions({
+        capabilities: [Capability.Play, Capability.Pause, Capability.SeekTo],
+      }),
+    )
+    .catch((error) => {
+      playerReady = undefined;
+      throw error;
+    });
+  return playerReady;
+}
 
 function formatTime(totalSeconds: number): string {
   const seconds = Math.max(0, Math.round(totalSeconds));
@@ -75,6 +92,8 @@ export function CapsulePlayer({
     let cancelled = false;
 
     async function setup(): Promise<void> {
+      await ensurePlayerReady();
+      if (cancelled) return;
       const stored = useCapsuleStore.getState().capsules.find((item) => item.id === capsule.id);
       const uris = stored
         ? playbackQueueUris(stored)

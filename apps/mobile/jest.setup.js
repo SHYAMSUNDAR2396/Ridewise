@@ -30,6 +30,7 @@ jest.mock("react-native-track-player", () => ({
     PlaybackState: "playback-state",
     PlaybackActiveTrackChanged: "playback-active-track-changed",
   },
+  Capability: { Play: "play", Pause: "pause", SeekTo: "seek-to" },
   State: {
     None: "none",
     Ready: "ready",

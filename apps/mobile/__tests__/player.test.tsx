@@ -18,6 +18,8 @@ const mockTrackPlayerSeekTo = jest.fn().mockResolvedValue(undefined);
 const mockPlay = jest.fn().mockResolvedValue(undefined);
 const mockPause = jest.fn().mockResolvedValue(undefined);
 const mockSeekBy = jest.fn().mockResolvedValue(undefined);
+const mockSetupPlayer = jest.fn().mockResolvedValue(undefined);
+const mockUpdateOptions = jest.fn().mockResolvedValue(undefined);
 
 let mockPlaybackState: { state: string } = { state: "paused" };
 let mockProgress: { position: number; duration: number; buffered: number } = {
@@ -29,6 +31,8 @@ let mockProgress: { position: number; duration: number; buffered: number } = {
 jest.mock("react-native-track-player", () => ({
   __esModule: true,
   default: {
+    setupPlayer: (...args: unknown[]) => mockSetupPlayer(...args),
+    updateOptions: (...args: unknown[]) => mockUpdateOptions(...args),
     setQueue: (...args: unknown[]) => mockSetQueue(...args),
     skip: (...args: unknown[]) => mockTrackPlayerSkip(...args),
     seekTo: (...args: unknown[]) => mockTrackPlayerSeekTo(...args),
@@ -37,6 +41,7 @@ jest.mock("react-native-track-player", () => ({
     seekBy: (...args: unknown[]) => mockSeekBy(...args),
   },
   State: { None: "none", Playing: "playing", Paused: "paused", Error: "error" },
+  Capability: { Play: "play", Pause: "pause", SeekTo: "seek-to" },
   useActiveTrack: () => undefined,
   usePlaybackState: () => mockPlaybackState,
   useProgress: () => mockProgress,
@@ -68,6 +73,15 @@ describe("CapsulePlayer", () => {
     mockPlaybackState = { state: "paused" };
     mockProgress = { position: 0, duration: 0, buffered: 0 };
     useCapsuleStore.setState({ capsules: [] });
+  });
+
+  it("sets up the native player before queuing segments", async () => {
+    render(<CapsulePlayer capsule={capsule} initialPositionSeconds={0} onProgress={jest.fn()} />);
+    await waitFor(() => expect(mockSetQueue).toHaveBeenCalled());
+    expect(mockSetupPlayer).toHaveBeenCalledTimes(1);
+    expect(mockSetupPlayer.mock.invocationCallOrder[0]).toBeLessThan(
+      mockSetQueue.mock.invocationCallOrder[0],
+    );
   });
 
   it("starts from persisted progress", async () => {
