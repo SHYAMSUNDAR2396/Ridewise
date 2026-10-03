@@ -1,20 +1,23 @@
 import React, { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
+  ActivityIndicator,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import type { ListeningStyle, TripDraft } from "@commute-capsule/domain";
-import { useTripStore } from "../features/trip/trip-store";
-import { useGenerateCapsule } from "../features/capsules/generate-capsule";
+import { Chip } from "../components/Chip";
+import { GradientFill } from "../components/Artwork";
+import { PrimaryButton } from "../components/PrimaryButton";
 import { RetryNotice } from "../components/RetryNotice";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import { useGenerateCapsule } from "../features/capsules/generate-capsule";
+import { useTripStore } from "../features/trip/trip-store";
+import { useAppNavigation } from "../navigation/useAppNavigation";
+import { colors, fonts } from "../theme";
 
 const TOPIC_SUGGESTIONS = [
   "India and the world",
@@ -29,17 +32,17 @@ const STYLE_OPTIONS: { value: ListeningStyle; title: string; description: string
   {
     value: "quick_overview",
     title: "Quick overview",
-    description: "Key highlights and summaries. Perfect for short commutes.",
+    description: "Key highlights. Best for short rides.",
   },
   {
     value: "learn_deeply",
     title: "Learn deeply",
-    description: "In-depth analysis and context. Ideal for longer journeys.",
+    description: "In-depth context. Ideal for longer rides.",
   },
 ];
 
 export function TopicScreen(): React.JSX.Element {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useAppNavigation();
   const draft = useTripStore((state) => state.draft);
   const { generate, status } = useGenerateCapsule();
 
@@ -78,37 +81,31 @@ export function TopicScreen(): React.JSX.Element {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>What do you want to hear about?</Text>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <Text style={styles.heading}>What should we cover?</Text>
 
         <View style={styles.chipRow}>
-          {TOPIC_SUGGESTIONS.map((suggestion) => {
-            const isSelected = selectedChip === suggestion && customTopic.trim() === "";
-            return (
-              <Pressable
-                key={suggestion}
-                accessibilityRole="button"
-                style={[styles.chip, isSelected && styles.chipSelected]}
-                onPress={() => selectChip(suggestion)}
-              >
-                <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
-                  {suggestion}
-                </Text>
-              </Pressable>
-            );
-          })}
+          {TOPIC_SUGGESTIONS.map((suggestion) => (
+            <Chip
+              key={suggestion}
+              label={suggestion}
+              selected={selectedChip === suggestion && customTopic.trim() === ""}
+              onPress={() => selectChip(suggestion)}
+            />
+          ))}
         </View>
 
         <TextInput
           accessibilityLabel="Custom topic"
           style={styles.customInput}
-          placeholder="Or type your own topic..."
+          placeholder="Or type your own topic"
+          placeholderTextColor={colors.textMuted}
           value={customTopic}
           onChangeText={handleCustomTopicChange}
         />
 
-        <Text style={styles.sectionLabel}>Listening Style</Text>
+        <Text style={styles.sectionLabel}>LISTENING STYLE</Text>
         <View style={styles.styleCards}>
           {STYLE_OPTIONS.map((option) => {
             const isSelected = style === option.value;
@@ -117,6 +114,7 @@ export function TopicScreen(): React.JSX.Element {
                 key={option.value}
                 accessibilityRole="button"
                 accessibilityLabel={option.title}
+                accessibilityState={{ selected: isSelected }}
                 style={[styles.styleCard, isSelected && styles.styleCardSelected]}
                 onPress={() => setStyle(option.value)}
               >
@@ -127,7 +125,7 @@ export function TopicScreen(): React.JSX.Element {
           })}
         </View>
 
-        <Text style={styles.sectionLabel}>Language</Text>
+        <Text style={styles.sectionLabel}>LANGUAGE</Text>
         <View style={styles.languageSegment}>
           <View style={styles.languageOptionActive}>
             <Text style={styles.languageOptionActiveText}>English</Text>
@@ -135,9 +133,9 @@ export function TopicScreen(): React.JSX.Element {
           <View
             accessibilityRole="button"
             accessibilityState={{ disabled: true }}
-            style={styles.languageOptionDisabled}
+            style={styles.languageOption}
           >
-            <Text style={styles.languageOptionDisabledText}>Hindi</Text>
+            <Text style={styles.languageOptionText}>Hindi</Text>
             <View style={styles.soonBadge}>
               <Text style={styles.soonBadgeText}>Soon</Text>
             </View>
@@ -147,32 +145,22 @@ export function TopicScreen(): React.JSX.Element {
         {status === "error" ? (
           <RetryNotice
             headline="Your capsule needs another moment."
-            message="Something went wrong, and your selections are saved -- try again."
+            message="Something went wrong, and your selections are saved. Try again."
             actionLabel="Retry"
             onRetry={handleGenerate}
-            icon="⟳"
+            icon="alert"
           />
         ) : null}
       </ScrollView>
 
       <View style={styles.footer}>
-        <Pressable
-          accessibilityRole="button"
-          disabled={!canGenerate}
-          style={[styles.generateButton, !canGenerate && styles.generateButtonDisabled]}
-          onPress={handleGenerate}
-        >
-          <Text style={styles.generateButtonText}>Generate my capsule</Text>
-        </Pressable>
+        <PrimaryButton label="Generate my capsule" disabled={!canGenerate} onPress={handleGenerate} />
       </View>
 
       {status === "loading" ? (
         <View style={styles.loadingOverlay}>
-          <View style={styles.pulseDots}>
-            <View style={styles.pulseDot} />
-            <View style={styles.pulseDot} />
-            <View style={styles.pulseDot} />
-          </View>
+          <GradientFill from={colors.playerTop} to={colors.playerBottom} id="loading" />
+          <ActivityIndicator color={colors.onPlayer} size="large" />
           <Text style={styles.loadingText}>Preparing your capsule...</Text>
         </View>
       ) : null}
@@ -181,182 +169,75 @@ export function TopicScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f9f9f9",
-  },
-  content: {
-    padding: 24,
-    gap: 24,
-    paddingBottom: 120,
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: 20, gap: 18, paddingBottom: 120 },
   heading: {
-    fontFamily: "Newsreader",
-    fontSize: 24,
-    fontWeight: "500",
-    color: "#1a1c1c",
+    fontFamily: fonts.serif,
+    fontSize: 38,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+    lineHeight: 42,
+    color: colors.text,
   },
-  chipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#c3c6d7",
-  },
-  chipSelected: {
-    backgroundColor: "#2563eb",
-    borderColor: "#2563eb",
-  },
-  chipText: {
-    fontFamily: "Manrope",
-    fontSize: 16,
-    color: "#1a1c1c",
-  },
-  chipTextSelected: {
-    color: "#ffffff",
-  },
+  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   customInput: {
-    fontFamily: "Manrope",
-    fontSize: 16,
-    color: "#1a1c1c",
-    borderBottomWidth: 1,
-    borderColor: "#c3c6d7",
-    paddingVertical: 12,
-  },
-  sectionLabel: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-    color: "#434655",
-  },
-  styleCards: {
-    gap: 16,
-  },
-  styleCard: {
-    padding: 24,
-    borderRadius: 12,
+    height: 48,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#c3c6d7",
-    backgroundColor: "#ffffff",
+    borderColor: "#dcdee4",
+    paddingHorizontal: 16,
+    fontSize: 15,
+    color: colors.text,
+  },
+  sectionLabel: { fontSize: 12, fontWeight: "800", letterSpacing: 0.3, color: colors.textMuted },
+  styleCards: { flexDirection: "row", gap: 12 },
+  styleCard: {
+    flex: 1,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: colors.line,
+    padding: 14,
     gap: 4,
   },
-  styleCardSelected: {
-    borderColor: "#2563eb",
-    backgroundColor: "#f0f7ff",
-  },
-  styleCardTitle: {
-    fontFamily: "Manrope",
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1a1c1c",
-  },
-  styleCardDescription: {
-    fontFamily: "Manrope",
-    fontSize: 16,
-    color: "#434655",
-  },
+  styleCardSelected: { borderColor: colors.accent, backgroundColor: colors.accentSoft },
+  styleCardTitle: { fontSize: 15, fontWeight: "800", color: colors.text },
+  styleCardDescription: { fontSize: 13, lineHeight: 18, color: "#434a58" },
   languageSegment: {
+    height: 48,
+    padding: 2,
+    borderRadius: 14,
+    backgroundColor: colors.surface,
     flexDirection: "row",
-    padding: 4,
-    borderRadius: 12,
-    backgroundColor: "#eeeeee",
-    maxWidth: 320,
   },
   languageOptionActive: {
     flex: 1,
-    paddingVertical: 8,
-    alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 12,
     backgroundColor: "#ffffff",
-  },
-  languageOptionActiveText: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#1a1c1c",
-  },
-  languageOptionDisabled: {
-    flex: 1,
-    paddingVertical: 8,
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
-    opacity: 0.5,
   },
-  languageOptionDisabledText: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#434655",
-  },
-  soonBadge: {
-    backgroundColor: "#e2e2e2",
-    borderRadius: 4,
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-  },
-  soonBadgeText: {
-    fontFamily: "Manrope",
-    fontSize: 10,
-    color: "#434655",
-  },
-  footer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: 24,
-    backgroundColor: "#f9f9f9",
-  },
-  generateButton: {
-    width: "100%",
-    paddingVertical: 16,
-    borderRadius: 12,
-    backgroundColor: "#2563eb",
+  languageOptionActiveText: { fontSize: 14, fontWeight: "800", color: colors.text },
+  languageOption: {
+    flex: 1,
+    flexDirection: "row",
+    gap: 6,
     alignItems: "center",
+    justifyContent: "center",
   },
-  generateButtonDisabled: {
-    opacity: 0.4,
-  },
-  generateButtonText: {
-    fontFamily: "Manrope",
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#ffffff",
-  },
+  languageOptionText: { fontSize: 14, fontWeight: "700", color: colors.textMuted },
+  soonBadge: { borderRadius: 8, backgroundColor: colors.line, paddingHorizontal: 6, paddingVertical: 2 },
+  soonBadgeText: { fontSize: 10, fontWeight: "800", color: colors.textMuted },
+  footer: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 20, paddingBottom: 28, backgroundColor: colors.bg },
   loadingOverlay: {
     position: "absolute",
     top: 0,
-    left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(249, 249, 249, 0.9)",
+    left: 0,
     alignItems: "center",
     justifyContent: "center",
     gap: 16,
+    overflow: "hidden",
   },
-  pulseDots: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  pulseDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#dc2c4f",
-  },
-  loadingText: {
-    fontFamily: "Newsreader",
-    fontSize: 24,
-    fontWeight: "500",
-    color: "#1a1c1c",
-  },
+  loadingText: { fontFamily: fonts.serif, fontSize: 24, fontWeight: "700", color: colors.onPlayer },
 });

@@ -1,17 +1,18 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { colors, fonts } from "../theme";
+import { Icon } from "./Icon";
 
 export type EmptyStateProps = {
   title: string;
   message?: string;
-  icon?: string;
 };
 
 /** Reusable empty-state placeholder for a list with nothing in it yet. */
-export function EmptyState({ title, message, icon = "🎧" }: EmptyStateProps): React.JSX.Element {
+export function EmptyState({ title, message }: EmptyStateProps): React.JSX.Element {
   return (
     <View style={styles.container}>
-      <Text style={styles.icon}>{icon}</Text>
+      <Icon name="headphones" size={32} color={colors.textMuted} />
       <Text style={styles.title}>{title}</Text>
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
@@ -22,25 +23,17 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 64,
+    paddingVertical: 48,
     paddingHorizontal: 32,
     gap: 8,
   },
-  icon: {
-    fontSize: 32,
-    marginBottom: 4,
-  },
   title: {
-    fontFamily: "Newsreader",
-    fontSize: 20,
-    fontWeight: "500",
-    color: "#1a1c1c",
+    fontFamily: fonts.serif,
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.text,
     textAlign: "center",
+    marginTop: 4,
   },
-  message: {
-    fontFamily: "Manrope",
-    fontSize: 14,
-    color: "#434655",
-    textAlign: "center",
-  },
+  message: { fontSize: 14, color: colors.textMuted, textAlign: "center" },
 });

@@ -58,3 +58,7 @@ jest.mock("react-native-blob-util", () => ({
     config: () => ({ fetch: jest.fn().mockResolvedValue({}) }),
   },
 }));
+
+jest.mock("react-native-safe-area-context", () =>
+  require("react-native-safe-area-context/jest/mock").default,
+);

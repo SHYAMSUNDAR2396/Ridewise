@@ -1,9 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-
-// ponytail: content sourced from stitch_ridewise_audio_companion_ui_ux/trip_check/code.html
-// (the file is misnamed in the export -- its content is the manual-override stepper, while
-// trip_check_summary/code.html holds the main Trip Check summary screen).
+import { Icon } from "../../components/Icon";
+import { colors, fonts } from "../../theme";
 
 type DurationStepperProps = {
   minutes: number;
@@ -32,9 +30,7 @@ export function DurationStepper({
   return (
     <View style={styles.container}>
       <Text style={styles.headline}>About {minutes} minutes</Text>
-      <Text style={styles.helper}>
-        Adjust this if your ride usually takes longer or shorter.
-      </Text>
+      <Text style={styles.helper}>Adjust this if your ride usually takes longer or shorter.</Text>
       <View style={styles.stepperRow}>
         <Pressable
           accessibilityRole="button"
@@ -42,7 +38,7 @@ export function DurationStepper({
           style={styles.stepperButton}
           onPress={decrease}
         >
-          <Text style={styles.stepperIcon}>–</Text>
+          <Icon name="minus" size={20} color={colors.text} />
         </Pressable>
         <TextInput
           accessibilityLabel="Minutes"
@@ -57,7 +53,7 @@ export function DurationStepper({
           style={styles.stepperButton}
           onPress={increase}
         >
-          <Text style={styles.stepperIcon}>+</Text>
+          <Icon name="plus" size={20} color={colors.text} />
         </Pressable>
       </View>
       <Pressable accessibilityRole="button" onPress={onUseManualTime} style={styles.manualLinkWrap}>
@@ -68,67 +64,27 @@ export function DurationStepper({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    gap: 16,
-    paddingVertical: 24,
-  },
-  headline: {
-    fontFamily: "Newsreader",
-    fontSize: 32,
-    fontWeight: "600",
-    color: "#2563eb",
-    textAlign: "center",
-  },
-  helper: {
-    fontFamily: "Manrope",
-    fontSize: 16,
-    color: "#434655",
-    textAlign: "center",
-    maxWidth: 260,
-  },
-  stepperRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    marginTop: 8,
-  },
+  container: { alignItems: "center", gap: 12, paddingVertical: 16 },
+  headline: { fontFamily: fonts.serif, fontSize: 30, fontWeight: "700", color: colors.accent, textAlign: "center" },
+  helper: { fontSize: 15, color: colors.textMuted, textAlign: "center", maxWidth: 260 },
+  stepperRow: { flexDirection: "row", alignItems: "center", gap: 20, marginTop: 8 },
   stepperButton: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    borderWidth: 1,
-    borderColor: "#c3c6d7",
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
-  },
-  stepperIcon: {
-    fontSize: 22,
-    color: "#1a1c1c",
   },
   stepperInput: {
     width: 96,
     textAlign: "center",
-    fontFamily: "Newsreader",
-    fontSize: 32,
-    fontWeight: "600",
-    color: "#1a1c1c",
-    borderBottomWidth: 1,
-    borderColor: "#c3c6d7",
+    fontFamily: fonts.serif,
+    fontSize: 40,
+    fontWeight: "700",
+    color: colors.text,
     paddingVertical: 4,
   },
-  manualLinkWrap: {
-    marginTop: 8,
-    paddingVertical: 8,
-  },
-  manualLink: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-    color: "#555555",
-    textDecorationLine: "underline",
-  },
+  manualLinkWrap: { minHeight: 44, justifyContent: "center", paddingHorizontal: 12 },
+  manualLink: { fontSize: 13, fontWeight: "800", letterSpacing: 0.6, textTransform: "uppercase", color: colors.accent },
 });

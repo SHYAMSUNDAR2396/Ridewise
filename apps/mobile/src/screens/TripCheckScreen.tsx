@@ -1,33 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
   ActivityIndicator,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import type { RouteEstimate, TransportMode, TripDraft } from "@commute-capsule/domain";
 import { apiClient } from "../api/client";
-import { useTripStore } from "../features/trip/trip-store";
-import { DurationStepper } from "../features/trip/duration-input";
+import { Icon } from "../components/Icon";
+import { PrimaryButton } from "../components/PrimaryButton";
 import { RetryNotice } from "../components/RetryNotice";
-import type { RootStackParamList } from "../navigation/RootNavigator";
-
-// ponytail: main-screen layout is sourced from
-// stitch_ridewise_audio_companion_ui_ux/trip_check_summary/code.html -- that file (despite its
-// name) holds the route-summary card + duration display + Edit button; the failure layout is
-// from failure_states/code.html.
+import { DurationStepper } from "../features/trip/duration-input";
+import { useTripStore } from "../features/trip/trip-store";
+import { useAppNavigation } from "../navigation/useAppNavigation";
+import { colors, fonts } from "../theme";
 
 const TRANSPORT_LABELS: Record<TransportMode, string> = {
   metro: "Metro",
   bus: "Bus",
   local_train: "Local train",
-  car: "Cab/car",
+  car: "Cab or car",
   bike: "Bike",
   walk: "Walk",
   other: "Other",
@@ -36,7 +32,7 @@ const TRANSPORT_LABELS: Record<TransportMode, string> = {
 type EstimateStatus = "loading" | "success" | "failure";
 
 export function TripCheckScreen(): React.JSX.Element {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useAppNavigation();
   const draft = useTripStore((state) => state.draft);
   const setManualSeconds = useTripStore((state) => state.setManualSeconds);
   const setEstimatedSeconds = useTripStore((state) => state.setEstimatedSeconds);
@@ -88,23 +84,23 @@ export function TripCheckScreen(): React.JSX.Element {
 
   if (status === "loading") {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator style={styles.loadingIndicator} color="#2563eb" />
+      <SafeAreaView style={styles.container} edges={["bottom"]}>
+        <ActivityIndicator style={styles.loadingIndicator} color={colors.accent} />
       </SafeAreaView>
     );
   }
 
   if (status === "failure") {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["bottom"]}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.sectionTitle}>Route Estimation Failed</Text>
+          <Text style={styles.title}>Route estimation failed</Text>
           <RetryNotice
             headline="Couldn't estimate this route."
             message="Set your travel time manually to continue creating your audio capsule."
             actionLabel="Continue"
             onRetry={handleFailureContinue}
-            icon="🗺"
+            icon="route"
           >
             <View>
               <Text style={styles.inputLabel}>Estimated Travel Time</Text>
@@ -114,6 +110,7 @@ export function TripCheckScreen(): React.JSX.Element {
                   style={styles.manualInput}
                   keyboardType="numeric"
                   placeholder="45"
+                  placeholderTextColor={colors.textMuted}
                   value={manualMinutesInput}
                   onChangeText={setManualMinutesInput}
                 />
@@ -129,10 +126,12 @@ export function TripCheckScreen(): React.JSX.Element {
   const minutes = editedMinutes ?? Math.round((estimate?.durationSeconds ?? 0) / 60);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.title}>Trip check</Text>
+
         <View style={styles.routeCard}>
-          <Text style={styles.routeCardLabel}>Transport Mode</Text>
+          <Text style={styles.routeCardLabel}>TRANSPORT MODE</Text>
           <Text style={styles.routeCardValue}>
             {TRANSPORT_LABELS[draft.transportMode ?? "other"]}
           </Text>
@@ -169,177 +168,59 @@ export function TripCheckScreen(): React.JSX.Element {
                 setIsEditing(true);
               }}
             >
-              <Text style={styles.editIcon}>✎</Text>
+              <Icon name="edit" size={20} color={colors.text} />
             </Pressable>
           </View>
         )}
       </ScrollView>
       <View style={styles.footer}>
-        <Pressable
-          accessibilityRole="button"
-          style={styles.continueButton}
-          onPress={handleSuccessContinue}
-        >
-          <Text style={styles.continueButtonText}>Continue</Text>
-        </Pressable>
+        <PrimaryButton label="Continue" onPress={handleSuccessContinue} />
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f9f9f9",
+  container: { flex: 1, backgroundColor: colors.bg },
+  loadingIndicator: { flex: 1 },
+  content: { padding: 20, gap: 20 },
+  title: {
+    fontFamily: fonts.serif,
+    fontSize: 38,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+    color: colors.text,
   },
-  loadingIndicator: {
-    flex: 1,
-  },
-  content: {
-    padding: 24,
-    gap: 24,
-  },
-  sectionTitle: {
-    fontFamily: "Newsreader",
-    fontSize: 24,
-    fontWeight: "500",
-    color: "#1a1c1c",
-  },
-  inputLabel: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-    color: "#1a1c1c",
-    marginTop: 8,
-  },
-  manualInputRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 16,
-  },
+  inputLabel: { fontSize: 12, fontWeight: "800", letterSpacing: 0.4, color: colors.textMuted, textTransform: "uppercase" },
+  manualInputRow: { flexDirection: "row", alignItems: "flex-end", gap: 16 },
   manualInput: {
     flex: 1,
-    fontFamily: "Manrope",
     fontSize: 18,
-    color: "#1a1c1c",
+    color: colors.text,
     borderBottomWidth: 1,
     borderColor: "#c3c6d7",
     paddingVertical: 8,
   },
-  minsSuffix: {
-    fontFamily: "Manrope",
-    fontSize: 16,
-    color: "#434655",
-    paddingBottom: 8,
-  },
-  routeCard: {
-    backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: "#c3c6d7",
-    borderRadius: 12,
-    padding: 24,
-    gap: 12,
-  },
-  routeCardLabel: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-    color: "#434655",
-  },
-  routeCardValue: {
-    fontFamily: "Newsreader",
-    fontSize: 24,
-    fontWeight: "500",
-    color: "#1a1c1c",
-  },
-  timeline: {
-    borderTopWidth: 1,
-    borderColor: "#c3c6d7",
-    paddingTop: 16,
-    gap: 4,
-  },
-  timelineLabel: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    color: "#434655",
-  },
-  timelineValue: {
-    fontFamily: "Manrope",
-    fontSize: 16,
-    color: "#1a1c1c",
-    marginBottom: 8,
-  },
-  durationSection: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 24,
-    position: "relative",
-  },
-  durationRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    gap: 8,
-  },
-  durationNumber: {
-    fontFamily: "Newsreader",
-    fontSize: 64,
-    fontWeight: "600",
-    color: "#1a1c1c",
-  },
-  durationUnit: {
-    fontFamily: "Newsreader",
-    fontSize: 24,
-    color: "#434655",
-  },
-  durationLabel: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-    color: "#434655",
-    marginTop: 4,
-  },
+  minsSuffix: { fontSize: 16, color: colors.textMuted, paddingBottom: 8 },
+  routeCard: { backgroundColor: colors.surface, borderRadius: 18, padding: 20, gap: 8 },
+  routeCardLabel: { fontSize: 12, fontWeight: "800", letterSpacing: 1, color: colors.textMuted },
+  routeCardValue: { fontFamily: fonts.serif, fontSize: 26, fontWeight: "700", color: colors.text },
+  timeline: { borderTopWidth: 1, borderColor: "#dcdee4", paddingTop: 12, marginTop: 4, gap: 2 },
+  timelineLabel: { fontSize: 12, fontWeight: "700", color: colors.textMuted },
+  timelineValue: { fontSize: 17, fontWeight: "700", color: colors.text, marginBottom: 8 },
+  durationSection: { alignItems: "center", justifyContent: "center", paddingVertical: 24 },
+  durationRow: { flexDirection: "row", alignItems: "baseline", gap: 8 },
+  durationNumber: { fontFamily: fonts.serif, fontSize: 80, fontWeight: "700", color: colors.text },
+  durationUnit: { fontSize: 20, fontWeight: "700", color: colors.textMuted },
+  durationLabel: { fontSize: 12, fontWeight: "800", letterSpacing: 1, color: colors.textMuted, textTransform: "uppercase", marginTop: 4 },
   editButton: {
-    position: "absolute",
-    right: 0,
-    top: "50%",
-    marginTop: -24,
+    marginTop: 16,
     width: 48,
     height: 48,
     borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#c3c6d7",
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
   },
-  editIcon: {
-    fontSize: 18,
-    color: "#434655",
-  },
-  footer: {
-    borderTopWidth: 1,
-    borderColor: "#c3c6d7",
-    backgroundColor: "#f9f9f9",
-    padding: 24,
-  },
-  continueButton: {
-    width: "100%",
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: "#2563eb",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  continueButtonText: {
-    fontFamily: "Manrope",
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#ffffff",
-  },
+  footer: { padding: 20, paddingBottom: 28 },
 });

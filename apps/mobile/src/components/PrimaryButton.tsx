@@ -1,18 +1,22 @@
 import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
+import { colors } from "../theme";
 
 type PrimaryButtonProps = {
   label: string;
   onPress: () => void;
+  disabled?: boolean;
 };
 
-export function PrimaryButton({ label, onPress }: PrimaryButtonProps): React.JSX.Element {
+export function PrimaryButton({ label, onPress, disabled }: PrimaryButtonProps): React.JSX.Element {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled: Boolean(disabled) }}
+      disabled={disabled}
       onPress={onPress}
-      style={styles.button}
+      style={[styles.button, disabled && styles.disabled]}
     >
       <Text style={styles.label}>{label}</Text>
     </Pressable>
@@ -21,15 +25,12 @@ export function PrimaryButton({ label, onPress }: PrimaryButtonProps): React.JSX
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#1D4ED8",
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.accent,
     alignItems: "center",
+    justifyContent: "center",
   },
-  label: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
+  disabled: { opacity: 0.4 },
+  label: { color: colors.onAccent, fontSize: 16, fontWeight: "800" },
 });

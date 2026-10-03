@@ -1,15 +1,18 @@
 import React, { useMemo, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { FlatList, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Artwork } from "../components/Artwork";
+import { Chip } from "../components/Chip";
+import { EmptyState } from "../components/EmptyState";
+import { Icon } from "../components/Icon";
 import {
   isFullyDownloaded,
   useCapsuleStore,
   type StoredCapsule,
 } from "../features/capsules/capsule-store";
 import { deleteCapsuleFiles } from "../features/capsules/download";
-import { EmptyState } from "../components/EmptyState";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import { useAppNavigation } from "../navigation/useAppNavigation";
+import { colors, fonts } from "../theme";
 
 type LibraryTab = "Recent" | "Saved" | "Downloaded";
 const TABS: LibraryTab[] = ["Recent", "Saved", "Downloaded"];
@@ -37,24 +40,16 @@ function formatDuration(totalSeconds: number): string {
   return remainder === 0 ? `${hours} hr` : `${hours} hr ${remainder} min`;
 }
 
-/**
- * The Library screen (`library_recent_saved` in the Stitch export):
- * segmented Recent/Saved/Downloaded tabs over a bordered row list. Each row
- * shows title, category/duration/language metadata, an offline indicator
- * only when every segment is downloaded, and a thin progress bar when the
- * capsule has been partially listened to.
- */
+/** Library: Recent, Saved and Downloaded capsules as a flat list with artwork. */
 export function LibraryScreen(): React.JSX.Element {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useAppNavigation();
   const capsules = useCapsuleStore((state) => state.capsules);
   const removeCapsule = useCapsuleStore((state) => state.remove);
   const [tab, setTab] = useState<LibraryTab>("Recent");
 
-  // Removes a capsule from the local library and deletes any of its
-  // downloaded segment files -- never touches the published copy in object
-  // storage (see docs/product/operations.md's "Removing local downloaded
-  // files"). File deletion is best-effort: the store entry is removed
-  // either way so a stuck file never blocks removing the row.
+  // Removes a capsule from the local library and deletes any downloaded segment
+  // files. File deletion is best-effort: the entry is removed either way so a
+  // stuck file never blocks removing the row.
   async function handleDelete(id: string): Promise<void> {
     await deleteCapsuleFiles(id).catch(() => undefined);
     removeCapsule(id);
@@ -67,29 +62,27 @@ export function LibraryScreen(): React.JSX.Element {
   }, [capsules, tab]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.tabRow}>
-        {TABS.map((label) => {
-          const active = tab === label;
-          return (
-            <Pressable
-              key={label}
-              accessibilityRole="tab"
-              accessibilityLabel={label}
-              accessibilityState={{ selected: active }}
-              style={[styles.tab, active && styles.tabActive]}
-              onPress={() => setTab(label)}
-            >
-              <Text style={[styles.tabText, active && styles.tabTextActive]}>{label}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <FlatList
-        style={styles.list}
         data={visibleCapsules}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Text style={styles.title}>Library</Text>
+            <View style={styles.tabRow}>
+              {TABS.map((label) => (
+                <Chip
+                  key={label}
+                  role="tab"
+                  label={label}
+                  selected={tab === label}
+                  onPress={() => setTab(label)}
+                />
+              ))}
+            </View>
+          </View>
+        }
         renderItem={({ item }) => (
           <LibraryRow
             capsule={item}
@@ -121,30 +114,26 @@ function LibraryRow({
 
   return (
     <Pressable accessibilityRole="button" style={styles.row} onPress={onPress}>
-      <View style={styles.rowIcon} />
+      <Artwork seed={capsule.id} size={52} radius={9} />
       <View style={styles.rowBody}>
         <Text style={styles.rowTitle} numberOfLines={1}>
           {capsule.title}
         </Text>
         <View style={styles.rowMeta}>
           <Text style={styles.rowMetaText}>{capsule.topic}</Text>
-          <Text style={styles.rowMetaDot}>•</Text>
           <Text style={styles.rowMetaText}>{formatDuration(capsule.audioSeconds)}</Text>
-          <Text style={styles.rowMetaDot}>•</Text>
           <Text style={styles.rowMetaText}>
             {capsule.language === "en-IN" ? "EN" : capsule.language}
           </Text>
           {downloaded ? (
-            <Text accessibilityLabel="Downloaded offline" style={styles.offlinePin}>
-              ⬇
-            </Text>
+            <View accessibilityLabel="Downloaded offline" accessible>
+              <Icon name="check" size={16} color={colors.accent} />
+            </View>
           ) : null}
         </View>
         {showProgress ? (
           <View style={styles.progressTrack}>
-            <View
-              style={[styles.progressFill, { width: `${Math.round(progressRatio * 100)}%` }]}
-            />
+            <View style={[styles.progressFill, { width: `${Math.round(progressRatio * 100)}%` }]} />
           </View>
         ) : null}
       </View>
@@ -157,116 +146,38 @@ function LibraryRow({
           onDelete();
         }}
       >
-        <Text style={styles.rowDeleteText}>✕</Text>
+        <Icon name="close" size={18} color={colors.textMuted} />
       </Pressable>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f9f9f9",
+  container: { flex: 1, backgroundColor: colors.bg },
+  listContent: { paddingHorizontal: 20, paddingBottom: 24 },
+  header: { gap: 12, paddingTop: 12, paddingBottom: 8 },
+  title: {
+    fontFamily: fonts.serif,
+    fontSize: 38,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+    color: colors.text,
   },
-  tabRow: {
-    flexDirection: "row",
-    gap: 8,
-    padding: 4,
-    marginHorizontal: 24,
-    marginTop: 16,
-    borderRadius: 8,
-    backgroundColor: "#e2e2e2",
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-    alignItems: "center",
-  },
-  tabActive: {
-    backgroundColor: "#f9f9f9",
-    borderWidth: 1,
-    borderColor: "#c3c6d7",
-  },
-  tabText: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#434655",
-  },
-  tabTextActive: {
-    color: "#1a1c1c",
-  },
-  list: {
-    marginTop: 16,
-    marginHorizontal: 24,
-    borderWidth: 1,
-    borderColor: "#c3c6d7",
-    borderRadius: 12,
-    backgroundColor: "#f9f9f9",
-  },
+  tabRow: { flexDirection: "row", gap: 8 },
   row: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 16,
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e8e8e8",
-  },
-  rowIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: "#e8e8e8",
-  },
-  rowBody: {
-    flex: 1,
-    gap: 4,
-  },
-  rowTitle: {
-    fontFamily: "Newsreader",
-    fontSize: 24,
-    fontWeight: "500",
-    color: "#1a1c1c",
-  },
-  rowMeta: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 12,
+    minHeight: 68,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
   },
-  rowMetaText: {
-    fontFamily: "Manrope",
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#434655",
-  },
-  rowMetaDot: {
-    fontSize: 4,
-    color: "#c3c6d7",
-  },
-  offlinePin: {
-    fontSize: 12,
-    color: "#434655",
-  },
-  rowDelete: {
-    padding: 8,
-    alignSelf: "flex-start",
-  },
-  rowDeleteText: {
-    fontSize: 14,
-    color: "#ba1a1a",
-  },
-  progressTrack: {
-    marginTop: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#e8e8e8",
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#004ac6",
-  },
+  rowBody: { flex: 1, gap: 2 },
+  rowTitle: { fontSize: 15, fontWeight: "700", color: colors.text },
+  rowMeta: { flexDirection: "row", alignItems: "center", gap: 10 },
+  rowMetaText: { fontSize: 13, color: colors.textMuted },
+  rowDelete: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  progressTrack: { marginTop: 4, height: 3, borderRadius: 2, backgroundColor: colors.line, overflow: "hidden" },
+  progressFill: { height: 3, borderRadius: 2, backgroundColor: colors.accent },
 });

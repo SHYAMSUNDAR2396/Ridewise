@@ -1,36 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import type { RouteProp } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import {
-  Modal,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { CapsulePlayer } from "../features/capsules/player";
-import { downloadCapsule } from "../features/capsules/download";
-import { isFullyDownloaded, useCapsuleStore } from "../features/capsules/capsule-store";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Artwork, GradientFill } from "../components/Artwork";
+import { Icon } from "../components/Icon";
 import { RetryNotice } from "../components/RetryNotice";
+import { isFullyDownloaded, useCapsuleStore } from "../features/capsules/capsule-store";
+import { downloadCapsule } from "../features/capsules/download";
+import { useNowPlaying } from "../features/capsules/now-playing";
+import { CapsulePlayer } from "../features/capsules/player";
+import { useAppNavigation } from "../navigation/useAppNavigation";
 import type { RootStackParamList } from "../navigation/RootNavigator";
+import { colors, fonts } from "../theme";
 
 type PlayerScreenRouteProp = RouteProp<RootStackParamList, "Player">;
 
 const LANGUAGE_LABELS: Record<string, string> = { "en-IN": "English" };
 
 /**
- * The Player screen (`player_simplified_flow` in the Stitch export): a
- * minimal header, artwork card, centered metadata, the CapsulePlayer's
- * scrubber and transport controls, a Transcript/Save/Download action row,
- * and the transcript as an in-player bottom sheet -- not a separate route.
- *
- * No playback-speed control, no regenerate action: both are out of scope.
+ * Now Playing: artwork, title, the scrubber and transport controls, and a
+ * Transcript / Save / Download action row. The transcript opens as a sheet.
+ * No playback-speed control and no regenerate action: both are out of scope.
  */
 export function PlayerScreen(): React.JSX.Element {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useAppNavigation();
   const route = useRoute<PlayerScreenRouteProp>();
   const { capsule } = route.params;
 
@@ -39,6 +33,7 @@ export function PlayerScreen(): React.JSX.Element {
   const toggleSaved = useCapsuleStore((state) => state.toggleSaved);
   const markSegmentDownloaded = useCapsuleStore((state) => state.markSegmentDownloaded);
   const stored = useCapsuleStore((state) => state.capsules.find((item) => item.id === capsule.id));
+  const setNowPlaying = useNowPlaying((state) => state.setCapsuleId);
 
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -48,6 +43,7 @@ export function PlayerScreen(): React.JSX.Element {
 
   useEffect(() => {
     upsert(capsule);
+    setNowPlaying(capsule.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-upsert if a different capsule is opened
   }, [capsule.id]);
 
@@ -68,9 +64,8 @@ export function PlayerScreen(): React.JSX.Element {
         markSegmentDownloaded(capsule.id, segmentIndex, uri);
       });
     } catch {
-      // Segments download independently (see download.ts) -- any segments
-      // that did succeed are already marked via markSegmentDownloaded above.
-      // This only surfaces that at least one segment failed.
+      // Segments download independently (see download.ts): any that succeeded are
+      // already marked above. This only surfaces that at least one failed.
       setDownloadError(true);
     } finally {
       setDownloading(false);
@@ -78,91 +73,93 @@ export function PlayerScreen(): React.JSX.Element {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <View style={styles.root}>
+      <GradientFill from={colors.playerTop} to={colors.playerBottom} id="player" />
+      <SafeAreaView style={styles.container}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Collapse player"
-          style={styles.headerButton}
+          style={styles.grabberArea}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.headerIcon}>⌄</Text>
+          <View style={styles.grabber} />
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="More options"
-          style={styles.headerButton}
-        >
-          <Text style={styles.headerIcon}>⋮</Text>
-        </Pressable>
-      </View>
 
-      <View style={styles.artwork} />
-
-      <View style={styles.metadata}>
-        <Text style={styles.eyebrow}>
-          {capsule.topic} • {LANGUAGE_LABELS[capsule.language] ?? capsule.language}
-        </Text>
-        <Text style={styles.title}>{capsule.title}</Text>
-        <Text style={styles.subtitle}>Narrated by Ridewise AI</Text>
-      </View>
-
-      {audioUnavailable ? (
-        <View style={styles.audioUnavailable}>
-          <RetryNotice
-            headline="Audio unavailable right now."
-            message="We couldn't load this capsule's audio. Check your connection and try again."
-            actionLabel="Retry"
-            onRetry={() => {
-              setAudioUnavailable(false);
-              setPlayerRetryToken((token) => token + 1);
-            }}
-            icon="🔇"
-          />
+        <View style={styles.artwork}>
+          <Artwork seed={capsule.id} size={300} radius={18} />
         </View>
-      ) : (
-        <CapsulePlayer
-          key={playerRetryToken}
-          capsule={capsule}
-          initialPositionSeconds={initialPositionSeconds}
-          onProgress={handleProgress}
-          onPlaybackError={() => setAudioUnavailable(true)}
-        />
-      )}
 
-      <View style={styles.actionsRow}>
-        <Pressable
-          accessibilityRole="button"
-          style={styles.action}
-          onPress={() => setTranscriptOpen(true)}
-        >
-          <Text style={styles.actionText}>Transcript</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          style={styles.action}
-          onPress={() => toggleSaved(capsule.id)}
-        >
-          <Text style={styles.actionText}>{saved ? "Saved" : "Save"}</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          style={styles.action}
-          disabled={downloading || downloaded}
-          onPress={handleDownload}
-        >
-          <Text style={styles.actionText}>
-            {downloaded ? "Downloaded" : downloading ? "Downloading…" : "Download"}
+        <View style={styles.metadata}>
+          <Text style={styles.title} numberOfLines={2}>
+            {capsule.title}
           </Text>
-        </Pressable>
-      </View>
+          <Text style={styles.subtitle}>
+            {capsule.topic}, {LANGUAGE_LABELS[capsule.language] ?? capsule.language}
+          </Text>
+        </View>
 
-      {downloadError ? (
-        <Text style={styles.downloadErrorText}>
-          Some segments couldn't download. The rest are saved offline -- try again for the
-          rest.
-        </Text>
-      ) : null}
+        {audioUnavailable ? (
+          <View style={styles.audioUnavailable}>
+            <RetryNotice
+              headline="Audio unavailable right now."
+              message="We couldn't load this capsule's audio. Check your connection and try again."
+              actionLabel="Retry"
+              onRetry={() => {
+                setAudioUnavailable(false);
+                setPlayerRetryToken((token) => token + 1);
+              }}
+              icon="alert"
+            />
+          </View>
+        ) : (
+          <CapsulePlayer
+            key={playerRetryToken}
+            capsule={capsule}
+            initialPositionSeconds={initialPositionSeconds}
+            onProgress={handleProgress}
+            onPlaybackError={() => setAudioUnavailable(true)}
+          />
+        )}
+
+        <View style={styles.actionsRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Transcript"
+            style={styles.action}
+            onPress={() => setTranscriptOpen(true)}
+          >
+            <Icon name="transcript" size={24} color={colors.onPlayer} />
+            <Text style={styles.actionText}>Transcript</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={saved ? "Saved" : "Save"}
+            style={styles.action}
+            onPress={() => toggleSaved(capsule.id)}
+          >
+            <Icon name="bookmark" size={24} color={colors.onPlayer} />
+            <Text style={styles.actionText}>{saved ? "Saved" : "Save"}</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={downloaded ? "Downloaded" : downloading ? "Downloading" : "Download"}
+            style={styles.action}
+            disabled={downloading || downloaded}
+            onPress={handleDownload}
+          >
+            <Icon name={downloaded ? "check" : "download"} size={24} color={colors.onPlayer} />
+            <Text style={styles.actionText}>
+              {downloaded ? "Downloaded" : downloading ? "Downloading…" : "Download"}
+            </Text>
+          </Pressable>
+        </View>
+
+        {downloadError ? (
+          <Text style={styles.downloadErrorText}>
+            Some segments couldn't download. The rest are saved offline. Try again for the rest.
+          </Text>
+        ) : null}
+      </SafeAreaView>
 
       <Modal
         visible={transcriptOpen}
@@ -176,22 +173,15 @@ export function PlayerScreen(): React.JSX.Element {
           onPress={() => setTranscriptOpen(false)}
         />
         <View style={styles.sheet}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Collapse transcript"
-            style={styles.dragHandleArea}
-            onPress={() => setTranscriptOpen(false)}
-          >
-            <View style={styles.dragHandle} />
-          </Pressable>
           <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>Live Transcript</Text>
+            <Text style={styles.sheetTitle}>Transcript</Text>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Close transcript"
+              accessibilityLabel="Collapse transcript"
+              style={styles.sheetClose}
               onPress={() => setTranscriptOpen(false)}
             >
-              <Text style={styles.headerIcon}>×</Text>
+              <Icon name="close" size={22} color={colors.text} />
             </Pressable>
           </View>
           <ScrollView style={styles.transcriptBody}>
@@ -199,148 +189,48 @@ export function PlayerScreen(): React.JSX.Element {
           </ScrollView>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f9f9f9",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    height: 64,
-  },
-  headerButton: {
-    padding: 8,
-  },
-  headerIcon: {
-    fontSize: 24,
-    color: "#434655",
-  },
-  audioUnavailable: {
-    paddingHorizontal: 24,
-    marginBottom: 16,
-  },
+  root: { flex: 1, backgroundColor: colors.playerMid, overflow: "hidden" },
+  container: { flex: 1, gap: 16 },
+  grabberArea: { alignSelf: "center", width: 80, height: 44, alignItems: "center", justifyContent: "center" },
+  grabber: { width: 40, height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.45)" },
   artwork: {
     alignSelf: "center",
-    width: "80%",
-    maxWidth: 320,
-    aspectRatio: 1,
-    borderRadius: 24,
-    backgroundColor: "#f3f3f3",
-    borderWidth: 1,
-    borderColor: "rgba(195, 198, 215, 0.5)",
-    marginVertical: 16,
+    shadowColor: "#000000",
+    shadowOpacity: 0.4,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 12,
   },
-  metadata: {
-    alignItems: "center",
-    paddingHorizontal: 24,
-    marginBottom: 32,
-    gap: 4,
-  },
-  eyebrow: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    color: "#004ac6",
-    marginBottom: 8,
-  },
-  title: {
-    fontFamily: "Newsreader",
-    fontSize: 32,
-    fontWeight: "600",
-    color: "#1a1c1c",
-    textAlign: "center",
-  },
-  subtitle: {
-    fontFamily: "Manrope",
-    fontSize: 18,
-    color: "#434655",
-    opacity: 0.8,
-  },
+  metadata: { paddingHorizontal: 32, gap: 2 },
+  title: { fontFamily: fonts.serif, fontSize: 27, fontWeight: "700", letterSpacing: -0.3, color: colors.onPlayer },
+  subtitle: { fontSize: 15, fontWeight: "600", color: colors.onPlayerMuted },
+  audioUnavailable: { paddingHorizontal: 24 },
   actionsRow: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
-    paddingVertical: 24,
+    justifyContent: "space-around",
     paddingHorizontal: 24,
-    marginTop: 24,
+    marginTop: "auto",
+    paddingBottom: 16,
   },
-  action: {
-    alignItems: "center",
-    gap: 6,
-    width: 72,
-  },
-  actionText: {
-    fontFamily: "Manrope",
-    fontSize: 11,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-    color: "#434655",
-  },
-  downloadErrorText: {
-    fontFamily: "Manrope",
-    fontSize: 13,
-    color: "#ba1a1a",
-    textAlign: "center",
-    paddingHorizontal: 24,
-    marginTop: -16,
-    marginBottom: 16,
-  },
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(26, 28, 28, 0.4)",
-  },
+  action: { minWidth: 72, minHeight: 56, alignItems: "center", justifyContent: "center", gap: 4 },
+  actionText: { fontSize: 12, fontWeight: "700", color: colors.onPlayer },
+  downloadErrorText: { fontSize: 13, color: colors.onPlayerMuted, textAlign: "center", paddingHorizontal: 32 },
+  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
   sheet: {
-    height: "75%",
-    backgroundColor: "#2f3131",
+    maxHeight: "70%",
+    backgroundColor: colors.bg,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    padding: 20,
   },
-  dragHandleArea: {
-    alignItems: "center",
-    paddingTop: 20,
-    paddingBottom: 12,
-  },
-  dragHandle: {
-    width: 48,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "rgba(115, 118, 134, 0.5)",
-  },
-  sheetHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(115, 118, 134, 0.2)",
-  },
-  sheetTitle: {
-    fontFamily: "Newsreader",
-    fontSize: 24,
-    fontWeight: "500",
-    color: "#f0f1f1",
-  },
-  transcriptBody: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-  },
-  transcriptText: {
-    fontFamily: "Manrope",
-    fontSize: 18,
-    lineHeight: 28,
-    color: "#f0f1f1",
-    opacity: 0.8,
-  },
+  sheetHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 8 },
+  sheetTitle: { fontFamily: fonts.serif, fontSize: 26, fontWeight: "700", color: colors.text },
+  sheetClose: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  transcriptBody: { flexGrow: 0 },
+  transcriptText: { fontSize: 17, lineHeight: 28, color: colors.text, paddingBottom: 24 },
 });

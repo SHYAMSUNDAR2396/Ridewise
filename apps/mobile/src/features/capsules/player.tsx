@@ -11,6 +11,8 @@ import type { Capsule } from "@commute-capsule/domain";
 import { segmentAt } from "./use-segment-queue";
 import { playbackQueueUris } from "./download";
 import { useCapsuleStore } from "./capsule-store";
+import { Icon } from "../../components/Icon";
+import { colors } from "../../theme";
 
 export type CapsulePlayerProps = {
   capsule: Capsule;
@@ -211,7 +213,7 @@ export function CapsulePlayer({
           onPress={skipBack}
           style={styles.skipButton}
         >
-          <Text style={styles.skipText}>-10s</Text>
+          <Icon name="back10" size={36} color={colors.onPlayer} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -219,7 +221,7 @@ export function CapsulePlayer({
           onPress={togglePlayback}
           style={styles.playButton}
         >
-          <Text style={styles.playIcon}>{isPlaying ? "❚❚" : "▶"}</Text>
+          <Icon name={isPlaying ? "pause" : "play"} size={32} color={colors.playerMid} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -227,7 +229,7 @@ export function CapsulePlayer({
           onPress={skipForward}
           style={styles.skipButton}
         >
-          <Text style={styles.skipText}>+30s</Text>
+          <Icon name="forward30" size={36} color={colors.onPlayer} />
         </Pressable>
       </View>
     </View>
@@ -235,59 +237,30 @@ export function CapsulePlayer({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    paddingHorizontal: 24,
-    gap: 8,
-  },
+  container: { width: "100%", paddingHorizontal: 32, gap: 8 },
   scrubberTrack: {
-    height: 3,
+    height: 4,
     borderRadius: 2,
-    backgroundColor: "#e2e2e2",
+    backgroundColor: colors.onPlayerFaint,
     overflow: "hidden",
   },
-  scrubberFill: {
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: "#004ac6",
-  },
-  timestamps: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  timestampText: {
-    fontFamily: "Manrope",
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    color: "#434655",
-  },
+  scrubberFill: { height: 4, borderRadius: 2, backgroundColor: colors.onPlayer },
+  timestamps: { flexDirection: "row", justifyContent: "space-between" },
+  timestampText: { fontSize: 12, fontWeight: "700", color: colors.onPlayerMuted },
   controls: {
-    marginTop: 16,
+    marginTop: 8,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 24,
+    gap: 30,
   },
-  skipButton: {
-    padding: 12,
-  },
-  skipText: {
-    fontFamily: "Manrope",
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1a1c1c",
-  },
+  skipButton: { width: 56, height: 56, alignItems: "center", justifyContent: "center" },
   playButton: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: "#004ac6",
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: colors.onPlayer,
     alignItems: "center",
     justifyContent: "center",
-  },
-  playIcon: {
-    fontSize: 32,
-    color: "#ffffff",
   },
 });
