@@ -15,6 +15,7 @@ import { GradientFill } from "../components/Artwork";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { RetryNotice } from "../components/RetryNotice";
 import { useGenerateCapsule } from "../features/capsules/generate-capsule";
+import type { GenerateProgress } from "../features/generation/native/runtime";
 import { useTripStore } from "../features/trip/trip-store";
 import { useAppNavigation } from "../navigation/useAppNavigation";
 import { colors, fonts } from "../theme";
@@ -41,10 +42,17 @@ const STYLE_OPTIONS: { value: ListeningStyle; title: string; description: string
   },
 ];
 
+function progressLabel(progress: GenerateProgress | null): string {
+  if (progress?.phase === "models") return `Getting ready, ${progress.done}%`;
+  if (progress?.phase === "script") return "Writing your script...";
+  if (progress?.phase === "voice") return `Recording part ${progress.done + 1} of ${progress.total}...`;
+  return "Preparing your capsule...";
+}
+
 export function TopicScreen(): React.JSX.Element {
   const navigation = useAppNavigation();
   const draft = useTripStore((state) => state.draft);
-  const { generate, status } = useGenerateCapsule();
+  const { generate, status, progress } = useGenerateCapsule();
 
   const [selectedChip, setSelectedChip] = useState<string | null>(null);
   const [customTopic, setCustomTopic] = useState("");
@@ -161,7 +169,10 @@ export function TopicScreen(): React.JSX.Element {
         <View style={styles.loadingOverlay}>
           <GradientFill from={colors.playerTop} to={colors.playerBottom} id="loading" />
           <ActivityIndicator color={colors.onPlayer} size="large" />
-          <Text style={styles.loadingText}>Preparing your capsule...</Text>
+          <Text style={styles.loadingText}>{progressLabel(progress)}</Text>
+          {progress?.phase === "models" ? (
+            <Text style={styles.loadingHint}>Downloading the voice and writer once. They stay on this phone.</Text>
+          ) : null}
         </View>
       ) : null}
     </SafeAreaView>
@@ -239,5 +250,6 @@ const styles = StyleSheet.create({
     gap: 16,
     overflow: "hidden",
   },
-  loadingText: { fontFamily: fonts.serif, fontSize: 24, fontWeight: "700", color: colors.onPlayer },
+  loadingText: { fontFamily: fonts.serif, fontSize: 24, fontWeight: "700", color: colors.onPlayer, textAlign: "center", paddingHorizontal: 24 },
+  loadingHint: { fontSize: 14, color: colors.onPlayerMuted, textAlign: "center", paddingHorizontal: 32 },
 });

@@ -15,9 +15,18 @@ export type StoredCapsule = Capsule & {
   downloadedSegmentUris: Record<number, string>;
 };
 
+/** The local file for a segment: a downloaded copy, or the segment itself when made on this phone. */
+export function localSegmentUri(
+  capsule: Pick<StoredCapsule, "downloadedSegmentUris">,
+  segment: { index: number; url: string },
+): string | undefined {
+  if (segment.url.startsWith("file://")) return segment.url;
+  return capsule.downloadedSegmentUris[segment.index];
+}
+
 /** A capsule is offline-playable only once every segment has a local file. */
 export function isFullyDownloaded(capsule: StoredCapsule): boolean {
-  return Object.keys(capsule.downloadedSegmentUris).length === capsule.segments.length;
+  return capsule.segments.every((segment) => localSegmentUri(capsule, segment) !== undefined);
 }
 
 type LibraryState = {

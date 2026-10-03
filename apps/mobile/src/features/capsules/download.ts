@@ -1,6 +1,6 @@
 import RNBlobUtil from "react-native-blob-util";
 import type { Capsule } from "@commute-capsule/domain";
-import { isFullyDownloaded, type StoredCapsule } from "./capsule-store";
+import { isFullyDownloaded, localSegmentUri, type StoredCapsule } from "./capsule-store";
 
 /**
  * URIs to queue for playback, in segment-index order. Uses the local
@@ -10,7 +10,7 @@ import { isFullyDownloaded, type StoredCapsule } from "./capsule-store";
 export function playbackQueueUris(capsule: StoredCapsule): string[] {
   if (isFullyDownloaded(capsule)) {
     return capsule.segments
-      .map((segment) => capsule.downloadedSegmentUris[segment.index])
+      .map((segment) => localSegmentUri(capsule, segment))
       .filter((uri): uri is string => Boolean(uri));
   }
   return capsule.segments.map((segment) => segment.url);

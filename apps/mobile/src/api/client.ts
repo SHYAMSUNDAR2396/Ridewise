@@ -1,10 +1,4 @@
-import type {
-  Capsule,
-  CapsuleErrorCode,
-  CreateCapsuleRequest,
-  RouteEstimate,
-  TripDraft,
-} from "@commute-capsule/domain";
+import type { CapsuleErrorCode, RouteEstimate, TripDraft } from "@commute-capsule/domain";
 
 // ponytail: simple constant, swap for real env config when a build pipeline needs it.
 export const API_BASE_URL = "http://localhost:3000";
@@ -52,6 +46,4 @@ async function postJson<TResponse>(path: string, body: unknown): Promise<TRespon
 export const apiClient = {
   estimateTrip: (draft: TripDraft): Promise<RouteEstimate> =>
     postJson<RouteEstimate>("/v1/trips/estimate", draft),
-  createCapsule: (request: CreateCapsuleRequest): Promise<Capsule> =>
-    postJson<Capsule>("/v1/capsules", request),
 };

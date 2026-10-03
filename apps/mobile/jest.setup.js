@@ -62,3 +62,15 @@ jest.mock("react-native-blob-util", () => ({
 jest.mock("react-native-safe-area-context", () =>
   require("react-native-safe-area-context/jest/mock").default,
 );
+
+jest.mock("react-native-sherpa-onnx/tts", () => ({
+  createTTS: jest.fn(),
+  saveAudioToFile: jest.fn(),
+}));
+
+jest.mock("react-native-sherpa-onnx/download", () => ({
+  ModelCategory: { Tts: "tts" },
+  ensureModel: jest.fn(),
+}));
+
+jest.mock("llama.rn", () => ({ initLlama: jest.fn() }));

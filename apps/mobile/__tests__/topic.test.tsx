@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, userEvent, waitFor } from "@testing-library/react-native";
+import { act, render, screen, userEvent, waitFor } from "@testing-library/react-native";
 import { TopicScreen } from "../src/screens/TopicScreen";
 import { useTripStore } from "../src/features/trip/trip-store";
 
@@ -13,19 +13,16 @@ jest.mock("@react-navigation/native", () => {
   };
 });
 
-const mockCreateCapsule = jest.fn();
+const mockGenerate = jest.fn();
 
-jest.mock("../src/api/client", () => ({
-  apiClient: {
-    estimateTrip: jest.fn(),
-    createCapsule: (...args: unknown[]) => mockCreateCapsule(...args),
-  },
+jest.mock("../src/features/generation/native/runtime", () => ({
+  generateCapsuleOnDevice: (...args: unknown[]) => mockGenerate(...args),
 }));
 
 describe("TopicScreen", () => {
   beforeEach(() => {
     mockNavigate.mockReset();
-    mockCreateCapsule.mockReset();
+    mockGenerate.mockReset();
     useTripStore.setState({
       draft: {
         startLabel: "Rajiv Chowk",
@@ -45,7 +42,7 @@ describe("TopicScreen", () => {
   });
 
   it("keeps selections and offers Retry when generation fails", async () => {
-    mockCreateCapsule.mockRejectedValueOnce(new Error("boom"));
+    mockGenerate.mockRejectedValueOnce(new Error("boom"));
     await render(<TopicScreen />);
 
     await userEvent.setup().press(screen.getByRole("button", { name: "Careers" }));
@@ -59,15 +56,41 @@ describe("TopicScreen", () => {
 
   it("navigates to Player with the capsule on success", async () => {
     const capsule = { id: "c1" };
-    mockCreateCapsule.mockResolvedValueOnce(capsule);
+    mockGenerate.mockResolvedValueOnce(capsule);
     await render(<TopicScreen />);
 
     await userEvent.setup().press(screen.getByRole("button", { name: "Careers" }));
     await userEvent.setup().press(screen.getByRole("button", { name: "Generate my capsule" }));
 
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("Player", { capsule }));
-    expect(mockCreateCapsule).toHaveBeenCalledWith(
+    expect(mockGenerate).toHaveBeenCalledWith(
       expect.objectContaining({ topic: "Careers", style: "quick_overview", language: "en-IN" }),
+      expect.any(Function),
     );
+  });
+
+  it("shows what the phone is doing while it generates", async () => {
+    let report: (progress: unknown) => void = () => undefined;
+    let finish: (capsule: unknown) => void = () => undefined;
+    mockGenerate.mockImplementationOnce(
+      (_input: unknown, onProgress: (progress: unknown) => void) => {
+        report = onProgress;
+        return new Promise((resolve) => {
+          finish = resolve;
+        });
+      },
+    );
+    await render(<TopicScreen />);
+
+    await userEvent.setup().press(screen.getByRole("button", { name: "Careers" }));
+    await userEvent.setup().press(screen.getByRole("button", { name: "Generate my capsule" }));
+
+    await waitFor(() => expect(screen.getByText("Preparing your capsule...")).toBeVisible());
+    await act(async () => report({ phase: "models", done: 42, total: 100 }));
+    expect(screen.getByText("Getting ready, 42%")).toBeVisible();
+    await act(async () => report({ phase: "voice", done: 2, total: 9 }));
+    expect(screen.getByText("Recording part 3 of 9...")).toBeVisible();
+
+    await act(async () => finish({ id: "c1" }));
   });
 });
