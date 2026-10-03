@@ -4,9 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository state
 
-Docs only — no application code has been scaffolded yet. Everything here is design specs and implementation plans under `docs/superpowers/`. The commands and file layout below come from those plans; they describe what to create, not what exists.
+The English, solo-narrated MVP is implemented: `apps/mobile` (React Native), `apps/api` (Fastify), `packages/domain`, all with passing tests. Design specs and plans live under `docs/superpowers/`. Hindi and two-host conversation capsules are specced but not built.
 
-## Provider decision (read first)
+## On-device generation (read first)
+
+As of 2026-10, capsules are made **on the phone**, not by the server. This supersedes the ElevenLabs decision below for speech and scripts.
+
+- Speech: Kokoro-82M (int8) through `react-native-sherpa-onnx`. Script: Gemma 3 1B (GGUF) through `llama.rn`. Both models download on first use.
+- Code: `apps/mobile/src/features/generation/`. `pipeline.ts` and `script-writer.ts` are pure and unit-tested with fakes; `native/` holds the thin adapters (untested off-device).
+- The server (`apps/api`) is now used only for route-time estimates (the Google Maps key must stay off the device). Its capsule routes and ElevenLabs provider are unused by the app.
+- **Hindi is blocked:** `react-native-sherpa-onnx` builds the Kokoro config without the `lang` setting Hindi needs, so only English works until that library is patched.
+- On-device speech runs at roughly half real time on an M4, so a phone may be near real time. Generate capsules ahead of the ride, not while the user waits.
+- Not yet verified on a device or emulator: the native adapters, model downloads, and Gemma script quality.
+
+## Provider decision (superseded for generation, kept for history)
 
 Three provider generations exist in the docs. Only the newest is current:
 
@@ -34,11 +45,11 @@ Package names keep the `@commute-capsule/*` scope from the original plan even th
 
 ## Architecture
 
-`apps/mobile` (bare React Native — community CLI, React Navigation, `react-native-track-player`) → `apps/api` (Fastify + Zod) → external providers. `packages/domain` holds shared types, Zod schemas, and the duration rule consumed by both sides.
+`apps/mobile` (bare React Native — community CLI, React Navigation with bottom tabs, `react-native-track-player`) generates capsules on device; it calls `apps/api` (Fastify + Zod) only for route estimates. `packages/domain` holds shared types, Zod schemas, and the duration rule consumed by both sides.
 
 **Not Expo.** The mobile app uses the bare React Native CLI with `ios/` and `android/` checked in. Older plan text referring to Expo Router, Expo Audio, `create-expo-app`, or `jest-expo` is superseded — see Override 4 in `plans/2026-08-15-ridewise-elevenlabs-mvp.md`. Building it needs the native toolchain (Xcode + CocoaPods for iOS, Android Studio for Android); there is no Expo Go shortcut.
 
-The mobile app never calls a provider directly and never holds a provider credential. The API owns routing, prompts, language-to-voice mapping, segmentation, retries, duration measurement, and storage.
+The mobile app never holds a provider credential. The API owns routing. Prompts, segmentation, retries and duration measurement now live in `apps/mobile/src/features/generation/` (the sentence splitter and retry helper are shared from `packages/domain`).
 
 Providers sit behind interfaces in `apps/api/src/providers/` (routing, generation, speech, storage) with a deterministic `development.ts` implementation used in dev and tests — production/test swap is environment config, not code branching.
 
