@@ -1,15 +1,19 @@
 {
   "name": "commute-capsule-india",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "test": "npm run test --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "patch-package": "^8.0.1",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
   }
 }
-
