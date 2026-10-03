@@ -1,0 +1,28 @@
+name: ridewise
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  archive: ^4.3.0
+  dio: ^5.11.1
+  flutter:
+    sdk: flutter
+  http: ^1.6.0
+  just_audio: ^0.10.6
+  just_audio_background: ^0.0.1-beta.17
+  llamadart: ^0.10.0
+  path_provider: ^2.1.6
+  provider: ^6.1.5+1
+  sherpa_onnx: ^1.13.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
