@@ -82,22 +82,23 @@ class TripDraft {
     int? estimatedSeconds,
     int? manualSeconds,
     bool clearManualSeconds = false,
-  }) =>
-      TripDraft(
-        startLabel: startLabel ?? this.startLabel,
-        endLabel: endLabel ?? this.endLabel,
-        transportMode: transportMode ?? this.transportMode,
-        estimatedSeconds: estimatedSeconds ?? this.estimatedSeconds,
-        manualSeconds: clearManualSeconds ? null : (manualSeconds ?? this.manualSeconds),
-      );
+  }) => TripDraft(
+    startLabel: startLabel ?? this.startLabel,
+    endLabel: endLabel ?? this.endLabel,
+    transportMode: transportMode ?? this.transportMode,
+    estimatedSeconds: estimatedSeconds ?? this.estimatedSeconds,
+    manualSeconds: clearManualSeconds
+        ? null
+        : (manualSeconds ?? this.manualSeconds),
+  );
 
   Map<String, Object?> toJson() => {
-        'startLabel': startLabel,
-        'endLabel': endLabel,
-        'transportMode': transportMode?.wire,
-        if (estimatedSeconds != null) 'estimatedSeconds': estimatedSeconds,
-        if (manualSeconds != null) 'manualSeconds': manualSeconds,
-      };
+    'startLabel': startLabel,
+    'endLabel': endLabel,
+    'transportMode': transportMode?.wire,
+    if (estimatedSeconds != null) 'estimatedSeconds': estimatedSeconds,
+    if (manualSeconds != null) 'manualSeconds': manualSeconds,
+  };
 }
 
 class RouteEstimate {
@@ -106,9 +107,9 @@ class RouteEstimate {
   final String summary;
 
   factory RouteEstimate.fromJson(Map<String, Object?> json) => RouteEstimate(
-        durationSeconds: (json['durationSeconds'] as num).toInt(),
-        summary: json['summary'] as String? ?? '',
-      );
+    durationSeconds: (json['durationSeconds'] as num).toInt(),
+    summary: json['summary'] as String? ?? '',
+  );
 }
 
 class CreateCapsuleRequest {
@@ -126,7 +127,11 @@ class CreateCapsuleRequest {
 }
 
 class AudioSegment {
-  const AudioSegment({required this.index, required this.url, required this.durationSeconds});
+  const AudioSegment({
+    required this.index,
+    required this.url,
+    required this.durationSeconds,
+  });
 
   final int index;
 
@@ -134,13 +139,17 @@ class AudioSegment {
   final String url;
   final double durationSeconds;
 
-  Map<String, Object?> toJson() => {'index': index, 'url': url, 'durationSeconds': durationSeconds};
+  Map<String, Object?> toJson() => {
+    'index': index,
+    'url': url,
+    'durationSeconds': durationSeconds,
+  };
 
   factory AudioSegment.fromJson(Map<String, Object?> json) => AudioSegment(
-        index: (json['index'] as num).toInt(),
-        url: json['url'] as String,
-        durationSeconds: (json['durationSeconds'] as num).toDouble(),
-      );
+    index: (json['index'] as num).toInt(),
+    url: json['url'] as String,
+    durationSeconds: (json['durationSeconds'] as num).toDouble(),
+  );
 }
 
 class Capsule {
@@ -167,31 +176,31 @@ class Capsule {
   final DateTime createdAt;
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'title': title,
-        'topic': topic,
-        'language': language.code,
-        'targetSeconds': targetSeconds,
-        'audioSeconds': audioSeconds,
-        'transcript': transcript,
-        'segments': [for (final s in segments) s.toJson()],
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'title': title,
+    'topic': topic,
+    'language': language.code,
+    'targetSeconds': targetSeconds,
+    'audioSeconds': audioSeconds,
+    'transcript': transcript,
+    'segments': [for (final s in segments) s.toJson()],
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   factory Capsule.fromJson(Map<String, Object?> json) => Capsule(
-        id: json['id'] as String,
-        title: json['title'] as String,
-        topic: json['topic'] as String,
-        language: CapsuleLanguage.fromCode(json['language'] as String),
-        targetSeconds: (json['targetSeconds'] as num).toInt(),
-        audioSeconds: (json['audioSeconds'] as num).toDouble(),
-        transcript: json['transcript'] as String,
-        segments: [
-          for (final s in json['segments'] as List<Object?>)
-            AudioSegment.fromJson(s as Map<String, Object?>),
-        ],
-        createdAt: DateTime.parse(json['createdAt'] as String),
-      );
+    id: json['id'] as String,
+    title: json['title'] as String,
+    topic: json['topic'] as String,
+    language: CapsuleLanguage.fromCode(json['language'] as String),
+    targetSeconds: (json['targetSeconds'] as num).toInt(),
+    audioSeconds: (json['audioSeconds'] as num).toDouble(),
+    transcript: json['transcript'] as String,
+    segments: [
+      for (final s in json['segments'] as List<Object?>)
+        AudioSegment.fromJson(s as Map<String, Object?>),
+    ],
+    createdAt: DateTime.parse(json['createdAt'] as String),
+  );
 }
 
 /// Capsule length for a trip: leave an arrival buffer of 10% (60 to 180 seconds).

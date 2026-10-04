@@ -50,7 +50,8 @@ typedef ProgressCallback = void Function(GenerationProgress progress);
 
 /// Makes a capsule entirely on this phone. The Flutter UI depends on this
 /// signature; `native/runtime.dart` provides the real implementation.
-typedef GenerateCapsule = Future<Capsule> Function(
-  CreateCapsuleRequest request,
-  ProgressCallback onProgress,
-);
+typedef GenerateCapsule =
+    Future<Capsule> Function(
+      CreateCapsuleRequest request,
+      ProgressCallback onProgress,
+    );

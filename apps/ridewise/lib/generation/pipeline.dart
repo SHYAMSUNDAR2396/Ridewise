@@ -7,7 +7,8 @@ import 'types.dart';
 const _maxSegmentChars = 600;
 const _shorteningFactor = 0.85;
 
-int _wordsPerMinute(CapsuleLanguage language) => language == CapsuleLanguage.hiIN ? 130 : 150;
+int _wordsPerMinute(CapsuleLanguage language) =>
+    language == CapsuleLanguage.hiIN ? 130 : 150;
 
 class PipelineDeps {
   const PipelineDeps({
@@ -37,26 +38,37 @@ class PipelineDeps {
 /// finishes before the trip does. Published audio never exceeds the target: on
 /// overrun it makes one shorter attempt, then fails with capsuleTooLong
 /// instead of cutting audio mid-sentence.
-Future<Capsule> createCapsuleOnDevice(CreateCapsuleRequest request, PipelineDeps deps) async {
+Future<Capsule> createCapsuleOnDevice(
+  CreateCapsuleRequest request,
+  PipelineDeps deps,
+) async {
   final tripSeconds = request.trip.tripSeconds;
   if (tripSeconds == null || tripSeconds <= 0) {
-    throw GenerationException(CapsuleErrorCode.routeUnavailable, 'Set a trip time to continue.');
+    throw GenerationException(
+      CapsuleErrorCode.routeUnavailable,
+      'Set a trip time to continue.',
+    );
   }
 
   final targetSeconds = calculateTargetSeconds(tripSeconds);
   final id = deps.newId();
-  var targetWords = (targetSeconds / 60 * _wordsPerMinute(request.language)).round();
+  var targetWords = (targetSeconds / 60 * _wordsPerMinute(request.language))
+      .round();
 
   for (var attempt = 0; attempt < 2; attempt++) {
-    deps.onProgress?.call(const GenerationProgress(GenerationPhase.script, 0, 1));
+    deps.onProgress?.call(
+      const GenerationProgress(GenerationPhase.script, 0, 1),
+    );
     final Script script;
     try {
-      script = await deps.script.write(ScriptRequest(
-        topic: request.topic,
-        style: request.style,
-        language: request.language,
-        targetWords: targetWords,
-      ));
+      script = await deps.script.write(
+        ScriptRequest(
+          topic: request.topic,
+          style: request.style,
+          language: request.language,
+          targetWords: targetWords,
+        ),
+      );
     } catch (_) {
       throw GenerationException(
         CapsuleErrorCode.scriptGenerationFailed,
@@ -70,7 +82,9 @@ Future<Capsule> createCapsuleOnDevice(CreateCapsuleRequest request, PipelineDeps
     var overran = false;
 
     for (final (index, text) in texts.indexed) {
-      deps.onProgress?.call(GenerationProgress(GenerationPhase.voice, index, texts.length));
+      deps.onProgress?.call(
+        GenerationProgress(GenerationPhase.voice, index, texts.length),
+      );
       final path = deps.segmentPath(id, index);
       final ({double durationSeconds}) result;
       try {
@@ -87,7 +101,13 @@ Future<Capsule> createCapsuleOnDevice(CreateCapsuleRequest request, PipelineDeps
       }
 
       audioSeconds += result.durationSeconds;
-      segments.add(AudioSegment(index: index, url: 'file://$path', durationSeconds: result.durationSeconds));
+      segments.add(
+        AudioSegment(
+          index: index,
+          url: 'file://$path',
+          durationSeconds: result.durationSeconds,
+        ),
+      );
 
       // Stop speaking as soon as the audio no longer fits; the rest would be wasted work.
       if (audioSeconds > targetSeconds) {

@@ -9,8 +9,10 @@ final _sentenceBoundary = RegExp(r'(?<=[.!?।])\s+');
 /// sentence boundaries. A single sentence longer than [maxChars] becomes its
 /// own oversized segment rather than being cut mid-sentence.
 List<String> splitIntoSegments(String text, int maxChars) {
-  final sentences =
-      text.trim().split(_sentenceBoundary).where((s) => s.isNotEmpty);
+  final sentences = text
+      .trim()
+      .split(_sentenceBoundary)
+      .where((s) => s.isNotEmpty);
   final segments = <String>[];
   var current = '';
 
@@ -33,7 +35,7 @@ Future<T> withRetry<T>(
   int attempts = 3,
   Duration baseDelay = const Duration(milliseconds: 200),
 }) async {
-  for (var attempt = 0;; attempt++) {
+  for (var attempt = 0; ; attempt++) {
     try {
       return await fn();
     } catch (_) {

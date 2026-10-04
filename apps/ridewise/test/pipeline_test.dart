@@ -3,18 +3,20 @@ import 'package:ridewise/domain/models.dart';
 import 'package:ridewise/generation/pipeline.dart';
 import 'package:ridewise/generation/types.dart';
 
-CreateCapsuleRequest request(int? seconds, {CapsuleLanguage language = CapsuleLanguage.enIN}) =>
-    CreateCapsuleRequest(
-      trip: TripDraft(
-        startLabel: 'A',
-        endLabel: 'B',
-        transportMode: TransportMode.metro,
-        manualSeconds: seconds,
-      ),
-      topic: 'Careers',
-      style: ListeningStyle.quickOverview,
-      language: language,
-    );
+CreateCapsuleRequest request(
+  int? seconds, {
+  CapsuleLanguage language = CapsuleLanguage.enIN,
+}) => CreateCapsuleRequest(
+  trip: TripDraft(
+    startLabel: 'A',
+    endLabel: 'B',
+    transportMode: TransportMode.metro,
+    manualSeconds: seconds,
+  ),
+  topic: 'Careers',
+  style: ListeningStyle.quickOverview,
+  language: language,
+);
 
 class FakeScript implements ScriptWriter {
   FakeScript(this.transcriptFor);
@@ -24,7 +26,10 @@ class FakeScript implements ScriptWriter {
   @override
   Future<Script> write(ScriptRequest request) async {
     targetWords.add(request.targetWords);
-    return Script(title: 'A title', transcript: transcriptFor(targetWords.length));
+    return Script(
+      title: 'A title',
+      transcript: transcriptFor(targetWords.length),
+    );
   }
 }
 
@@ -50,7 +55,11 @@ class FailingSpeech implements SpeechEngine {
   int attempts = 0;
 
   @override
-  Future<({double durationSeconds})> synthesizeToFile(String t, String p, CapsuleLanguage l) {
+  Future<({double durationSeconds})> synthesizeToFile(
+    String t,
+    String p,
+    CapsuleLanguage l,
+  ) {
     attempts++;
     throw Exception('engine error');
   }
@@ -59,10 +68,8 @@ class FailingSpeech implements SpeechEngine {
 String shortScript() =>
     List.generate(12, (i) => 'Sentence number ${i + 1} is here.').join(' ');
 
-({PipelineDeps deps, List<String> cleaned, List<GenerationProgress> progress}) makeDeps({
-  required ScriptWriter script,
-  required SpeechEngine speech,
-}) {
+({PipelineDeps deps, List<String> cleaned, List<GenerationProgress> progress})
+makeDeps({required ScriptWriter script, required SpeechEngine speech}) {
   final cleaned = <String>[];
   final progress = <GenerationProgress>[];
   return (
@@ -105,36 +112,50 @@ void main() {
     expect(ctx.progress.last.phase, GenerationPhase.voice);
   });
 
-  test('uses a slower pace and passes the language through for Hindi', () async {
-    final script = FakeScript((_) => shortScript());
-    final speech = FakeSpeech((_) => 10);
-    final ctx = makeDeps(script: script, speech: speech);
+  test(
+    'uses a slower pace and passes the language through for Hindi',
+    () async {
+      final script = FakeScript((_) => shortScript());
+      final speech = FakeSpeech((_) => 10);
+      final ctx = makeDeps(script: script, speech: speech);
 
-    final capsule = await createCapsuleOnDevice(request(1200, language: CapsuleLanguage.hiIN), ctx.deps);
+      final capsule = await createCapsuleOnDevice(
+        request(1200, language: CapsuleLanguage.hiIN),
+        ctx.deps,
+      );
 
-    expect(script.targetWords, [2340]); // 1080 s at 130 words per minute
-    expect(capsule.language, CapsuleLanguage.hiIN);
-    expect(speech.languages.toSet(), {CapsuleLanguage.hiIN});
-  });
+      expect(script.targetWords, [2340]); // 1080 s at 130 words per minute
+      expect(capsule.language, CapsuleLanguage.hiIN);
+      expect(speech.languages.toSet(), {CapsuleLanguage.hiIN});
+    },
+  );
 
-  test('makes one shorter attempt after an overrun, stopping early and cleaning up', () async {
-    // The first segment alone is longer than the 1080 s target, so speaking stops there.
-    final script = FakeScript((_) => shortScript());
-    final speech = FakeSpeech((_) => 1100);
-    final ctx = makeDeps(script: script, speech: speech);
+  test(
+    'makes one shorter attempt after an overrun, stopping early and cleaning up',
+    () async {
+      // The first segment alone is longer than the 1080 s target, so speaking stops there.
+      final script = FakeScript((_) => shortScript());
+      final speech = FakeSpeech((_) => 1100);
+      final ctx = makeDeps(script: script, speech: speech);
 
-    await expectLater(
-      createCapsuleOnDevice(request(1200), ctx.deps),
-      failsWith(CapsuleErrorCode.capsuleTooLong),
-    );
+      await expectLater(
+        createCapsuleOnDevice(request(1200), ctx.deps),
+        failsWith(CapsuleErrorCode.capsuleTooLong),
+      );
 
-    expect(script.targetWords, [2700, 2295]);
-    expect(ctx.cleaned, ['cap-1', 'cap-1']);
-    expect(speech.spoken, hasLength(2)); // one segment per attempt, then stopped
-  });
+      expect(script.targetWords, [2700, 2295]);
+      expect(ctx.cleaned, ['cap-1', 'cap-1']);
+      expect(
+        speech.spoken,
+        hasLength(2),
+      ); // one segment per attempt, then stopped
+    },
+  );
 
   test('succeeds on the shorter second attempt', () async {
-    final script = FakeScript((call) => call == 1 ? 'A long sentence. ' * 60 : 'Short one.');
+    final script = FakeScript(
+      (call) => call == 1 ? 'A long sentence. ' * 60 : 'Short one.',
+    );
     final speech = FakeSpeech((text) => text.length > 20 ? 600 : 5);
     final ctx = makeDeps(script: script, speech: speech);
 
@@ -155,20 +176,29 @@ void main() {
     );
   });
 
-  test('retries a failed segment, then gives up with speechSynthesisFailed and cleans up', () async {
-    final speech = FailingSpeech();
-    final ctx = makeDeps(script: FakeScript((_) => shortScript()), speech: speech);
+  test(
+    'retries a failed segment, then gives up with speechSynthesisFailed and cleans up',
+    () async {
+      final speech = FailingSpeech();
+      final ctx = makeDeps(
+        script: FakeScript((_) => shortScript()),
+        speech: speech,
+      );
 
-    await expectLater(
-      createCapsuleOnDevice(request(1200), ctx.deps),
-      failsWith(CapsuleErrorCode.speechSynthesisFailed),
-    );
-    expect(speech.attempts, 3);
-    expect(ctx.cleaned, ['cap-1']);
-  });
+      await expectLater(
+        createCapsuleOnDevice(request(1200), ctx.deps),
+        failsWith(CapsuleErrorCode.speechSynthesisFailed),
+      );
+      expect(speech.attempts, 3);
+      expect(ctx.cleaned, ['cap-1']);
+    },
+  );
 
   test('requires a trip time', () async {
-    final ctx = makeDeps(script: FakeScript((_) => shortScript()), speech: FakeSpeech((_) => 1));
+    final ctx = makeDeps(
+      script: FakeScript((_) => shortScript()),
+      speech: FakeSpeech((_) => 1),
+    );
     await expectLater(
       createCapsuleOnDevice(request(null), ctx.deps),
       failsWith(CapsuleErrorCode.routeUnavailable),

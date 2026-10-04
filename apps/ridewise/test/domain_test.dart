@@ -17,11 +17,16 @@ void main() {
 
   group('splitIntoSegments', () {
     test('packs whole sentences up to the limit', () {
-      expect(splitIntoSegments('One. Two. Three.', 10), ['One. Two.', 'Three.']);
+      expect(splitIntoSegments('One. Two. Three.', 10), [
+        'One. Two.',
+        'Three.',
+      ]);
     });
 
     test('returns a single segment when everything fits', () {
-      expect(splitIntoSegments('Only one sentence here.', 8000), ['Only one sentence here.']);
+      expect(splitIntoSegments('Only one sentence here.', 8000), [
+        'Only one sentence here.',
+      ]);
     });
 
     test('never splits inside an over-long sentence', () {
@@ -34,10 +39,10 @@ void main() {
     });
 
     test('splits Hindi at the danda', () {
-      expect(
-        splitIntoSegments('यह पहला है। यह दूसरा है।', 12),
-        ['यह पहला है।', 'यह दूसरा है।'],
-      );
+      expect(splitIntoSegments('यह पहला है। यह दूसरा है।', 12), [
+        'यह पहला है।',
+        'यह दूसरा है।',
+      ]);
     });
   });
 
