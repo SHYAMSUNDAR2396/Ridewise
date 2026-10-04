@@ -211,6 +211,17 @@ void main() {
     },
   );
 
+  test('gives each section all the text written so far', () async {
+    final h = Harness();
+    await h.run().drain<void>();
+
+    expect(h.script.calls[1].previousText, sentence(100));
+    expect(
+      h.script.calls[2].previousText,
+      '${sentence(100)} ${sentence(100)}',
+    );
+  });
+
   test(
     're-measures the pace and gives later sections fewer words when speech is slow',
     () async {

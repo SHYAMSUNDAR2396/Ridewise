@@ -103,6 +103,7 @@ Stream<CapsuleUpdate> createCapsuleOnDevice(
 
   final segments = <AudioSegment>[];
   final spokenTexts = <String>[];
+  final writtenSections = <String>[];
   var audioSeconds = 0.0;
   var wordsSpoken = 0;
   var estimatedTotal = 0;
@@ -153,13 +154,15 @@ Stream<CapsuleUpdate> createCapsuleOnDevice(
     }
 
     // Start writing the next section now, while this one is spoken. Its budget assumes this
-    // section will take its words at the pace measured so far.
+    // section will take its words at the pace measured so far. It sees everything written so
+    // far, so it can avoid repeating earlier sections.
+    writtenSections.add(text);
     if (i + 1 < total) {
       final estimatedAudio = _wordCount(text) * secondsPerWord;
       final next = writeSection(
         i + 1,
         wordsFor(targetSeconds - audioSeconds - estimatedAudio, total - i - 1),
-        text,
+        writtenSections.join(' '),
       );
       // An unobserved failure here must not crash the app; it is surfaced where it is awaited.
       unawaited(next.then<void>((_) {}, onError: (Object _) {}));
