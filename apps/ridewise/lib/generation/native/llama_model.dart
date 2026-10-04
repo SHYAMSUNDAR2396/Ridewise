@@ -26,12 +26,27 @@ class LlamaTextModel implements TextModel {
   }
 
   @override
-  Future<String> complete(String prompt, {required int maxTokens}) async {
+  Future<String> complete(
+    String prompt, {
+    required int maxTokens,
+    String? system,
+  }) async {
     final engine = await (_loading ??= _load());
     final out = StringBuffer();
-    await for (final chunk in engine.create([
-      LlamaChatMessage.fromText(role: LlamaChatRole.user, text: prompt),
-    ], params: GenerationParams(maxTokens: maxTokens, temp: 0.7))) {
+    await for (final chunk in engine.create(
+      [
+        if (system != null)
+          LlamaChatMessage.fromText(role: LlamaChatRole.system, text: system),
+        LlamaChatMessage.fromText(role: LlamaChatRole.user, text: prompt),
+      ],
+      params: GenerationParams(
+        maxTokens: maxTokens,
+        temp: 0.6,
+        topP: 0.9,
+        minP: 0.05,
+        penalty: 1.1,
+      ),
+    )) {
       final text = chunk.choices.first.delta.content;
       if (text != null) out.write(text);
     }

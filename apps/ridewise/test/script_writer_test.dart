@@ -10,7 +10,11 @@ class FakeModel implements TextModel {
   final maxTokens = <int>[];
 
   @override
-  Future<String> complete(String prompt, {required int maxTokens}) async {
+  Future<String> complete(
+    String prompt, {
+    required int maxTokens,
+    String? system,
+  }) async {
     prompts.add(prompt);
     this.maxTokens.add(maxTokens);
     if (replies.isEmpty) throw Exception('no more replies');

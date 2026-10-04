@@ -1,8 +1,13 @@
 import '../domain/models.dart';
 
 /// A local language model. Implemented over llamadart on device and by fakes in tests.
+/// [system] is an optional fixed instruction (the host persona) sent before the prompt.
 abstract interface class TextModel {
-  Future<String> complete(String prompt, {required int maxTokens});
+  Future<String> complete(
+    String prompt, {
+    required int maxTokens,
+    String? system,
+  });
 }
 
 /// A local speech engine that writes one WAV file per call.
@@ -29,11 +34,27 @@ class ScriptRequest {
   final int targetWords;
 }
 
-/// The plan for a talk: a title and one short heading per section, in order.
+/// The plan for a talk: a title, an opening hook, one heading per section with its key
+/// points, and the one thing the listener should remember.
 class ScriptOutline {
-  const ScriptOutline({required this.title, required this.headings});
+  const ScriptOutline({
+    required this.title,
+    required this.headings,
+    this.hook = '',
+    this.takeaway = '',
+    this.points = const [],
+  });
   final String title;
   final List<String> headings;
+
+  /// One surprising fact or question to open the talk with. Empty when the model gave none.
+  final String hook;
+
+  /// One sentence the listener should remember. Empty when the model gave none.
+  final String takeaway;
+
+  /// Key points per section, parallel to [headings]. May be shorter than [headings].
+  final List<List<String>> points;
 }
 
 /// Writes a talk one section at a time so the first part can be spoken and played
