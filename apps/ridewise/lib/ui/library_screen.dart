@@ -5,6 +5,7 @@ import '../theme.dart';
 import 'format.dart';
 import 'navigation.dart';
 import 'widgets/artwork.dart';
+import 'widgets/generating_tag.dart';
 import 'widgets/empty_state.dart';
 import 'widgets/pill_chip.dart';
 
@@ -125,6 +126,7 @@ class _Row extends StatelessWidget {
                                   color: AppColors.textMuted,
                                 ),
                               ),
+                              GeneratingTag(capsuleId: c.id),
                               if (ratio > 0 && ratio < 1)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),

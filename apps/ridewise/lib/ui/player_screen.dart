@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/capsule_store.dart';
+import '../data/generation_controller.dart';
+import '../generation/types.dart';
 import '../data/now_playing.dart';
 import '../domain/models.dart';
 import '../playback/capsule_player.dart';
@@ -31,8 +33,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   void _start() {
     if (!mounted) return;
-    final capsule = widget.capsule;
-    final store = context.read<CapsuleStore>()..upsert(capsule);
+    final store = context.read<CapsuleStore>();
+    // The store holds the latest version of a capsule that is still growing; only add the one passed in when it is new.
+    if (store.byId(widget.capsule.id) == null) store.upsert(widget.capsule);
+    final capsule = store.byId(widget.capsule.id)!.capsule;
     context.read<NowPlaying>().set(capsule.id);
 
     // Opening the player from the mini player must not restart a capsule that is already loaded.
@@ -84,9 +88,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
               Flexible(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.only(bottom: 24),
-                  child: Text(
-                    widget.capsule.transcript,
-                    style: const TextStyle(fontSize: 17, height: 1.65),
+                  child: Builder(
+                    builder: (context) => Text(
+                      (context
+                                  .watch<CapsuleStore>()
+                                  .byId(widget.capsule.id)
+                                  ?.capsule ??
+                              widget.capsule)
+                          .transcript,
+                      style: const TextStyle(fontSize: 17, height: 1.65),
+                    ),
                   ),
                 ),
               ),
@@ -99,7 +110,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final capsule = widget.capsule;
+    final capsule =
+        context.watch<CapsuleStore>().byId(widget.capsule.id)?.capsule ??
+        widget.capsule;
+    final gen = context.watch<GenerationController>();
     final playback = context.watch<CapsulePlayback>();
     final saved =
         context.watch<CapsuleStore>().byId(capsule.id)?.saved ?? false;
@@ -189,11 +203,28 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           color: AppColors.onPlayerMuted,
                         ),
                       ),
+                      if (!capsule.complete)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              _statusText(playback, gen),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.onPlayerMuted,
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 12),
+              if (gen.notice != null && gen.activeCapsuleId == capsule.id)
+                _NoticeBanner(text: gen.notice!, onDismiss: gen.dismissNotice),
               if (playback.hasError)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -211,6 +242,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   playback: playback,
                   position: position,
                   duration: duration,
+                  growing: !capsule.complete,
                   onDrag: (v) => setState(() => _dragSeconds = v),
                   onDragEnd: (v) async {
                     await playback.seekTo(v);
@@ -247,11 +279,62 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 }
 
+String _statusText(CapsulePlayback playback, GenerationController gen) {
+  if (playback.waitingForMore) return 'Waiting for the next part...';
+  final p = gen.progress;
+  return switch (p?.phase) {
+    GenerationPhase.voice => 'Recording part ${p!.done + 1} of ${p.total}...',
+    _ => 'Writing the next part...',
+  };
+}
+
+class _NoticeBanner extends StatelessWidget {
+  const _NoticeBanner({required this.text, required this.onDismiss});
+  final String text;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x24FFFFFF),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onPlayer,
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Dismiss',
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              color: AppColors.onPlayer,
+              onPressed: onDismiss,
+              icon: const Icon(Icons.close_rounded, size: 18),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 class _Transport extends StatelessWidget {
   const _Transport({
     required this.playback,
     required this.position,
     required this.duration,
+    required this.growing,
     required this.onDrag,
     required this.onDragEnd,
   });
@@ -259,6 +342,9 @@ class _Transport extends StatelessWidget {
   final CapsulePlayback playback;
   final double position;
   final double duration;
+
+  /// More parts are still coming, so the total is only what has been made so far.
+  final bool growing;
   final ValueChanged<double> onDrag;
   final ValueChanged<double> onDragEnd;
 
@@ -299,7 +385,7 @@ class _Transport extends StatelessWidget {
                 ),
               ),
               Text(
-                '-${formatClock(duration - position)}',
+                '-${formatClock(duration - position)}${growing ? '+' : ''}',
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

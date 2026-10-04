@@ -24,17 +24,32 @@ class ScriptRequest {
   final String topic;
   final ListeningStyle style;
   final CapsuleLanguage language;
+
+  /// Words for the whole talk. Used to decide how many sections to plan.
   final int targetWords;
 }
 
-class Script {
-  const Script({required this.title, required this.transcript});
+/// The plan for a talk: a title and one short heading per section, in order.
+class ScriptOutline {
+  const ScriptOutline({required this.title, required this.headings});
   final String title;
-  final String transcript;
+  final List<String> headings;
 }
 
+/// Writes a talk one section at a time so the first part can be spoken and played
+/// while later parts are still being written.
 abstract interface class ScriptWriter {
-  Future<Script> write(ScriptRequest request);
+  Future<ScriptOutline> outline(ScriptRequest request);
+
+  /// Writes the spoken text for section [index] of [outline], about [words] words long.
+  /// [previousText] is the text of the section before it ('' for the first).
+  Future<String> writeSection({
+    required ScriptRequest request,
+    required ScriptOutline outline,
+    required int index,
+    required int words,
+    required String previousText,
+  });
 }
 
 enum GenerationPhase { models, script, voice }
@@ -46,12 +61,29 @@ class GenerationProgress {
   final int total;
 }
 
-typedef ProgressCallback = void Function(GenerationProgress progress);
+/// One step of a capsule being made. A stream of these drives the UI.
+///
+/// While preparing (models, outline) only [progress] is set. After each spoken piece
+/// [capsule] holds everything so far (it grows; [Capsule.complete] is false). The last
+/// update has [complete] true. [notice] explains a partial result, for example when
+/// something failed after playable parts already existed.
+class CapsuleUpdate {
+  const CapsuleUpdate({
+    this.capsule,
+    this.progress,
+    this.complete = false,
+    this.notice,
+  });
 
-/// Makes a capsule entirely on this phone. The Flutter UI depends on this
-/// signature; `native/runtime.dart` provides the real implementation.
+  final Capsule? capsule;
+  final GenerationProgress? progress;
+  final bool complete;
+  final String? notice;
+}
+
+/// Makes a capsule entirely on this phone, part by part. Errors before the first
+/// playable part are thrown on the stream as [GenerationException]; after that, a
+/// failure ends the stream with a complete update carrying a [CapsuleUpdate.notice].
+/// Cancelling the subscription stops the work and frees native resources.
 typedef GenerateCapsule =
-    Future<Capsule> Function(
-      CreateCapsuleRequest request,
-      ProgressCallback onProgress,
-    );
+    Stream<CapsuleUpdate> Function(CreateCapsuleRequest request);

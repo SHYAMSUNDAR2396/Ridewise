@@ -53,9 +53,9 @@ void main() {
   testWidgets('a typed topic replaces a chosen chip', (tester) async {
     final requests = <CreateCapsuleRequest>[];
     final env = TestEnv(
-      generate: (r, _) async {
+      generate: (r) {
         requests.add(r);
-        return makeCapsule();
+        return finishedStream();
       },
     );
     await pumpTopic(tester, env);
@@ -75,9 +75,9 @@ void main() {
   testWidgets('opens the player with the capsule on success', (tester) async {
     final requests = <CreateCapsuleRequest>[];
     final env = TestEnv(
-      generate: (r, _) async {
+      generate: (r) {
         requests.add(r);
-        return makeCapsule();
+        return finishedStream();
       },
     );
     await pumpTopic(tester, env);
@@ -97,9 +97,9 @@ void main() {
   testWidgets('passes the chosen style and language', (tester) async {
     final requests = <CreateCapsuleRequest>[];
     final env = TestEnv(
-      generate: (r, _) async {
+      generate: (r) {
         requests.add(r);
-        return makeCapsule();
+        return finishedStream();
       },
     );
     await pumpTopic(tester, env);
@@ -123,16 +123,18 @@ void main() {
     final requests = <CreateCapsuleRequest>[];
     var failNext = true;
     final env = TestEnv(
-      generate: (r, _) async {
+      generate: (r) {
         requests.add(r);
         if (failNext) {
           failNext = false;
-          throw GenerationException(
-            CapsuleErrorCode.speechSynthesisFailed,
-            "We couldn't record your capsule's audio. Please try again.",
+          return Stream.error(
+            GenerationException(
+              CapsuleErrorCode.speechSynthesisFailed,
+              "We couldn't record your capsule's audio. Please try again.",
+            ),
           );
         }
-        return makeCapsule();
+        return finishedStream();
       },
     );
     await pumpTopic(tester, env);
@@ -164,17 +166,12 @@ void main() {
     expect(find.byType(PlayerScreen), findsOneWidget);
   });
 
-  testWidgets('shows what the phone is doing while it generates', (
+  testWidgets('shows what the phone is doing until the first part is ready', (
     tester,
   ) async {
-    late ProgressCallback report;
-    final done = Completer<Capsule>();
-    final env = TestEnv(
-      generate: (_, onProgress) {
-        report = onProgress;
-        return done.future;
-      },
-    );
+    final feed = StreamController<CapsuleUpdate>();
+    addTearDown(feed.close);
+    final env = TestEnv(generate: (_) => feed.stream);
     await pumpTopic(tester, env);
 
     await tester.tap(find.text('Careers'));
@@ -183,7 +180,11 @@ void main() {
     await tester.pump();
     expect(find.text('Preparing your capsule...'), findsOneWidget);
 
-    report(const GenerationProgress(GenerationPhase.models, 42, 100));
+    feed.add(
+      const CapsuleUpdate(
+        progress: GenerationProgress(GenerationPhase.models, 42, 100),
+      ),
+    );
     await tester.pump();
     expect(find.text('Getting ready, 42%'), findsOneWidget);
     expect(
@@ -193,16 +194,85 @@ void main() {
       findsOneWidget,
     );
 
-    report(const GenerationProgress(GenerationPhase.script, 0, 1));
+    feed.add(
+      const CapsuleUpdate(
+        progress: GenerationProgress(GenerationPhase.script, 0, 1),
+      ),
+    );
     await tester.pump();
     expect(find.text('Writing your script...'), findsOneWidget);
 
-    report(const GenerationProgress(GenerationPhase.voice, 2, 9));
+    feed.add(
+      const CapsuleUpdate(
+        progress: GenerationProgress(GenerationPhase.voice, 2, 9),
+      ),
+    );
     await tester.pump();
     expect(find.text('Recording part 3 of 9...'), findsOneWidget);
+    expect(find.byType(PlayerScreen), findsNothing);
+  });
 
-    done.complete(makeCapsule());
-    await tester.pumpAndSettle();
-    expect(find.byType(PlayerScreen), findsOneWidget);
+  testWidgets(
+    'opens the player after the FIRST part while the rest keeps generating',
+    (tester) async {
+      final feed = StreamController<CapsuleUpdate>();
+      addTearDown(feed.close);
+      final env = TestEnv(generate: (_) => feed.stream);
+      await pumpTopic(tester, env);
+
+      await tester.tap(find.text('Careers'));
+      await tester.pump();
+      await tester.tap(find.text('Generate my capsule'));
+      await tester.pump();
+
+      feed.add(
+        CapsuleUpdate(
+          capsule: makeCapsule(parts: [30], complete: false),
+          progress: const GenerationProgress(GenerationPhase.voice, 0, 4),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byType(PlayerScreen), findsOneWidget);
+      expect(env.generation.isGenerating, isTrue);
+      expect(env.store.byId('cap-1')!.capsule.segments, hasLength(1));
+
+      feed.add(
+        CapsuleUpdate(capsule: makeCapsule(parts: [30, 28], complete: false)),
+      );
+      await tester.pump();
+      expect(env.store.byId('cap-1')!.capsule.segments, hasLength(2));
+
+      feed.add(
+        CapsuleUpdate(
+          capsule: makeCapsule(parts: [30, 28], complete: true),
+          complete: true,
+        ),
+      );
+      await tester.pump();
+      expect(env.generation.isGenerating, isFalse);
+    },
+  );
+
+  testWidgets('disables Generate while another capsule is being made', (
+    tester,
+  ) async {
+    final feed = StreamController<CapsuleUpdate>();
+    addTearDown(feed.close);
+    final env = TestEnv(generate: (_) => feed.stream);
+    await pumpTopic(tester, env);
+    env.generation.start(
+      CreateCapsuleRequest(
+        trip: env.trips.draft,
+        topic: 'Other',
+        style: ListeningStyle.quickOverview,
+        language: CapsuleLanguage.enIN,
+      ),
+    );
+    await tester.tap(find.text('Careers'));
+    await tester.pump();
+
+    expect(generateAction(tester), isNull);
   });
 }

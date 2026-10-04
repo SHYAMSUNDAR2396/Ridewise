@@ -8,6 +8,7 @@ import 'format.dart';
 import 'navigation.dart';
 import 'shell.dart';
 import 'widgets/artwork.dart';
+import 'widgets/generating_tag.dart';
 import 'widgets/empty_state.dart';
 
 /// Listen Now: the next ride, what was made recently, and what is still in progress.
@@ -81,6 +82,7 @@ class HomeScreen extends StatelessWidget {
                                 color: AppColors.textMuted,
                               ),
                             ),
+                            GeneratingTag(capsuleId: c.id),
                           ],
                         ),
                       ),
@@ -126,6 +128,7 @@ class HomeScreen extends StatelessWidget {
                                   color: AppColors.textMuted,
                                 ),
                               ),
+                              GeneratingTag(capsuleId: s.id),
                             ],
                           ),
                         ),

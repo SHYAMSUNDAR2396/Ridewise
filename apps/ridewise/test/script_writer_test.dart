@@ -124,75 +124,160 @@ void main() {
     );
   });
 
-  group('createScriptWriter', () {
+  group('sectionCountFor', () {
     test(
-      'writes an outline, then one section at a time, carrying the last sentence forward',
+      'is at least one and uses 300 words per English section, 250 per Hindi',
+      () {
+        expect(sectionCountFor(10, CapsuleLanguage.enIN), 1);
+        expect(sectionCountFor(600, CapsuleLanguage.enIN), 2);
+        expect(sectionCountFor(2700, CapsuleLanguage.enIN), 9);
+        expect(sectionCountFor(500, CapsuleLanguage.hiIN), 2);
+        expect(sectionCountFor(2340, CapsuleLanguage.hiIN), 9);
+      },
+    );
+  });
+
+  group('outline', () {
+    test(
+      'asks for the planned number of headings and returns the title and headings',
       () async {
-        final model = FakeModel([
-          'Money Basics\nWhat money is\nSaving early',
-          'Money is a tool. It stores value.',
-          'Start saving early. Small amounts grow.',
-        ]);
-
-        final script = await createScriptWriter(
+        final model = FakeModel(['Money Basics\nWhat money is\nSaving early']);
+        final outline = await createScriptWriter(
           model,
-        ).write(request(words: 600));
+        ).outline(request(words: 600));
 
-        expect(script.title, 'Money Basics');
-        expect(
-          script.transcript,
-          'Money is a tool. It stores value. Start saving early. Small amounts grow.',
-        );
-        expect(model.prompts, hasLength(3));
-        expect(model.prompts[0], contains('exactly 2 lines'));
-        expect(model.prompts[1], contains('This is the opening'));
-        expect(model.prompts[2], contains('This is the final part'));
-        expect(
-          model.prompts[2],
-          contains('The previous part ended with: "It stores value."'),
-        );
-        expect(model.prompts[0], contains('clear Indian English'));
+        expect(outline.title, 'Money Basics');
+        expect(outline.headings, ['What money is', 'Saving early']);
+        expect(model.prompts, hasLength(1));
+        expect(model.prompts.single, contains('exactly 2 lines'));
+        expect(model.prompts.single, contains('clear Indian English'));
       },
     );
 
     test(
-      'asks for Devanagari Hindi and uses shorter sections for hi-IN',
+      'asks for Devanagari Hindi and plans shorter sections for hi-IN',
       () async {
-        final model = FakeModel([
-          'शीर्षक\nपहला\nदूसरा',
-          'यह पहला है।',
-          'यह दूसरा है।',
-        ]);
-
-        final script = await createScriptWriter(
+        final model = FakeModel(['शीर्षक\nपहला\nदूसरा']);
+        await createScriptWriter(
           model,
-        ).write(request(words: 500, language: CapsuleLanguage.hiIN));
+        ).outline(request(words: 500, language: CapsuleLanguage.hiIN));
 
-        expect(model.prompts[0], contains('exactly 2 lines')); // 500 / 250
-        for (final prompt in model.prompts) {
-          expect(prompt, contains('Devanagari'));
-          expect(prompt, isNot(contains('Indian English')));
-        }
-        expect(script.transcript, 'यह पहला है। यह दूसरा है।');
+        expect(model.prompts.single, contains('exactly 2 lines')); // 500 / 250
+        expect(model.prompts.single, contains('Devanagari'));
+        expect(model.prompts.single, isNot(contains('Indian English')));
       },
     );
 
     test(
       'fails with scriptGenerationFailed when the model errors or returns nothing',
       () async {
-        Future<Script> write(List<String> replies) =>
-            createScriptWriter(FakeModel(replies)).write(request());
+        await expectLater(
+          createScriptWriter(FakeModel([])).outline(request()),
+          failsWith(CapsuleErrorCode.scriptGenerationFailed),
+        );
+        await expectLater(
+          createScriptWriter(FakeModel(['  '])).outline(request()),
+          failsWith(CapsuleErrorCode.scriptGenerationFailed),
+        );
+      },
+    );
+  });
 
+  group('writeSection', () {
+    const outline = ScriptOutline(
+      title: 'Money Basics',
+      headings: ['What money is', 'Saving', 'Starting out'],
+    );
+
+    Future<String> write(
+      FakeModel model, {
+      int index = 0,
+      int words = 100,
+      String previous = '',
+      CapsuleLanguage language = CapsuleLanguage.enIN,
+    }) => createScriptWriter(model).writeSection(
+      request: request(language: language),
+      outline: outline,
+      index: index,
+      words: words,
+      previousText: previous,
+    );
+
+    test(
+      'writes the opening, a middle part and the closing with matching instructions',
+      () async {
+        final model = FakeModel([
+          'Money is a tool.',
+          'Save early.',
+          'Start today.',
+        ]);
+
+        expect(await write(model, index: 0), 'Money is a tool.');
+        expect(
+          await write(
+            model,
+            index: 1,
+            previous: 'Money is a tool. It stores value.',
+          ),
+          'Save early.',
+        );
+        expect(
+          await write(model, index: 2, previous: 'Save early.'),
+          'Start today.',
+        );
+
+        expect(model.prompts[0], contains('This is the opening'));
+        expect(model.prompts[0], contains('"What money is"'));
+        expect(model.prompts[0], isNot(contains('previous part ended')));
+        expect(model.prompts[1], contains('This is a middle part'));
+        expect(
+          model.prompts[1],
+          contains('The previous part ended with: "It stores value."'),
+        );
+        expect(model.prompts[2], contains('This is the final part'));
+      },
+    );
+
+    test('a one-section talk is the whole talk', () async {
+      final model = FakeModel(['All of it.']);
+      await createScriptWriter(model).writeSection(
+        request: request(),
+        outline: const ScriptOutline(title: 'T', headings: ['Only']),
+        index: 0,
+        words: 80,
+        previousText: '',
+      );
+      expect(model.prompts.single, contains('This is the whole talk'));
+    });
+
+    test(
+      'asks for about the requested words and leaves the model room for them',
+      () async {
+        final model = FakeModel(['Text.']);
+        await write(model, words: 200);
+
+        expect(model.prompts.single, contains('about 200 words'));
+        expect(model.maxTokens.single, 380); // 200 * 1.6 + 60
+      },
+    );
+
+    test('uses the Hindi rule for hi-IN and cleans the model reply', () async {
+      final model = FakeModel(['ज़रूर, यहाँ यह रहा:\n"नमस्ते दोस्तों।"']);
+      final text = await write(model, language: CapsuleLanguage.hiIN);
+
+      expect(model.prompts.single, contains('Devanagari'));
+      expect(text, 'नमस्ते दोस्तों।');
+    });
+
+    test(
+      'fails with scriptGenerationFailed when the model errors or the section is empty',
+      () async {
         await expectLater(
-          write([]),
+          write(FakeModel([])),
           failsWith(CapsuleErrorCode.scriptGenerationFailed),
         );
         await expectLater(
-          write(['Title\nOne', '[music]']),
-          failsWith(CapsuleErrorCode.scriptGenerationFailed),
-        );
-        await expectLater(
-          write(['  ']),
+          write(FakeModel(['[music]'])),
           failsWith(CapsuleErrorCode.scriptGenerationFailed),
         );
       },

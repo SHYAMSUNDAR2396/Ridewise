@@ -38,8 +38,16 @@ abstract class CapsulePlayback extends ChangeNotifier {
   /// True when the audio could not be loaded or played.
   bool get hasError;
 
+  /// True when playback ran out of audio while the capsule is still being generated. It resumes
+  /// by itself when the next part is appended.
+  bool get waitingForMore;
+
   /// Loads [capsule] paused at [startSeconds]. Reloads when it is already loaded (used by Retry).
   Future<void> load(Capsule capsule, {double startSeconds = 0});
+
+  /// Adds the segments of [grown] that are not loaded yet to the end of the timeline.
+  /// [grown] is the same capsule as the loaded one with more parts, or the same parts marked complete.
+  Future<void> append(Capsule grown);
   Future<void> play();
   Future<void> pause();
   Future<void> seekTo(double seconds);
@@ -64,8 +72,13 @@ class JustAudioCapsulePlayback extends CapsulePlayback {
       )
       ..add(
         _player.playerStateStream.listen((s) {
-          _playing =
-              s.playing && s.processingState != ProcessingState.completed;
+          final ended = s.processingState == ProcessingState.completed;
+          _playing = s.playing && !ended;
+          if (ended && !_waiting && !(_capsule?.complete ?? true)) {
+            // Out of audio but more is coming: stay paused here and resume on append.
+            _waiting = true;
+            unawaited(_player.pause());
+          }
           notifyListeners();
         }),
       )
@@ -85,8 +98,10 @@ class JustAudioCapsulePlayback extends CapsulePlayback {
   Capsule? _capsule;
   Duration _segmentPosition = Duration.zero;
   int _index = 0;
+  int _loadedCount = 0;
   bool _playing = false;
   bool _error = false;
+  bool _waiting = false;
 
   @override
   Capsule? get capsule => _capsule;
@@ -94,6 +109,8 @@ class JustAudioCapsulePlayback extends CapsulePlayback {
   bool get playing => _playing;
   @override
   bool get hasError => _error;
+  @override
+  bool get waitingForMore => _waiting;
   @override
   double get durationSeconds => _capsule?.audioSeconds ?? 0;
 
@@ -111,20 +128,12 @@ class JustAudioCapsulePlayback extends CapsulePlayback {
   Future<void> load(Capsule capsule, {double startSeconds = 0}) async {
     _capsule = capsule;
     _error = false;
+    _waiting = false;
+    _loadedCount = capsule.segments.length;
     final start = segmentAt(capsule.segments, startSeconds);
     try {
       await _player.setAudioSources(
-        [
-          for (final s in capsule.segments)
-            AudioSource.uri(
-              Uri.parse(s.url),
-              tag: MediaItem(
-                id: s.url,
-                title: capsule.title,
-                album: capsule.topic,
-              ),
-            ),
-        ],
+        [for (final s in capsule.segments) _source(capsule, s)],
         initialIndex: start.index,
         initialPosition: Duration(
           milliseconds: (start.offsetSeconds * 1000).round(),
@@ -132,6 +141,39 @@ class JustAudioCapsulePlayback extends CapsulePlayback {
       );
     } catch (_) {
       _error = true;
+    }
+    notifyListeners();
+  }
+
+  AudioSource _source(Capsule capsule, AudioSegment s) => AudioSource.uri(
+    Uri.parse(s.url),
+    tag: MediaItem(id: s.url, title: capsule.title, album: capsule.topic),
+  );
+
+  @override
+  Future<void> append(Capsule grown) async {
+    final current = _capsule;
+    if (current == null || current.id != grown.id) return;
+    // Set first so a second call while this one awaits sees the new state.
+    _capsule = grown;
+    final first = _loadedCount;
+    final fresh = grown.segments.skip(first).toList();
+    _loadedCount = first + fresh.length;
+    if (fresh.isNotEmpty) {
+      try {
+        await _player.addAudioSources([
+          for (final s in fresh) _source(grown, s),
+        ]);
+      } catch (_) {
+        _error = true;
+      }
+    }
+    if (_waiting && fresh.isNotEmpty) {
+      _waiting = false;
+      await _player.seek(Duration.zero, index: first);
+      unawaited(_player.play());
+    } else if (_waiting && grown.complete) {
+      _waiting = false; // Nothing more is coming: playback simply ends.
     }
     notifyListeners();
   }

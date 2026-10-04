@@ -277,19 +277,43 @@ class _NativeCheckState extends State<NativeCheck> {
           style: ListeningStyle.quickOverview,
           language: language,
         );
-        var phase = '';
-        final capsule = await generateCapsuleOnDevice(request, (progress) {
-          final label =
-              '${progress.phase.name} ${progress.done}/${progress.total}';
-          if (progress.phase != GenerationPhase.models && label != phase) {
-            phase = label;
-            _log('progress $label');
+        final clock = Stopwatch()..start();
+        var progressLabel = '';
+        Capsule? latest;
+        Duration? firstPart;
+        var updates = 0;
+        String? notice;
+        await for (final update in generateCapsuleOnDevice(request)) {
+          final progress = update.progress;
+          if (progress != null && progress.phase != GenerationPhase.models) {
+            final label =
+                '${progress.phase.name} ${progress.done}/${progress.total}';
+            if (label != progressLabel) {
+              progressLabel = label;
+              _log('progress $label (${clock.elapsed.inSeconds}s)');
+            }
           }
-        });
+          final capsule = update.capsule;
+          if (capsule != null) {
+            updates++;
+            latest = capsule;
+            if (firstPart == null && capsule.segments.isNotEmpty) {
+              firstPart = clock.elapsed;
+              _log(
+                'FIRST PART ready after ${firstPart.inSeconds}s '
+                '(${capsule.segments.first.durationSeconds.toStringAsFixed(1)}s of audio)',
+              );
+            }
+          }
+          notice = update.notice ?? notice;
+        }
+        final capsule = latest;
+        if (capsule == null) throw StateError('no capsule was produced');
         _log(
-          'capsule ${language.code}: ${capsule.segments.length} segments, '
+          'capsule ${language.code}: ${capsule.segments.length} parts in $updates updates, '
+          'first part after ${firstPart?.inSeconds}s, all done after ${clock.elapsed.inSeconds}s, '
           'audio ${capsule.audioSeconds.toStringAsFixed(1)}s of target ${capsule.targetSeconds}s, '
-          'title "${capsule.title}"',
+          'complete=${capsule.complete}, notice=$notice, title "${capsule.title}"',
         );
         final text = capsule.transcript;
         _log(

@@ -25,6 +25,14 @@ class StoredCapsule {
         saved: saved ?? this.saved,
       );
 
+  StoredCapsule _finished() => capsule.complete
+      ? this
+      : StoredCapsule(
+          capsule.copyWith(complete: true),
+          progressSeconds: progressSeconds,
+          saved: saved,
+        );
+
   Map<String, Object?> toJson() => {
     ...capsule.toJson(),
     'progressSeconds': progressSeconds,
@@ -102,7 +110,9 @@ class CapsuleStore extends ChangeNotifier {
           (jsonDecode(raw) as Map<String, Object?>)['capsules']
               as List<Object?>;
       _items = [
-        for (final j in list) StoredCapsule.fromJson(j as Map<String, Object?>),
+        for (final j in list)
+          // Generation cannot survive an app restart, so a half-made capsule is as complete as it will get.
+          StoredCapsule.fromJson(j as Map<String, Object?>)._finished(),
       ];
       notifyListeners();
     } catch (_) {
@@ -111,7 +121,8 @@ class CapsuleStore extends ChangeNotifier {
     }
   }
 
-  /// Adds a capsule at the top, keeping progress and saved state of an existing one.
+  /// Adds a capsule at the top, or replaces an existing one's audio and text (it grows part by part),
+  /// keeping its progress and saved state.
   void upsert(Capsule capsule) {
     final existing = byId(capsule.id);
     _items = [

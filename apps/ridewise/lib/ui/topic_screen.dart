@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../data/generation_controller.dart';
 import '../data/trip_store.dart';
 import '../domain/models.dart';
 import '../generation/types.dart';
@@ -46,7 +47,6 @@ class _TopicScreenState extends State<TopicScreen> {
   ListeningStyle _style = ListeningStyle.quickOverview;
   CapsuleLanguage _language = CapsuleLanguage.enIN;
   _Status _status = _Status.idle;
-  GenerationProgress? _progress;
   String? _errorMessage;
 
   @override
@@ -61,27 +61,23 @@ class _TopicScreenState extends State<TopicScreen> {
   bool _canGenerate(TripDraft draft) =>
       _topic.isNotEmpty &&
       (draft.tripSeconds ?? 0) > 0 &&
-      _status != _Status.loading;
+      _status != _Status.loading &&
+      !context.read<GenerationController>().isGenerating;
 
   Future<void> _generate() async {
     final draft = context.read<TripStore>().draft;
     if (!_canGenerate(draft)) return;
-    final generate = context.read<GenerateCapsule>();
-    setState(() {
-      _status = _Status.loading;
-      _progress = null;
-    });
+    final controller = context.read<GenerationController>();
+    setState(() => _status = _Status.loading);
     try {
-      final capsule = await generate(
+      // Completes with the first playable part; the rest keeps generating in the controller.
+      final capsule = await controller.start(
         CreateCapsuleRequest(
           trip: draft,
           topic: _topic,
           style: _style,
           language: _language,
         ),
-        (p) {
-          if (mounted) setState(() => _progress = p);
-        },
       );
       if (!mounted) return;
       setState(() => _status = _Status.idle);
@@ -100,6 +96,7 @@ class _TopicScreenState extends State<TopicScreen> {
   @override
   Widget build(BuildContext context) {
     final draft = context.watch<TripStore>().draft;
+    final progress = context.watch<GenerationController>().progress;
     final generating = _status == _Status.loading;
     return PopScope(
       canPop: !generating,
@@ -263,8 +260,7 @@ class _TopicScreenState extends State<TopicScreen> {
                 ),
               ],
             ),
-            if (_status == _Status.loading)
-              _LoadingOverlay(progress: _progress),
+            if (_status == _Status.loading) _LoadingOverlay(progress: progress),
           ],
         ),
       ),

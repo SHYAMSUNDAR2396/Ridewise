@@ -163,6 +163,7 @@ class Capsule {
     required this.transcript,
     required this.segments,
     required this.createdAt,
+    this.complete = true,
   });
 
   final String id;
@@ -175,6 +176,29 @@ class Capsule {
   final List<AudioSegment> segments;
   final DateTime createdAt;
 
+  /// False while the app is still generating later parts. A capsule grows part by part:
+  /// [segments], [audioSeconds] and [transcript] increase until [complete] is true.
+  final bool complete;
+
+  Capsule copyWith({
+    String? title,
+    double? audioSeconds,
+    String? transcript,
+    List<AudioSegment>? segments,
+    bool? complete,
+  }) => Capsule(
+    id: id,
+    title: title ?? this.title,
+    topic: topic,
+    language: language,
+    targetSeconds: targetSeconds,
+    audioSeconds: audioSeconds ?? this.audioSeconds,
+    transcript: transcript ?? this.transcript,
+    segments: segments ?? this.segments,
+    createdAt: createdAt,
+    complete: complete ?? this.complete,
+  );
+
   Map<String, Object?> toJson() => {
     'id': id,
     'title': title,
@@ -185,6 +209,7 @@ class Capsule {
     'transcript': transcript,
     'segments': [for (final s in segments) s.toJson()],
     'createdAt': createdAt.toIso8601String(),
+    'complete': complete,
   };
 
   factory Capsule.fromJson(Map<String, Object?> json) => Capsule(
@@ -200,6 +225,7 @@ class Capsule {
         AudioSegment.fromJson(s as Map<String, Object?>),
     ],
     createdAt: DateTime.parse(json['createdAt'] as String),
+    complete: json['complete'] as bool? ?? true,
   );
 }
 

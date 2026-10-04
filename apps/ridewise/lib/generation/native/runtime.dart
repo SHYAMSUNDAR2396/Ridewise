@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -9,24 +10,39 @@ import 'llama_model.dart';
 import 'model_files.dart';
 import 'sherpa_speech.dart';
 
-/// Makes a capsule entirely on this phone: Gemma writes the script, Kokoro speaks it.
-Future<Capsule> generateCapsuleOnDevice(
+/// Makes a capsule entirely on this phone, part by part: Gemma writes each section and
+/// Kokoro speaks it, so the first part is ready long before the last one is written.
+///
+/// Both models stay loaded for the whole run (the next section is being written while the
+/// current one is spoken) and are freed when the stream ends or its subscriber cancels.
+Stream<CapsuleUpdate> generateCapsuleOnDevice(
   CreateCapsuleRequest request,
-  ProgressCallback onProgress,
-) async {
-  final models = await ensureModels(
-    (percent) =>
-        onProgress(GenerationProgress(GenerationPhase.models, percent, 100)),
-  );
+) async* {
+  final percents = StreamController<int>();
+  final modelsReady = ensureModels(percents.add).whenComplete(percents.close);
+  // An early download failure must not be reported as unhandled before it is awaited below.
+  unawaited(modelsReady.then<void>((_) {}, onError: (Object _) {}));
+
+  var lastPercent = -1;
+  await for (final percent in percents.stream) {
+    if (percent == lastPercent) continue;
+    lastPercent = percent;
+    yield CapsuleUpdate(
+      progress: GenerationProgress(GenerationPhase.models, percent, 100),
+    );
+  }
+  final models = await modelsReady;
+
   final docs = await documentsPath();
-  final speech = SherpaSpeech(models.kokoroDir);
   String capsuleDir(String id) => '$docs/capsules/$id';
+  final speech = SherpaSpeech(models.kokoroDir);
+  final model = LlamaTextModel(models.gemmaPath);
 
   try {
-    return await createCapsuleOnDevice(
+    yield* createCapsuleOnDevice(
       request,
       PipelineDeps(
-        script: _GemmaScriptWriter(models.gemmaPath),
+        script: createScriptWriter(model),
         speech: _DirectoryCreatingSpeech(speech),
         segmentPath: (id, index) => '${capsuleDir(id)}/segment-$index.wav',
         newId: () =>
@@ -37,27 +53,15 @@ Future<Capsule> generateCapsuleOnDevice(
           final dir = Directory(capsuleDir(id));
           if (dir.existsSync()) await dir.delete(recursive: true);
         },
-        onProgress: onProgress,
+        deleteFile: (path) async {
+          final file = File(path);
+          if (file.existsSync()) await file.delete();
+        },
       ),
     );
   } finally {
+    await model.release();
     await speech.destroy();
-  }
-}
-
-/// Loads Gemma for one script, then frees its memory before the voice model starts working.
-class _GemmaScriptWriter implements ScriptWriter {
-  _GemmaScriptWriter(this.modelPath);
-  final String modelPath;
-
-  @override
-  Future<Script> write(ScriptRequest request) async {
-    final model = LlamaTextModel(modelPath);
-    try {
-      return await createScriptWriter(model).write(request);
-    } finally {
-      await model.release();
-    }
   }
 }
 

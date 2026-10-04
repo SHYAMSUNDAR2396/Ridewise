@@ -140,6 +140,10 @@ String _sectionPrompt({
   ].join('\n');
 }
 
+/// Sections planned for a talk of [targetWords] words (at least one).
+int sectionCountFor(int targetWords, CapsuleLanguage language) =>
+    (targetWords / _wordsPerSection(language)).round().clamp(1, 1 << 30);
+
 ScriptWriter createScriptWriter(TextModel model) =>
     _SectionedScriptWriter(model);
 
@@ -148,55 +152,52 @@ class _SectionedScriptWriter implements ScriptWriter {
   final TextModel _model;
 
   @override
-  Future<Script> write(ScriptRequest request) async {
-    final sectionCount =
-        (request.targetWords / _wordsPerSection(request.language))
-            .round()
-            .clamp(1, 1 << 30);
-
-    final ({String title, List<String> headings}) outline;
+  Future<ScriptOutline> outline(ScriptRequest request) async {
+    final sectionCount = sectionCountFor(request.targetWords, request.language);
     try {
-      outline = parseOutline(
+      final outline = parseOutline(
         await _model.complete(
           _outlinePrompt(request, sectionCount),
           maxTokens: _maxOutlineTokens,
         ),
         sectionCount,
       );
+      return ScriptOutline(title: outline.title, headings: outline.headings);
     } on GenerationException {
       rethrow;
     } catch (_) {
       throw _failed('The model could not plan the script.');
     }
+  }
 
-    final total = outline.headings.length;
-    final words = (request.targetWords / total).round();
-    final sections = <String>[];
-
-    for (final (index, heading) in outline.headings.indexed) {
-      final String text;
-      try {
-        text = cleanSection(
-          await _model.complete(
-            _sectionPrompt(
-              request: request,
-              title: outline.title,
-              heading: heading,
-              index: index,
-              total: total,
-              words: words,
-              previous: index == 0 ? '' : _lastSentence(sections[index - 1]),
-            ),
-            maxTokens: (words * _tokensPerWord).ceil() + 60,
+  @override
+  Future<String> writeSection({
+    required ScriptRequest request,
+    required ScriptOutline outline,
+    required int index,
+    required int words,
+    required String previousText,
+  }) async {
+    final String text;
+    try {
+      text = cleanSection(
+        await _model.complete(
+          _sectionPrompt(
+            request: request,
+            title: outline.title,
+            heading: outline.headings[index],
+            index: index,
+            total: outline.headings.length,
+            words: words,
+            previous: _lastSentence(previousText),
           ),
-        );
-      } catch (_) {
-        throw _failed('The model could not write a section.');
-      }
-      if (text.isEmpty) throw _failed('The model returned an empty section.');
-      sections.add(text);
+          maxTokens: (words * _tokensPerWord).ceil() + 60,
+        ),
+      );
+    } catch (_) {
+      throw _failed('The model could not write a section.');
     }
-
-    return Script(title: outline.title, transcript: sections.join(' '));
+    if (text.isEmpty) throw _failed('The model returned an empty section.');
+    return text;
   }
 }

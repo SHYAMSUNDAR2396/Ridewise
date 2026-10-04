@@ -7,6 +7,7 @@ import '../theme.dart';
 import 'format.dart';
 import 'navigation.dart';
 import 'widgets/artwork.dart';
+import 'widgets/generating_tag.dart';
 
 /// Shows the capsule being played, with play/pause. Hidden until one is playing.
 class MiniPlayer extends StatelessWidget {
@@ -63,12 +64,13 @@ class MiniPlayer extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${formatClock(left.toDouble())} left',
+                            '${formatClock(left.toDouble())}${capsule.complete ? '' : '+'} left',
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.textMuted,
                             ),
                           ),
+                          GeneratingTag(capsuleId: capsule.id),
                         ],
                       ),
                     ),
