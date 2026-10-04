@@ -91,6 +91,9 @@ String cleanSection(String raw) {
       .where((line) => !_labelLine.hasMatch(line))
       .join(' ')
       .replaceAll(RegExp(r'\s+'), ' ')
+      .trim()
+      // A model often wraps the whole talk in quotation marks.
+      .replaceAll(RegExp('^[“”"]+|[“”"]+\$'), '')
       .trim();
 }
 

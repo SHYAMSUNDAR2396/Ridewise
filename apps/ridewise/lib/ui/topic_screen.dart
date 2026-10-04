@@ -100,166 +100,173 @@ class _TopicScreenState extends State<TopicScreen> {
   @override
   Widget build(BuildContext context) {
     final draft = context.watch<TripStore>().draft;
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.bg,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                  children: [
-                    Text(
-                      'What should we cover?',
-                      style: displayStyle(38).copyWith(height: 1.1),
-                    ),
-                    const SizedBox(height: 18),
-                    if (_status == _Status.error) ...[
-                      const SizedBox(height: 0),
-                      RetryNotice(
-                        headline: 'Your capsule needs another moment.',
-                        message:
-                            _errorMessage ??
-                            'Something went wrong, and your selections are saved. Try again.',
-                        actionLabel: 'Retry',
-                        onRetry: _generate,
+    final generating = _status == _Status.loading;
+    return PopScope(
+      canPop: !generating,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: !generating,
+          backgroundColor: AppColors.bg,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                    children: [
+                      Text(
+                        'What should we cover?',
+                        style: displayStyle(38).copyWith(height: 1.1),
                       ),
-                    ],
-                    if (_status == _Status.error) const SizedBox(height: 18),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final s in _suggestions)
-                          PillChip(
-                            label: s,
-                            selected: _chip == s && _custom.text.trim().isEmpty,
-                            onPressed: () => setState(() {
-                              _chip = s;
-                              _custom.clear();
-                            }),
-                          ),
+                      const SizedBox(height: 18),
+                      if (_status == _Status.error) ...[
+                        const SizedBox(height: 0),
+                        RetryNotice(
+                          headline: 'Your capsule needs another moment.',
+                          message:
+                              _errorMessage ??
+                              'Something went wrong, and your selections are saved. Try again.',
+                          actionLabel: 'Retry',
+                          onRetry: _generate,
+                        ),
                       ],
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      key: const Key('custom-topic'),
-                      controller: _custom,
-                      onChanged: (text) => setState(() {
-                        if (text.trim().isNotEmpty) _chip = null;
-                      }),
-                      decoration: InputDecoration(
-                        hintText: 'Or type your own topic',
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFDCDEE4),
-                          ),
-                        ),
+                      if (_status == _Status.error) const SizedBox(height: 18),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final s in _suggestions)
+                            PillChip(
+                              label: s,
+                              selected:
+                                  _chip == s && _custom.text.trim().isEmpty,
+                              onPressed: () => setState(() {
+                                _chip = s;
+                                _custom.clear();
+                              }),
+                            ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 18),
-                    const _Label('LISTENING STYLE'),
-                    Row(
-                      children: [
-                        for (final s in ListeningStyle.values) ...[
-                          if (s != ListeningStyle.values.first)
-                            const SizedBox(width: 12),
-                          Expanded(
-                            child: _StyleCard(
-                              style: s,
-                              blurb: _styleBlurb[s]!,
-                              selected: _style == s,
-                              onTap: () => setState(() => _style = s),
+                      const SizedBox(height: 12),
+                      TextField(
+                        key: const Key('custom-topic'),
+                        controller: _custom,
+                        onChanged: (text) => setState(() {
+                          if (text.trim().isNotEmpty) _chip = null;
+                        }),
+                        decoration: InputDecoration(
+                          hintText: 'Or type your own topic',
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFDCDEE4),
                             ),
                           ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    const _Label('LANGUAGE'),
-                    Container(
-                      height: 52,
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
-                      child: Row(
+                      const SizedBox(height: 18),
+                      const _Label('LISTENING STYLE'),
+                      Row(
                         children: [
-                          for (final l in CapsuleLanguage.values)
+                          for (final s in ListeningStyle.values) ...[
+                            if (s != ListeningStyle.values.first)
+                              const SizedBox(width: 12),
                             Expanded(
-                              child: Semantics(
-                                button: true,
-                                selected: _language == l,
-                                label: l.label,
-                                excludeSemantics: true,
-                                onTap: () => setState(() => _language = l),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(12),
+                              child: _StyleCard(
+                                style: s,
+                                blurb: _styleBlurb[s]!,
+                                selected: _style == s,
+                                onTap: () => setState(() => _style = s),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      const _Label('LANGUAGE'),
+                      Container(
+                        height: 52,
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          children: [
+                            for (final l in CapsuleLanguage.values)
+                              Expanded(
+                                child: Semantics(
+                                  button: true,
+                                  selected: _language == l,
+                                  label: l.label,
+                                  excludeSemantics: true,
                                   onTap: () => setState(() => _language = l),
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: _language == l
-                                          ? Colors.white
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: _language == l
-                                          ? const [
-                                              BoxShadow(
-                                                color: Color(0x24000000),
-                                                blurRadius: 3,
-                                                offset: Offset(0, 1),
-                                              ),
-                                            ]
-                                          : null,
-                                    ),
-                                    child: Text(
-                                      l.label,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: _language == l
-                                            ? FontWeight.w800
-                                            : FontWeight.w700,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: () => setState(() => _language = l),
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
                                         color: _language == l
-                                            ? AppColors.text
-                                            : AppColors.textMuted,
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: _language == l
+                                            ? const [
+                                                BoxShadow(
+                                                  color: Color(0x24000000),
+                                                  blurRadius: 3,
+                                                  offset: Offset(0, 1),
+                                                ),
+                                              ]
+                                            : null,
+                                      ),
+                                      child: Text(
+                                        l.label,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: _language == l
+                                              ? FontWeight.w800
+                                              : FontWeight.w700,
+                                          color: _language == l
+                                              ? AppColors.text
+                                              : AppColors.textMuted,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                  child: PrimaryButton(
-                    label: 'Generate my capsule',
-                    onPressed: _canGenerate(draft) ? _generate : null,
+                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
-          if (_status == _Status.loading) _LoadingOverlay(progress: _progress),
-        ],
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                    child: PrimaryButton(
+                      label: 'Generate my capsule',
+                      onPressed: _canGenerate(draft) ? _generate : null,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_status == _Status.loading)
+              _LoadingOverlay(progress: _progress),
+          ],
+        ),
       ),
     );
   }

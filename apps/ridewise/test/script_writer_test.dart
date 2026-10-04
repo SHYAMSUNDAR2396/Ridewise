@@ -96,6 +96,17 @@ void main() {
       );
     });
 
+    test('removes quotation marks wrapped around the whole section', () {
+      expect(
+        cleanSection('“Namaste everyone. Welcome back.”'),
+        'Namaste everyone. Welcome back.',
+      );
+      expect(
+        cleanSection('He said "save early" and left.'),
+        'He said "save early" and left.',
+      );
+    });
+
     test(
       'drops a closing offer but keeps ordinary sentences ending in a colon',
       () {
