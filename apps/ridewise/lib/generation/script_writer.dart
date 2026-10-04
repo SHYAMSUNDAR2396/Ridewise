@@ -55,20 +55,44 @@ final _labelLine = RegExp(
   caseSensitive: false,
 );
 
-/// Removes markdown, bracketed stage directions and leftover labels so the voice never reads them aloud.
-String cleanSection(String raw) => raw
-    .replaceAll(RegExp(r'\[[^\]]*\]|\([^)]*\)'), ' ')
-    .split('\n')
-    .map(
-      (line) => line
-          .replaceFirst(RegExp(r'^[\s>*#\-•]+'), '')
-          .replaceAll(RegExp(r'[*_`]'), '')
-          .trim(),
-    )
-    .where((line) => line.isNotEmpty && !_labelLine.hasMatch(line))
-    .join(' ')
-    .replaceAll(RegExp(r'\s+'), ' ')
-    .trim();
+// A 1B model often wraps its answer in chat filler ("Okay, here's the part:" ... "Let me know if...").
+// Spoken aloud it ruins the capsule, so the first and last lines are checked for it.
+final _chatPreamble = RegExp(
+  r"^(okay|ok|sure|certainly|alright|absolutely|of course|here|great|ज़रूर|जरूर|ठीक है|बिल्कुल|यहाँ|यह रहा).*[:：]$",
+  caseSensitive: false,
+);
+final _chatClosing = RegExp(
+  r"^(let me know|would you like|i hope|hope this|feel free|मुझे बताएं|मुझे बताइए|क्या आप)",
+  caseSensitive: false,
+);
+
+/// Removes markdown, bracketed stage directions, chat filler and leftover labels so the voice never reads them aloud.
+String cleanSection(String raw) {
+  final lines = raw
+      .replaceAll(RegExp(r'\[[^\]]*\]|\([^)]*\)'), ' ')
+      .split('\n')
+      .map(
+        (line) => line
+            .replaceFirst(RegExp(r'^[\s>*#\-•]+'), '')
+            .replaceAll(RegExp(r'[*_`]'), '')
+            .trim(),
+      )
+      .where((line) => line.isNotEmpty)
+      .toList();
+
+  if (lines.isNotEmpty && _chatPreamble.hasMatch(lines.first)) {
+    lines.removeAt(0);
+  }
+  if (lines.isNotEmpty && _chatClosing.hasMatch(lines.last)) {
+    lines.removeLast();
+  }
+
+  return lines
+      .where((line) => !_labelLine.hasMatch(line))
+      .join(' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+}
 
 String _lastSentence(String text) {
   final sentences = text

@@ -74,6 +74,43 @@ void main() {
         'Welcome to the show everyone. Heading This is fine.',
       );
     });
+
+    test('drops the chat preamble a small model adds before the script', () {
+      expect(
+        cleanSection(
+          "Okay, here's a piece about 'Let's face it, managing your finances' in the style you requested:\n\nMoney is a tool. Use it well.",
+        ),
+        'Money is a tool. Use it well.',
+      );
+      expect(
+        cleanSection(
+          'Sure, here is the opening part of the audio talk:\nWelcome aboard.',
+        ),
+        'Welcome aboard.',
+      );
+      expect(
+        cleanSection(
+          'ज़रूर, यहाँ एक ऑडियो स्क्रिप्ट के लिए 80 शब्दों में सरल हिंदी में दिया गया है:\nनमस्ते दोस्तों।',
+        ),
+        'नमस्ते दोस्तों।',
+      );
+    });
+
+    test(
+      'drops a closing offer but keeps ordinary sentences ending in a colon',
+      () {
+        expect(
+          cleanSection(
+            'Save a little every month.\nLet me know if you would like a longer version!',
+          ),
+          'Save a little every month.',
+        );
+        expect(
+          cleanSection('Here is why it matters: small habits compound.'),
+          'Here is why it matters: small habits compound.',
+        );
+      },
+    );
   });
 
   group('createScriptWriter', () {
