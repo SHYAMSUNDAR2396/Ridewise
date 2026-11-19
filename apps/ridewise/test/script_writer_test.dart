@@ -181,6 +181,18 @@ TAKEAWAY: Know where your money goes before you decide where it should go.''';
       ]);
     });
 
+    test('recovers a heading and points from a semicolon list with no bar', () {
+      final o = parseOutline(
+        'TITLE: T\n1. Start small; begin with basic budgeting; we will build from there\n2. Track spending; use a notebook',
+        5,
+      );
+      expect(o.headings, ['Start small', 'Track spending']);
+      expect(o.points, [
+        ['begin with basic budgeting', 'we will build from there'],
+        ['use a notebook'],
+      ]);
+    });
+
     test('falls back to the plain format when there are no labels', () {
       final o = parseOutline('A Title\nFirst part\nSecond part', 5);
       expect(o.title, 'A Title');
@@ -358,6 +370,27 @@ TAKEAWAY: Know where your money goes before you decide where it should go.''';
       },
     );
 
+    test(
+      'keeps each part to itself and does not leak formatting rules',
+      () async {
+        final model = FakeModel([
+          'Where did last month go? Good question, and we will find out together on this ride today.',
+        ]);
+        await createScriptWriter(model).writeSection(
+          request: request(words: 900),
+          outline: plan(),
+          index: 0,
+          words: 20,
+          previousText: '',
+        );
+        final prompt = model.prompts.first;
+        expect(prompt, contains('Do not cover these later parts'));
+        expect(prompt, contains('Saving early'));
+        expect(prompt, isNot(contains('as words')));
+        expect(model.systems.first, contains('10 to 20 words'));
+      },
+    );
+
     test('final: recap on the takeaway and sign-off', () async {
       final model = FakeModel([
         'Start small and keep going every week of the year, because steady habits quietly beat big bursts of effort over time.',
@@ -426,6 +459,36 @@ TAKEAWAY: Know where your money goes before you decide where it should go.''';
   });
 
   group('outline v2', () {
+    test('replaces sentence-like headings with neutral ones', () async {
+      final model = FakeModel([
+        'TITLE: Money Matters\nHOOK: Ever wonder where it goes?\n1. Okay, let us be honest, do you ever think about how much you earn?\n2. It is easy to just spend without thinking, is it not?\n3. Think about what you are saving for - a new phone?',
+      ]);
+      final o = await createScriptWriter(model).outline(request(words: 900));
+      expect(o.headings, hasLength(3));
+      expect(o.headings.every((h) => h.split(' ').length <= 4), isTrue);
+      expect(o.headings.any((h) => h.contains('?')), isFalse);
+      expect(o.points, isEmpty);
+      expect(o.title, 'Money Matters');
+    });
+
+    test('keeps good short headings', () async {
+      final model = FakeModel([
+        'TITLE: T\nHOOK: H\n1. Know your income\n2. Track spending\n3. Build a safety net',
+      ]);
+      final o = await createScriptWriter(model).outline(request(words: 900));
+      expect(o.headings, [
+        'Know your income',
+        'Track spending',
+        'Build a safety net',
+      ]);
+    });
+
+    test('shows a worked example so a small model copies the format', () async {
+      final model = FakeModel(['TITLE: T\n1. A\n2. B\n3. C']);
+      await createScriptWriter(model).outline(request(words: 900));
+      expect(model.prompts.single, contains('Example'));
+    });
+
     test(
       'asks for the show plan format and includes the unsafe-topic rule',
       () async {
@@ -436,6 +499,8 @@ TAKEAWAY: Know where your money goes before you decide where it should go.''';
         expect(prompt, contains('HOOK:'));
         expect(prompt, contains('TAKEAWAY:'));
         expect(prompt, contains('unsafe'));
+        expect(prompt, contains('2 to 5 words'));
+        expect(prompt, contains('no statistics'));
         expect(o.hook, 'H');
       },
     );

@@ -216,10 +216,7 @@ void main() {
     await h.run().drain<void>();
 
     expect(h.script.calls[1].previousText, sentence(100));
-    expect(
-      h.script.calls[2].previousText,
-      '${sentence(100)} ${sentence(100)}',
-    );
+    expect(h.script.calls[2].previousText, '${sentence(100)} ${sentence(100)}');
   });
 
   test(

@@ -17,8 +17,8 @@ const _minWordsToJudgeRepeat = 4;
 /// The fixed voice of the show, sent as the system message for every section.
 const hostPersona =
     'You are the host of Ridewise, a short audio show for commuters in India. '
-    'You talk like a smart, friendly person explaining something on a ride: short sentences, '
-    'plain words, "you" and "we", contractions, one idea per sentence. '
+    'You talk like a smart, friendly person explaining something on a ride: '
+    'plain words, "you" and "we", contractions. Most sentences run 10 to 20 words, with an occasional short one for emphasis. '
     'You only write what is spoken aloud. Never write headings, lists, notes or comments about your answer.';
 
 int _wordsPerSection(CapsuleLanguage language) =>
@@ -136,21 +136,19 @@ parseOutline(String raw, int sectionCount) {
     } else {
       final n = _numberedLine.firstMatch(line);
       if (n != null && headings.length < sectionCount) {
-        final parts = n.group(1)!.split('|');
-        final heading = parts.first.trim();
-        if (heading.isEmpty) continue;
-        headings.add(heading);
-        points.add(
-          parts.length > 1
-              ? parts
-                    .skip(1)
-                    .join('|')
-                    .split(';')
-                    .map((p) => p.trim())
-                    .where((p) => p.isNotEmpty)
-                    .toList()
-              : <String>[],
-        );
+        final entry = n.group(1)!;
+        // The model often ignores the bar and writes "heading; point; point" or a whole sentence.
+        final List<String> pieces;
+        if (entry.contains('|')) {
+          final parts = entry.split('|');
+          pieces = [parts.first, ...parts.skip(1).join('|').split(';')];
+        } else {
+          pieces = entry.split(';');
+        }
+        final trimmed = pieces.map((p) => p.trim()).where((p) => p.isNotEmpty);
+        if (trimmed.isEmpty) continue;
+        headings.add(trimmed.first);
+        points.add(trimmed.skip(1).toList());
       } else if (title.isEmpty && n == null) {
         title = _cleanTitle(line);
       }
@@ -332,15 +330,46 @@ String ensureBranding(
   return out;
 }
 
+const _maxHeadingWords = 8;
+
+/// A heading is a few words. A small model sometimes writes a question or a whole sentence instead.
+bool _looksLikeSentence(String heading) =>
+    heading.endsWith('?') ||
+    heading.endsWith('।') ||
+    _wordCount(heading) > _maxHeadingWords ||
+    _outlinePreamble.hasMatch(heading);
+
+/// Plain headings used when the model's own headings are unusable. The first opens the talk and
+/// the last closes it.
+List<String> neutralHeadings(int count, CapsuleLanguage language) {
+  final hindi = language == CapsuleLanguage.hiIN;
+  if (count <= 1) return [hindi ? 'मुख्य बातें' : 'The main ideas'];
+  final middle = hindi
+      ? ['मुख्य बातें', 'व्यवहार में', 'आम गलतियाँ', 'थोड़ा गहराई में']
+      : ['Key ideas', 'In practice', 'Common mistakes', 'A closer look'];
+  return [
+    hindi ? 'बुनियादी बातें' : 'The basics',
+    for (var i = 0; i < count - 2; i++) middle[i % middle.length],
+    hindi ? 'सब कुछ साथ में' : 'Putting it together',
+  ];
+}
+
 String _outlinePrompt(ScriptRequest request, int sectionCount) => [
   'Plan a short spoken audio talk about: ${request.topic}.',
   'It should be ${_styleHint(request.style)}.',
   _languageRule(request.language),
   'Reply in exactly this format and nothing else:',
   'TITLE: a catchy title of at most 8 words',
-  'HOOK: one surprising fact or question to open the talk',
-  'then exactly $sectionCount lines numbered 1 to $sectionCount, each written as: a short heading | one or two key points separated by semicolons',
+  'HOOK: one curious question to open the talk (no statistics or numbers)',
+  'then exactly $sectionCount lines numbered 1 to $sectionCount, each only a short heading of 2 to 5 words',
   'TAKEAWAY: one sentence the listener should remember',
+  'Example of the format, for a different topic:',
+  'TITLE: How Trains Stay on Time',
+  'HOOK: Ever wondered how thousands of trains share the same tracks safely?',
+  '1. Signals and tracks',
+  '2. The control room',
+  '3. Why timetables matter',
+  'TAKEAWAY: Careful planning keeps a busy railway moving smoothly.',
   'If the topic is unsafe, hateful, sexual, or asks for personal medical, legal or financial advice, plan a short, polite talk that explains why you cannot cover it and covers a safe related topic instead.',
 ].join('\n');
 
@@ -371,7 +400,7 @@ String _sectionPrompt({
   final role = isOpening && isFinal
       ? 'This is the whole talk. Start with this hook: $hook. Then explain the key points, and finish with a two-sentence recap built on this takeaway: $takeaway. Do not say goodbye; a sign-off is added for you.'
       : isOpening
-      ? 'This is the opening of the talk. Start with this hook: $hook. Do not greet with "Namaste everyone". Then, in one sentence, say what you will cover: ${upcoming.join(', ')}. Then cover the points for this part.'
+      ? 'This is the opening of the talk. Start with this hook: $hook. Do not greet with "Namaste everyone". Then, in one sentence only, say what the talk will cover: ${upcoming.join(', ')}. Do not explain those yet. Then cover this part.'
       : isFinal
       ? 'This is the final part. Begin with one short sentence that connects from "${outline.headings[index - 1]}". Cover the points, then finish with a two-sentence recap built on this takeaway: $takeaway. Do not say goodbye; a sign-off is added for you.'
       : 'This is a middle part. Begin with one short sentence that connects from "${outline.headings[index - 1]}" to this part. Do not greet or say goodbye. End with one short sentence that leads into "${outline.headings[index + 1]}".';
@@ -380,14 +409,17 @@ String _sectionPrompt({
     'You are writing part ${index + 1} of $total of a spoken talk titled "${outline.title}" about ${request.topic}.',
     'Style: ${_styleHint(request.style)}. ${_languageRule(request.language)}',
     'This part is called "$heading". Write about $words words.',
-    if (points.isNotEmpty)
-      'Cover these points: ${points.join('; ')}. Give one concrete everyday example in an Indian setting for each, using words rather than symbols.',
+    points.isNotEmpty
+        ? 'Cover these points: ${points.join('; ')}. Give one concrete everyday example in an Indian setting for each.'
+        : 'Explain the main ideas under this heading in a natural order, with one concrete everyday example in an Indian setting.',
     role,
     if (covered.isNotEmpty)
       'Already covered, so do not repeat it: ${covered.join('; ')}.',
+    if (upcoming.isNotEmpty)
+      'Do not cover these later parts: ${upcoming.join('; ')}.',
     if (lastTwo.isNotEmpty) 'The talk so far ended with: "$lastTwo"',
     'Use well-known, general facts. Avoid exact statistics, dates or numbers unless you are sure; say "roughly" when unsure.',
-    'Write plain spoken sentences only. No headings, no lists, no markdown, no stage directions, no sound effects. Say "rupees" and "percent" as words.',
+    'Write plain spoken sentences only. No headings, no lists, no markdown, no stage directions, no sound effects.',
   ].join('\n');
 }
 
@@ -419,12 +451,17 @@ class _SectionedScriptWriter implements ScriptWriter {
           o.title.isEmpty ||
           _outlinePreamble.hasMatch(o.title) ||
           _wordCount(o.title) > 14;
+      // When most headings are sentences, the plan is unusable: use plain headings instead.
+      final unusable =
+          o.headings.where(_looksLikeSentence).length > o.headings.length / 2;
       return ScriptOutline(
         title: badTitle ? request.topic : o.title,
-        headings: o.headings,
+        headings: unusable
+            ? neutralHeadings(o.headings.length, request.language)
+            : o.headings,
         hook: o.hook,
         takeaway: o.takeaway,
-        points: o.points,
+        points: unusable ? const <List<String>>[] : o.points,
       );
     } on GenerationException {
       rethrow;
